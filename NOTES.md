@@ -1,7 +1,7 @@
 # NOTES.md
 
 ## Status
-Phase 2b-fix3 complete: Pix and every wandering creature (Gloop, Foxel, Mossling and both Bonemoss variants) are side-view sprites facing right, and all of them use the shared delta-time ground-motion system with distance-driven animation. Only a left-moving sprite canvas flips; shadows, bodies and labels never do.
+Phase 2b-fix4b complete: controlled Pix now moves in depth inside the ground lane. W walks him up/away, S walks him down/towards the viewer, A/D stay horizontal, the four diagonals move at the same speed as a straight line, and tap-to-walk reaches the tapped x and y. The eight-direction facing from 4a is unchanged, and wandering Pix still uses the side view. Gloop, Foxel, Mossling and both Bonemoss variants are untouched.
 
 ## Phase plan
 Original characters only, never Minecraft lookalikes.
@@ -15,7 +15,9 @@ Original characters only, never Minecraft lookalikes.
 - Phase 2b: done. Click/tap-to-control Pix with WASD/arrows, plus Mossling and Foxel.
 - Phase 2b-fix2: done. Reduced-motion note and "Play anyway", new 16x32 Pix, rebuilt Mossling, per-section ground strips and creature zones, Bonemoss in the Projects cave.
 - Phase 2b-fix3: done. Side-view Pix plus side-view Gloop, Foxel, Mossling and both Bonemoss variants on the shared motion system.
-- Phase 2b-2: Lunabun, Puffcloud, Glowmoth.
+- Phase 2b-fix4a: done. Eight-direction facing for Pix while the player controls him.
+- Phase 2b-fix4b: done. Vertical depth movement for controlled Pix, with diagonal speed normalization and 2D tap-to-walk.
+- Phase 2b-2: next. Lunabun, Puffcloud, Glowmoth.
 - Phase 2c: Emberwing dragon.
 - Phase 2d: cave mobs (Gemmite, Deepwatcher) in the Projects cave.
 - Phase 3: transitions, Press Start screen, theme toggle (Night/Cave/Day).
@@ -24,6 +26,27 @@ Original characters only, never Minecraft lookalikes.
 
 ## Design direction
 A distinctive 8-bit WORLD, not a webpage of boxes. Everything is one continuous scene and text sits directly on it. Original characters and art only, never Minecraft/Mojang lookalikes.
+
+## Built in Phase 2b-fix4b
+- **Depth movement:** controlled Pix now walks on both axes of the existing ground lane. W moves him up/away, S moves him down/towards the viewer, A/D stay horizontal and the four key pairs walk diagonally. y is still measured up from the strip's bottom, so the lane band (`laneMin`..`laneMax`, 44px desktop / 32px phone) is the only place he can stand.
+- **One shared key vector:** new `movementFromKeys(keys)` returns the held keys as `{ dx, dy }` with y positive away from the viewer. Both the continuous path and the reduced-motion nudge read it, so keyboard and touch cannot drift apart. Diagonals are multiplied by `Math.SQRT1_2`, which makes a diagonal cover the same distance per second as a straight line. A Node simulation over the real `groundMotion.js` measured 230.97px in two seconds for right, up, up-right and down-left.
+- **Facing unchanged:** `directionFromKeys` still drives the eight `CONTROL_POSES` from fix4a. A diagonal uses `angleBack`/`angleFront`, opposite keys on either axis still return `null` and keep the previous pose, stopping keeps the last pose, and release (Esc, outside press, 20 seconds idle) still returns him to side-view wandering.
+- **Tap-to-walk:** a ground tap near Pix now walks him to both the tapped x and the tapped y, clamped into the lane. Facing is still the nearest of the eight directions to the tap vector and stays put when he arrives; tapping elsewhere still releases control. The tap y is read from the same `ground` rect bottom that the lane is measured from, so no coordinate conversion changed.
+- **Reduced motion:** key presses still move one short step (12px phone / 16px desktop) on the idle frame, but the step now follows the same 2D vector, so a diagonal pair steps diagonally by the same total distance and up/down nudges use the real lane depth. Spaced tap steps already moved on both axes and are unchanged.
+- **Kept as-is:** walk frames still advance from distance travelled, the sprite still snaps to whole pixels, shadows and the shadow lift are untouched, `groundMotion.js` and `Sprite` were not modified, and pause, `aria-hidden`, lane clamping, "Play as Pix" and the 20-second release behave exactly as before.
+- `npm run lint` and `npm run build` pass.
+
+## Built in Phase 2b-fix4a
+- **New Pix views:** `pixelArt.js` now exports `PIX_VIEW_FRAMES` with the existing `side` set plus `front`, `back`, `angleFront` and `angleBack`. All are 16x32 text grids using the same Pix palette and layered part style. Only the right-facing 3/4 views are drawn; `Sprite` mirrors them with `scaleX(-1)` for the left versions. Every new frame is original hand-built text-grid art; no downloaded assets were used.
+- **Front view:** two eyes, red-orange headband, cream hoodie with ink-blue sleeves on both sides, both legs and amber boots. Green backpack straps show on the shoulders only. It is the only new view with an idle blink frame.
+- **Back view:** black hair covers the head, the headband shows with a short red tail, and the green backpack covers most of the torso with a small amber buckle. Both sleeves, hands, legs and boots stay visible.
+- **3/4 views:** head and torso are shifted about 45 degrees, the pack shows on one side, and the near-side arm and leg are drawn in front. `angleFront` shows both eyes and the face edge; `angleBack` shows hair with a small cheek sliver and the headband tail.
+- **Animation:** every new view has one idle frame and a four-frame walk cycle (neutral, left step, neutral, right step) with alternating arms, a one-pixel body dip and a lifted boot. `lift` values drive the existing shadow shrink. Walk frames are still advanced from distance travelled, not a timer.
+- **Control facing:** `PixHero.jsx` maps held keys to the eight directions. W = back, S = front, D = side right, A = side left, and the diagonals use the 3/4 views. Opposite keys on either axis cancel and keep the previous facing. Stopping keeps the last facing; releasing control (Esc, outside press or 20 seconds idle) returns to side-view wandering.
+- **Tap facing:** a ground tap picks the nearest of the eight directions from the full tap vector, then walks horizontally to the tapped x. W and S only changed facing at this stage, so there was no vertical player movement yet. (Superseded in 2b-fix4b: taps now walk to the tapped x and y.)
+- **Reduced motion:** the existing short key nudges and tap stepping are preserved. Facing still changes, but the walk animation stays on the idle frame.
+- **Frame-count safety:** the distance-driven walk reads the current view's frame count from a ref, so changing facing does not rebuild the control listeners.
+- `npm run build` and `npm run lint` pass.
 
 ## Built in Phase 2b-fix3 (part 2)
 - **Facing rule everywhere:** Gloop, Foxel, Mossling and both Bonemoss variants are redrawn in side view facing right. Moving left flips only the sprite canvas (`scaleX(-1)`); the shadow, body wrapper and any label stay outside the flip. Facing follows the actual x movement, so stopping keeps the last facing and vertical movement never turns a creature toward the viewer.
@@ -118,10 +141,19 @@ A distinctive 8-bit WORLD, not a webpage of boxes. Everything is one continuous 
 Phase 2b-2: Lunabun, Puffcloud and Glowmoth, using the same side-view/facing and ground-motion rules. Do not add the dragon or the cave mobs yet.
 
 ## Known issues
+- Phase 2b-fix4b has only been checked with a Node motion simulation over the real `groundMotion.js`, `npm run lint` and `npm run build`, not in a browser. The screenshot pass should watch a hold on W, S, W+D, W+A, S+D and S+A, then check that he stops cleanly on the back and front lane edges and that the 3/4 pose matches the diagonal.
+- Phase 2b-fix4a art has only been checked with Node art/width checks, `npm run build` and `npm run lint`, not in a browser. The screenshot pass should look at the new front/back/3-4 views at 4x and 3x, the mirrored left angles, the front blink, the back head/headband tail, and whether the front/back heads read as hair rather than a helmet.
+- The front and back views use one-pixel arm swing while the body dips; check the shoulder join on walk frames. The 3/4 views shift the torso sideways, so check that the pack sliver and near arm/leg read as one body at phone scale.
+- New walk cycles use the same eight-source-pixel stride as the old side view, but only four frames. Check for foot sliding or an over-fast cadence when controlled, especially on diagonals where the walk now advances from the combined x and y distance.
+- The depth band is only 44px on desktop and 32px on phones. Vertical travel is therefore short by design; check that his boots stay inside the grass at both edges and that the shadow still reads as sitting on the ground.
+- There is no depth scaling or perspective: moving up does not shrink Pix and the shadow does not shift. The head and hint can therefore end up above the grass at the back edge; check they still clear the dialogue box, portrait and signpost.
+- Tap-to-walk now moves on both axes; check that a tap very close to Pix does not jitter the facing or leave him short of the tap point.
+- The reduced-motion key nudge is now a 2D step of 12px (phone) or 16px (desktop) in total, including diagonals. Check that repeated presses do not stair-step out of the lane and that the idle frame stays still.
+- Control is still released by an outside pointer press. With depth movement, tapping the ground behind Pix now walks him away instead of releasing him; tapping the sky, text or any other element still releases.
 - Part 2 has only been checked with Node art/width checks and a production build, not in a browser. The first screenshot pass should look at the side-view readability of all four creatures, the flipped facing on left moves, the Gloop squash/stretch and shadow shrink, the Foxel outline at 4x, the Mossling/Bonemoss leg crossing, and 360px text clearance.
 - Walk and hop timing is now distance-driven. The tuning values are the `stride` props in `CreatureScene.jsx` (Gloop 6, Foxel 4, Mossling 5, Bonemoss 5 source pixels per full cycle) plus each creature's `speed`. Adjust those rather than frame rates if a foot slides.
 - The idle breathing bob moves the humanoid upper body down one pixel while the feet stay planted. Check that the tunic/cloth hem does not pinch at the waist in the screenshot.
-- `DESIGN.md` still describes the old 4-walk-frame Pix and the old front-view Gloop, Foxel, Mossling and Bonemoss; it has not been updated yet.
+- `DESIGN.md` still describes the old 4-walk-frame Pix and the old front-view Gloop, Foxel, Mossling and Bonemoss. It also does not list the new control-only front/back/3-4 Pix views; it has not been updated yet.
 - The Foxel silhouette is dense at 16x16 (tail, head and body all touch). If it reads as one blob at 4x, separate the tail by one more source pixel in `composeFox`.
 - Gloop's eye direction comes from the sprite flip, so it always looks the way the blob faces. Check that the pupil still reads at 3x on phones and that the hop lift (10px desktop, 6px phone) does not look like floating.
 - Creature grounds are now four stacked ledges. Check the About strip in the screenshot: its dirt bottom meets Contact's night sky, which is meant to read as a terrace but may need a rock lip if it looks like floating ground.
@@ -152,6 +184,8 @@ Phase 2b-2: Lunabun, Puffcloud and Glowmoth, using the same side-view/facing and
 - Boots are a separate layer from the pants, so the body can bob without lifting the planted foot.
 - Walk animation is a pure function of distance travelled. Speeds and frame rates can change without retuning the animation, and off-screen or paused creatures do not advance.
 - Facing flips only the sprite canvas. The hint and any future label stay outside the flipped element.
+- Only control changes Pix's view. The eight-direction helper returns `null` for opposite keys so the last pose survives, and the renderer reads the side pose again as soon as control is released. New 3/4 art is drawn facing right once and mirrored, which keeps the art file small.
+- Depth movement reads one normalized key vector shared by smooth control and the reduced-motion step. `Math.SQRT1_2` on both axes keeps a diagonal at straight-line speed, and tap-to-walk uses the same `seekVelocity` path so touch cannot outrun the keyboard.
 - The star field is kept out of the text by owning the top band (80px Home padding) and the far gutters instead of scattering dots behind the copy.
 
 ## Lessons

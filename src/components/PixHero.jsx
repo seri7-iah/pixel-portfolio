@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Sprite from './Sprite.jsx'
 import { subscribe } from '../lib/ticker.js'
-import { PIX_FRAMES, PIX_PALETTE } from '../lib/pixelArt.js'
+import { PIX_FRAMES, PIX_PALETTE, PIX_VIEW_FRAMES } from '../lib/pixelArt.js'
 import {
   clamp,
   seekVelocity,
@@ -38,6 +38,75 @@ const CONTROL_KEYS = new Map([
 
 const noop = () => {}
 
+// The player can face eight directions. Each pose names a frame set and whether
+// the canvas needs mirroring; the front and back views never flip.
+const CONTROL_POSES = {
+  up: { view: 'back', flip: 1 },
+  down: { view: 'front', flip: 1 },
+  left: { view: 'side', flip: -1 },
+  right: { view: 'side', flip: 1 },
+  upLeft: { view: 'angleBack', flip: -1 },
+  upRight: { view: 'angleBack', flip: 1 },
+  downLeft: { view: 'angleFront', flip: -1 },
+  downRight: { view: 'angleFront', flip: 1 },
+}
+
+// 0 = right, then counter-clockwise on screen.
+const VECTOR_DIRECTIONS = [
+  'right',
+  'upRight',
+  'up',
+  'upLeft',
+  'left',
+  'downLeft',
+  'down',
+  'downRight',
+]
+
+// Opposite keys on either axis cancel out. Returning null leaves the previous
+// facing in place instead of flickering between two views.
+function directionFromKeys(keys) {
+  const left = keys.has('left')
+  const right = keys.has('right')
+  const up = keys.has('up')
+  const down = keys.has('down')
+
+  if ((left && right) || (up && down)) return null
+  if (up) return left ? 'upLeft' : right ? 'upRight' : 'up'
+  if (down) return left ? 'downLeft' : right ? 'downRight' : 'down'
+  if (left) return 'left'
+  if (right) return 'right'
+  return null
+}
+
+// Held keys as one movement vector: x to the right, y away from the viewer.
+// Diagonals are scaled by SQRT1_2 so they cover the same distance per second as
+// a straight line instead of being about 41% faster.
+function movementFromKeys(keys) {
+  let dx = 0
+  let dy = 0
+
+  if (keys.has('left')) dx -= 1
+  if (keys.has('right')) dx += 1
+  if (keys.has('up')) dy += 1
+  if (keys.has('down')) dy -= 1
+
+  if (dx !== 0 && dy !== 0) {
+    dx *= Math.SQRT1_2
+    dy *= Math.SQRT1_2
+  }
+
+  return { dx, dy }
+}
+
+// Nearest of the eight directions to a tap. Screen y grows downwards, so the
+// angle is negated before it is rounded into a 45-degree sector.
+function directionFromVector(dx, dy) {
+  if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) return null
+  const sector = Math.round(Math.atan2(-dy, dx) / (Math.PI / 4))
+  return VECTOR_DIRECTIONS[(sector + 8) % 8]
+}
+
 function randomBetween(min, max) {
   return min + Math.random() * (max - min)
 }
@@ -66,8 +135,8 @@ function alignHint(hint, x, layerWidth, boxWidth, halfHint) {
 
 // Pix wanders like the other creatures, but can also be taken over with the
 // mouse, a tap or the "Play as Pix" button. Position and walk phase live in
-// refs and are written from the shared ticker; only mode, facing and the
-// current walk frame re-render.
+// refs and are written from the shared ticker; only mode, side facing, the
+// control pose and the current walk frame re-render.
 export default function PixHero({
   scale = 4,
   paused = false,
@@ -93,14 +162,24 @@ export default function PixHero({
   const velocityRef = useRef({ vx: 0, vy: 0 })
   const phaseRef = useRef(0)
   const walkFrameRef = useRef(0)
+  const walkCountRef = useRef(PIX_FRAMES.walk.length)
 
   const [mode, setMode] = useState('idle')
   const [facing, setFacing] = useState(1)
+  const [controlPose, setControlPose] = useState({ view: 'side', flip: 1 })
   const [walkFrame, setWalkFrame] = useState(0)
 
   const size = PIX_FRAMES.idle[0][0].length * scale
   const stride = WALK_SOURCE * scale
   const walking = active && !paused && !reducedMotion && mode === 'walk'
+  const pose = controlling
+    ? controlPose
+    : { view: 'side', flip: facing }
+  const viewFrames = PIX_VIEW_FRAMES[pose.view]
+
+  useLayoutEffect(() => {
+    walkCountRef.current = viewFrames.walk.length
+  }, [viewFrames])
 
   const stopFrames = useCallback(() => {
     phaseRef.current = 0
@@ -136,7 +215,7 @@ export default function PixHero({
         phaseRef.current,
         distance,
         stride,
-        PIX_FRAMES.walk.length,
+        walkCountRef.current,
       )
       phaseRef.current = next.phase
 
@@ -172,7 +251,17 @@ export default function PixHero({
 
   const { frame: idleFrame, blinking } = useIdleAnimation({
     enabled: awake && !paused && !reducedMotion && mode === 'idle',
+    frameCount: viewFrames.idle.length,
   })
+
+  // Control always starts and ends on the side view. Resetting the stored pose
+  // on release means the next takeover never flashes the old front/back view.
+  useEffect(() => {
+    const side = { view: 'side', flip: facingRef.current }
+    setControlPose((current) =>
+      current.view === side.view && current.flip === side.flip ? current : side,
+    )
+  }, [controlling])
 
   // A paused, frozen or off-screen Pix never keeps a stale walk pose.
   useEffect(() => {
@@ -394,18 +483,12 @@ export default function PixHero({
       onControllingChange(false)
     }
 
-    // Reduced motion gets one short hop per key press instead of a smooth walk.
-    const nudge = (direction) => {
+    // Reduced motion gets one short step per key press instead of a smooth
+    // walk. The step follows the same 2D lane vector as the normal path, so a
+    // diagonal key pair moves diagonally and is not faster than a straight one.
+    const nudge = (dx, dy) => {
       const stepSize = scale <= 3 ? 12 : 16
-      let dx = 0
-      let dy = 0
-
-      if (direction === 'left') dx = -stepSize
-      else if (direction === 'right') dx = stepSize
-      else if (direction === 'up') dy = stepSize
-      else if (direction === 'down') dy = -stepSize
-
-      apply(pos.x + dx, pos.y + dy)
+      apply(pos.x + dx * stepSize, pos.y + dy * stepSize)
       if (dx) face(dx > 0 ? 1 : -1)
       setMoving(false)
       idleElapsed = 0
@@ -429,7 +512,13 @@ export default function PixHero({
       tapTarget = null
       keys.add(direction)
 
-      if (reducedMotion) nudge(direction)
+      const controlDirection = directionFromKeys(keys)
+      if (controlDirection) setControlPose(CONTROL_POSES[controlDirection])
+
+      if (reducedMotion) {
+        const { dx, dy } = movementFromKeys(keys)
+        if (dx !== 0 || dy !== 0) nudge(dx, dy)
+      }
     }
 
     const onKeyUp = (event) => {
@@ -438,6 +527,11 @@ export default function PixHero({
 
       event.preventDefault()
       keys.delete(direction)
+
+      // Releasing one key can reveal a new diagonal. Releasing everything
+      // keeps the last facing.
+      const controlDirection = directionFromKeys(keys)
+      if (controlDirection) setControlPose(CONTROL_POSES[controlDirection])
     }
 
     const onBlur = () => keys.clear()
@@ -468,9 +562,22 @@ export default function PixHero({
 
         if (onGround) {
           const limit = bounds()
+          const tapX = clamp(event.clientX - rect.left, limit.minX, limit.maxX)
+          const tapY = rect.bottom - event.clientY
+
+          // Facing comes from the full tap vector, including its height, and
+          // is measured from Pix's centre rather than the canvas corner. The
+          // lane measures height upwards, so the y term is flipped to screen
+          // coordinates before it reaches the direction helper.
+          const controlDirection = directionFromVector(
+            tapX - (pos.x + size / 2),
+            pos.y - tapY,
+          )
+          if (controlDirection) setControlPose(CONTROL_POSES[controlDirection])
+
           tapTarget = {
-            x: clamp(event.clientX - rect.left, limit.minX, limit.maxX),
-            y: clamp(rect.bottom - event.clientY, limit.minY, limit.maxY),
+            x: tapX,
+            y: clamp(tapY, limit.minY, limit.maxY),
           }
           idleElapsed = 0
           reducedStepWait = 0
@@ -529,19 +636,14 @@ export default function PixHero({
       let targetVy = 0
       let hasIntent = false
 
+      // Vertical movement is real depth inside the lane: W walks up/away and S
+      // walks down/towards the viewer, so both axes can move at once.
       if (keys.size > 0) {
-        let dx = 0
-        let dy = 0
+        const { dx, dy } = movementFromKeys(keys)
 
-        if (keys.has('left')) dx -= 1
-        if (keys.has('right')) dx += 1
-        if (keys.has('up')) dy += 1
-        if (keys.has('down')) dy -= 1
-
-        const normalizer = dx !== 0 && dy !== 0 ? Math.SQRT1_2 : 1
-        targetVx = dx * controlSpeed * normalizer
-        targetVy = dy * controlSpeed * normalizer
-        hasIntent = true
+        targetVx = dx * controlSpeed
+        targetVy = dy * controlSpeed
+        hasIntent = dx !== 0 || dy !== 0
         tapTarget = null
       } else if (tapTarget) {
         const seek = seekVelocity(
@@ -633,14 +735,15 @@ export default function PixHero({
     onControllingChange(true)
   }
 
-  const blinkIdle = blinking && !walking
+  const blinkIdle = blinking && !walking && viewFrames.idleBlink
   const frames = walking
-    ? PIX_FRAMES.walk
+    ? viewFrames.walk
     : blinkIdle
-      ? PIX_FRAMES.idleBlink
-      : PIX_FRAMES.idle
+      ? viewFrames.idleBlink
+      : viewFrames.idle
   const frameIndex = walking ? walkFrame : idleFrame
-  const shadowLifted = walking && PIX_FRAMES.lift[walkFrame] === 1
+  const shadowLifted =
+    walking && viewFrames.lift[walkFrame % viewFrames.lift.length] === 1
 
   return (
     <div
@@ -658,7 +761,7 @@ export default function PixHero({
           frames={frames}
           palette={PIX_PALETTE}
           scale={scale}
-          flip={facing < 0}
+          flip={pose.flip < 0}
           frameIndex={frameIndex}
           playing={false}
         />

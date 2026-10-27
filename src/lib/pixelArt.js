@@ -192,6 +192,224 @@ function buildPixFrames() {
 
 export const PIX_FRAMES = buildPixFrames()
 
+// Extra Pix views for player control. Only the right-facing 3/4 angles are
+// drawn; the left versions are the same canvas flipped by Sprite. Every view
+// keeps the 16x32 body: head 8 rows, torso 12 rows, legs 8 rows, boots 4 rows.
+const PIX_FRONT_HEAD = {
+  y: 0,
+  rows: [
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+    '....RRRRRRRR....',
+    '....KKSSSSKK....',
+    '....KSESSESK....',
+    '....KSSSSSSK....',
+    '....KSSSSSSK....',
+    '....KSSMMSSK....',
+  ],
+}
+
+const PIX_FRONT_HEAD_BLINK = {
+  y: 0,
+  rows: [
+    ...PIX_FRONT_HEAD.rows.slice(0, 4),
+    '....KSSSSSSK....',
+    '....KSSSSSSK....',
+    ...PIX_FRONT_HEAD.rows.slice(6),
+  ],
+}
+
+const PIX_BACK_HEAD = {
+  y: 0,
+  rows: [
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+    '....RRRRRRRR....',
+    '....KKKRRKKK....',
+    '....KKKRRKKK....',
+    '....KKKRRKKK....',
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+  ],
+}
+
+const PIX_ANGLE_FRONT_HEAD = {
+  y: 0,
+  rows: [
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+    '....RRRRRRRR....',
+    '....KKSSSSSS....',
+    '....KKSESSES....',
+    '....KKSSSSSS....',
+    '....KSSSSSSS....',
+    '....KSSSMMSS....',
+  ],
+}
+
+const PIX_ANGLE_BACK_HEAD = {
+  y: 0,
+  rows: [
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+    '....RRRRRRRR....',
+    '....KKKRRKKK....',
+    '....KKKRRKSS....',
+    '....KKKRRKSS....',
+    '....KKKKKKKK....',
+    '....KKKKKKKK....',
+  ],
+}
+
+// Ink-blue sleeve with a warm skin hand, shared by every new view.
+function pixArm(grid, x, y) {
+  paint(grid, x, y, 2, 10, 'B')
+  paint(grid, x, y + 10, 2, 2, 'S')
+}
+
+// One leg plus its amber boot. A lifted leg moves up a source pixel so the
+// boot clears the ground without changing the other leg.
+function pixLeg(grid, x, y, lift, color, bootX = x - 1, width = 3) {
+  paint(grid, x, y - lift, width, 8, color)
+  paint(grid, bootX, y + 8 - lift, 4, 4, 'A')
+}
+
+function composePixFront({
+  bob = 0,
+  leftLeg = 0,
+  rightLeg = 0,
+  leftArm = 0,
+  rightArm = 0,
+  blink = false,
+} = {}) {
+  const grid = emptyGrid(32)
+  const y = 8 + bob
+
+  pixLeg(grid, 4, 20, leftLeg, 'P', 3)
+  pixLeg(grid, 9, 20, rightLeg, 'P', 9)
+
+  // Both sleeves hang outside the torso, so both arms stay visible.
+  pixArm(grid, 2, y - leftArm)
+  pixArm(grid, 12, y - rightArm)
+
+  // Cream hoodie with green backpack straps over the shoulders only.
+  paint(grid, 4, y, 8, 12, 'C')
+  paint(grid, 5, y, 2, 2, 'G')
+  paint(grid, 9, y, 2, 2, 'G')
+
+  stampPart(grid, blink ? PIX_FRONT_HEAD_BLINK : PIX_FRONT_HEAD, 0, bob)
+  return grid
+}
+
+function composePixBack({
+  bob = 0,
+  leftLeg = 0,
+  rightLeg = 0,
+  leftArm = 0,
+  rightArm = 0,
+} = {}) {
+  const grid = emptyGrid(32)
+  const y = 8 + bob
+
+  pixLeg(grid, 4, 20, leftLeg, 'P', 3)
+  pixLeg(grid, 9, 20, rightLeg, 'P', 9)
+
+  pixArm(grid, 2, y - leftArm)
+  pixArm(grid, 12, y - rightArm)
+
+  paint(grid, 4, y, 8, 12, 'C')
+
+  // The pack covers most of the back; the hoodie hem and shoulder edges show.
+  paint(grid, 5, y, 6, 10, 'G')
+  paint(grid, 7, y + 4, 2, 2, 'A')
+
+  stampPart(grid, PIX_BACK_HEAD, 0, bob)
+  return grid
+}
+
+function composePixAngleFront({
+  bob = 0,
+  leftLeg = 0,
+  rightLeg = 0,
+  leftArm = 0,
+  rightArm = 0,
+} = {}) {
+  const grid = emptyGrid(32)
+  const y = 8 + bob
+
+  // Far side first: the darker leg, the left arm and a sliver of the pack.
+  pixLeg(grid, 4, 20, leftLeg, 'D', 3)
+  pixArm(grid, 2, y - leftArm)
+  paint(grid, 4, y, 2, 10, 'G')
+
+  // The torso is shifted right, so the turn reads as a 3/4 front view.
+  paint(grid, 6, y, 6, 12, 'C')
+
+  // Near side on top: the right leg and arm are the closest limbs.
+  pixLeg(grid, 8, 20, rightLeg, 'P', 8, 4)
+  pixArm(grid, 12, y - rightArm)
+
+  stampPart(grid, PIX_ANGLE_FRONT_HEAD, 0, bob)
+  return grid
+}
+
+function composePixAngleBack({
+  bob = 0,
+  leftLeg = 0,
+  rightLeg = 0,
+  leftArm = 0,
+  rightArm = 0,
+} = {}) {
+  const grid = emptyGrid(32)
+  const y = 8 + bob
+
+  pixLeg(grid, 4, 20, leftLeg, 'D', 3)
+  pixArm(grid, 2, y - leftArm)
+
+  paint(grid, 4, y, 8, 12, 'C')
+
+  // The pack owns the far half; cream hoodie shows on the near right side.
+  paint(grid, 4, y, 6, 10, 'G')
+  paint(grid, 6, y + 4, 2, 2, 'A')
+
+  pixLeg(grid, 8, 20, rightLeg, 'P', 8, 4)
+  pixArm(grid, 12, y - rightArm)
+
+  stampPart(grid, PIX_ANGLE_BACK_HEAD, 0, bob)
+  return grid
+}
+
+// Four-frame cycle: neutral, left step, neutral, right step. The body dips one
+// pixel on the step frames and the opposite arm lifts with each lifted boot.
+const PIX_VIEW_STEPS = [0, 1, 0, -1]
+
+function buildPixView(compose, blink = false) {
+  const walk = PIX_VIEW_STEPS.map((step, index) =>
+    compose({
+      bob: index === 1 || index === 3 ? 1 : 0,
+      leftLeg: step > 0 ? 1 : 0,
+      rightLeg: step < 0 ? 1 : 0,
+      leftArm: step < 0 ? 1 : 0,
+      rightArm: step > 0 ? 1 : 0,
+    }),
+  )
+
+  return {
+    idle: [compose()],
+    idleBlink: blink ? [compose({ blink: true })] : null,
+    walk,
+    lift: PIX_VIEW_STEPS.map((step) => (step === 0 ? 0 : 1)),
+  }
+}
+
+export const PIX_VIEW_FRAMES = {
+  side: PIX_FRAMES,
+  front: buildPixView(composePixFront, true),
+  back: buildPixView(composePixBack),
+  angleFront: buildPixView(composePixAngleFront),
+  angleBack: buildPixView(composePixAngleBack),
+}
+
 // Gloop: a side-view teal jelly blob with one big eye on its facing side. The
 // body is built from row spans, so the same drawing can squash before a hop,
 // stretch in the air and flatten on landing.

@@ -1,0 +1,221 @@
+/* Shared pixel components. Every border/shadow offset is a multiple of 4px. */
+
+.panel,
+.dialogue-box,
+.card {
+  position: relative;
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--px) solid var(--line);
+}
+
+.panel,
+.dialogue-box {
+  box-shadow:
+    inset var(--px) var(--px) 0 0 var(--panel-highlight),
+    inset var(--px-n) var(--px-n) 0 0 var(--panel-shade),
+    var(--px) var(--px) 0 0 var(--shadow-color),
+    var(--px-2) var(--px-2) 0 0 var(--shadow-soft);
+}
+
+/* Panel ------------------------------------------------------------------ */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  padding: var(--px-6);
+}
+
+.panel__header {
+  margin-bottom: var(--px-4);
+  padding-bottom: var(--px-4);
+  border-bottom: var(--px) solid var(--line);
+}
+
+.panel__eyebrow {
+  margin: 0 0 var(--px-2);
+  color: var(--ink-muted);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel__title {
+  margin: 0;
+}
+
+.panel__body {
+  flex: 1;
+}
+
+.panel__footer {
+  margin-top: var(--px-4);
+  padding-top: var(--px-4);
+  border-top: var(--px) solid var(--line);
+}
+
+/* Dialogue box ----------------------------------------------------------- */
+
+.dialogue-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogue-box__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--px-2);
+  padding: var(--px-2) var(--px-4);
+  color: var(--ink-muted);
+  background: var(--panel-alt);
+  border-bottom: var(--px) solid var(--line);
+}
+
+.dialogue-box__label {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dialogue-box__speaker {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--px-6);
+  padding: 0 var(--px-2);
+  color: var(--accent-ink);
+  background: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.dialogue-box__body {
+  flex: 1;
+  padding: var(--px-6);
+}
+
+.dialogue-box__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--px-2);
+  margin-top: var(--px-4);
+}
+
+/* Card ------------------------------------------------------------------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-4);
+  padding: var(--px-6);
+  box-shadow:
+    inset var(--px) var(--px) 0 0 var(--panel-highlight),
+    inset var(--px-n) var(--px-n) 0 0 var(--panel-shade),
+    var(--px) var(--px) 0 0 var(--shadow-color);
+}
+
+.card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-2);
+  padding-bottom: var(--px-3);
+  border-bottom: var(--px) solid var(--line);
+}
+
+.card__eyebrow {
+  margin: 0;
+  color: var(--link);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card__title {
+  margin: 0;
+}
+
+.card__body {
+  flex: 1;
+}
+
+.card__footer {
+  margin-top: auto;
+  padding-top: var(--px-3);
+  border-top: var(--px) solid var(--line);
+}
+
+.card__note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Button ----------------------------------------------------------------- */
+
+.pixel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-2);
+  min-height: var(--px-12);
+  padding: var(--px-3) var(--px-5);
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: var(--px) solid var(--accent-ink);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.pixel-button:not(:disabled):hover {
+  color: var(--accent-ink);
+  background: var(--accent-hover);
+}
+
+.pixel-button:not(:disabled):active {
+  transform: translate(var(--px), var(--px));
+  box-shadow: none;
+}
+
+.pixel-button:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.pixel-button--secondary {
+  color: var(--ink);
+  background: var(--panel-alt);
+  border-color: var(--line);
+}
+
+.pixel-button--secondary:not(:disabled):hover {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent-ink);
+}
+
+@media (max-width: 600px) {
+  .panel,
+  .card {
+    padding: var(--px-4);
+  }
+
+  .dialogue-box__body {
+    padding: var(--px-4);
+  }
+}

@@ -72,9 +72,9 @@ Lunabun, Puffcloud, Gemmite, Deepwatcher and Glowmoth are drafted but unplaced. 
 - The one exception is controlled Pix. While the player controls him he uses eight directions: S front, W back, A/D side, and WD/WA/SD/SA angled. Opposite keys on either axis keep the previous view, and releasing control returns him to side view.
 
 ## Roster limits and zones
-- Max 7 mobs plus the dragon on desktop; max 4 mobs on phones, and max 2 per section on phones.
+- Desktop: the full cast is 10 creatures (Home 3, Cave 3, Ember 2, Void 2). The 7-mob limit is an awake/visible budget, not a total-cast limit: off-screen zones freeze, so only one zone's cast is awake at a time (at most 3 creatures), plus the dragon = 4. Even if two zone sentinels overlapped, the worst case would be 6 + dragon = 7. Confirmed in 2e-3.
+- Phones: 4 total and max 2 per section. The phone cast is one per zone: Pix (Home), Bonemoss (Cave), Emberimp (Ember), Gloamer (Void). Gloop, Foxel, the dark Bonemoss, Mossling, Ashwisp and Starmote are desktop-only. Confirmed in 2e-3.
 - Creatures only wander inside their own section's ground strip and only animate while their section is on screen. Off-screen zones freeze and do not tick.
-- The planned cast is 10 creatures on desktop (Home 3, Cave 3, Ember 2, Void 2). That is more than the 7-mob cap, so the cap is enforced as a budget for awake/visible creatures, with off-screen zones frozen. Phase 2e-3 confirms the final desktop and phone picks; on phones one creature per zone (4 total) is the simplest way to respect both the total and per-section limits.
 
 ## Motion rules
 - Sprites: CSS `steps()` on sprite sheets, or frame-swapped text-grid sprites. Walk frames advance from distance travelled, not from a timer.

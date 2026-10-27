@@ -1,7 +1,7 @@
 # NOTES.md
 
 ## Status
-Phase 2e-2 complete: About is now the Ember world and Contact is the Void world, each with its own section-scoped palette, banded background, CSS scenery and ground strip. Foxel and Mossling still stand on the new strips until 2e-3 moves them, so About currently shows a fox on grey ash and Contact shows a mossling on pale cream rock.
+Phase 2e-2 part B complete: Home grassland and Projects cave scenery and palettes are rebuilt into the same richer pass as Ember and Void (layered night sky, ridges and field details; stepped cave ceiling, torches, crystals, dust and a built-up stone floor). Part A (Ember/Void) is still in the tree. Screenshot review is next, then Phase 2c. The earlier 2e-3 creature pass remains unchanged and not re-reviewed in this pass; desktop keeps the full 10-creature cast under the awake-budget reading and phones show one per zone (Pix, Bonemoss, Emberimp, Gloamer).
 
 ## Phase plan
 Original characters only, never Minecraft lookalikes.
@@ -18,10 +18,11 @@ Original characters only, never Minecraft lookalikes.
 - Phase 2b-fix4a: done. Eight-direction facing for Pix while the player controls him.
 - Phase 2b-fix4b: done. Vertical depth movement for controlled Pix, with diagonal speed normalization and 2D tap-to-walk.
 - Phase 2e-1: done. Documentation only. Four-world scroll, section palettes, new Ember/Void roster and the facing rule are written into `DESIGN.md` and `PRODUCT.md`.
-- Phase 2e-2: done. Ember and Void palettes, backgrounds, scenery and ground strips for About and Contact.
-- Phase 2e-3: next. Emberimp, Ashwisp, Gloamer and Starmote, plus moving Foxel to Home and Mossling to the Projects cave.
+- Phase 2e-2 part A: done. Ember and Void palettes, backgrounds, scenery and ground strips for About and Contact rebuilt into the richer pass.
+- Phase 2e-2 part B: done. Home grassland and Projects cave palettes, backgrounds, scenery and ground strips rebuilt into the same richer pass. The earlier 2e-3 creature implementation is already in the tree and unchanged.
+- Phase 2e-3 (earlier creature pass): done. Emberimp, Ashwisp, Gloamer and Starmote added; Foxel moved to Home and Mossling to the cave; desktop and phone rosters settled.
 - Phase 2b-2 (superseded): Lunabun, Puffcloud, Glowmoth. Not in the four-zone roster; deferred until they have a place.
-- Phase 2c: Emberwing dragon (unchanged, shared flyover).
+- Phase 2c: after screenshot review. Emberwing dragon (unchanged, shared flyover).
 - Phase 2d (superseded): cave mobs Gemmite and Deepwatcher. The cave roster is fixed at Bonemoss x2 plus Mossling; deferred.
 - Phase 3: transitions, Press Start screen, and the Night/Day toggle for Home only.
 - Phase 4: content and project links.
@@ -32,14 +33,46 @@ A distinctive 8-bit WORLD, not a webpage of boxes. Everything is one continuous 
 
 The world now descends instead of repeating: Home night grassland, Projects cave, About Ember, Contact Void. Each section owns its palette scope and its own creature zone, and the cast per zone is fixed.
 
-## Built in Phase 2e-2
+## Built in Phase 2e-3
+- **New creatures:** `src/lib/pixelArt.js` now exports Emberimp (16x16), Ashwisp (16x16), Gloamer (16x32) and Starmote (16x16), all original text-grid art with per-character palettes. Emberimp is a chunky maroon imp with ash horns, orange eyes, short legs and a thin ember-tipped tail; it has no snout, tusks or gold, so it cannot read as a Piglin, and no lava-cube segments. Ashwisp is a teardrop flame with a bright core and three detached ember pixels; no rods or orbiting parts, so it is not a Blaze or a torch. Gloamer is a rounded hood with one pale-violet eye slit, short thick arms and a wide bell hem with no legs; it has no long thin limbs, tall rectangular head, particles or teleport. Starmote is a translucent violet jelly with a four-point cream star core and three violet glints.
+- **Floating motion:** new `src/components/FloatCritter.jsx` keeps the ground wrapper and shadow, but lifts the body and bobs it on whole pixels instead of running a walk cycle. Ashwisp bobs higher and sways about 24px, Gloamer hovers low and sways about 48px, and Starmote bobs in place. A slow sway supplies the facing direction, and only the sprite canvas flips. Off-screen, paused and reduced-motion states stop the ticker and hold the first hover frame. Floating shadows are smaller and dimmer than a walker's; Gloamer keeps the widest shadow.
+- **Roster moved:** Foxel now stands on Home's grass (desktop only) and Mossling on the cave floor (desktop only). About and Contact no longer render the old pair.
+- **Roster maths confirmed:** desktop keeps all 10 creatures (Home 3, Cave 3, Ember 2, Void 2). The 7-mob cap is an awake/visible budget: off-screen zones freeze, so only one zone's cast is awake at a time (at most 3 creatures), plus the dragon = 4. Even if two zone sentinels overlapped, the worst case would be 6 + dragon = 7. Phones show one per zone: Pix, Bonemoss, Emberimp, Gloamer (4 total, max 1 per section). Gloop, Foxel, the dark Bonemoss, Mossling, Ashwisp and Starmote are desktop-only.
+- **Sizes and lanes:** Emberimp, Ashwisp and Starmote use the 16x16 grid; Gloamer uses 16x32. All four use the existing 160px ground strip and 96/72px grass depth, so the lane maths is unchanged. Floating bodies lift 8-20px desktop and 6-15px phone above the lane, with the shadow staying on the ground.
+- **Kept as-is:** Home and Projects layout, Pix's art and control code, `Critter`, `groundMotion.js`, `Sprite`, pause, tab-hidden and `aria-hidden` behaviour are unchanged. All new art is hand-built for this project; no downloaded assets.
+- `npm run lint` and `npm run build` pass.
+
+## Built in Phase 2e-2 part B (Home + Cave scenery rework)
+- **Home sky:** the night sky now has a hard-edged horizon bloom, a third dim star field, two four-point star crosses, a rare stepped meteor, a moon with extra craters, and three shaded clouds that drift slowly. The clouds and stars stay in the top bands and behind the copy; the signpost and portrait stay on top and readable.
+- **Home landscape:** two stepped far ridges, two ridge-tree silhouettes, a third tree, two bushes, two small rocks and two firefly clusters. The hills and trees keep their existing silhouettes and depth order; the new layers sit behind the copy and in front of the sky.
+- **Home ground:** the 160px strip now has a 4px light grass lip, a dark seam at the `--grass-depth` line, hard dirt strata, blades above the top edge, small flowers, pebbles and roots. Details sit either above the creature lane or below its bottom edge, so the 64-108 / 88-120 lane stays clear.
+- **Cave scenery (Projects):** the flat ceiling is now a 128px stepped rock ceiling with a light edge and teal underglow, six hanging stalactites (two with crystal tips), two falling drips, stepped side-wall rocks and crystal veins. Four crystal clusters, two moss patches and four torches (two wall, two low) frame the project row; the low torches and wall rocks are desktop-only. Torch embers and dust motes sit in the cave air.
+- **Cave floor:** the stone strip now has a 4px light top line, hard stone strata, a stepped cap row over dark teeth, cracks, pebbles, crystal pixels and a moss line. The cap row is decor above the strip; the creature lane is still 64-108 desktop and 88-120 phone.
+- **Gated motion:** Home and Projects now join About and Contact in `App.jsx` with refs and `is-live`. Stars twinkle, clouds drift, fireflies rise, the meteor crosses and grass sways; torches flicker, embers rise, crystals pulse, drips fall and dust drifts. Every animation defaults to `animation-play-state: paused`; `is-live` runs it only while that section is on screen, creatures are not paused and the system does not prefer reduced motion. Pause, reduced motion and off-screen sections stop all of it.
+- **Layout safety:** the 160px ground strip is unchanged. The cave now declares `--grass-depth: 96px` (72px at 600px and below) and its floor uses that variable, so the stone seam matches the lane bottom at both scales. Home and Projects keep their existing padding and copy columns. At 1024px the cave wall rocks, veins and low torches hide and the main torches move to 1% edges; at 760px the large crystals drop and scale, and extra Home layers hide; at 600px the cave keeps one scaled crystal, one moss patch and one dust layer, and Home keeps one cloud, one star cross and one firefly cluster while the ground details stay.
+- **Kept as-is:** no new creatures. The existing 2e-3 creatures, `FloatCritter`, the Home/Projects layout, Pix's control code, the signpost anchors and the 2e-2 part A Ember/Void work are unchanged. Scenery is still pure CSS, with no images or downloads.
+- `npm run lint` and `npm run build` pass.
+
+## Built in Phase 2e-2 part A (scenery rework)
+- **Ember scenery (About):** the section is now a stepped underground room. A 128px rock ceiling uses a shared clip-path, with two hard lava edge layers peeking out beneath it, five hanging stalactites (two with hot tips) and two ceiling drips. The wall has a 4px strata pattern, a dim heat bloom on the far side, four pillars (two main mirrored pillars with a lava inner seam and a stepped crack, two far pillars), three stepped lava cracks, three stepped lava pools with hard drop-shadow glows, and three ash layers drifting upward on stepped transforms.
+- **Ember ground:** ash over dark hot rock, a 4px strata pattern in the rock, ash clumps at the top edge, and a breathing lava seam at the ash line.
+- **Void scenery (Contact):** a banded near-black violet sky, a stepped Ember-rock lip at the top (the optional lip from 2e-3 is now in), a blocky violet nebula, three star fields (cream top band, violet right gutter, dim band above the ground), two four-point stars, two glint clusters, five floating islands (three large, two small) with warm top edges, a violet glint crack and a hard shadow, three debris chunks, and seven cream shelf caps over dark teeth at the ground edge.
+- **Void ground:** pale cream rock with two violet mineral seams and a stepped top edge. The caps live in the decor layer so they draw above the strip; the dark teeth show in the gaps.
+- **Stepped boundaries:** About's top is the stepped ceiling; About-to-Contact is the new lip; Contact-to-footer is a stepped dark footer edge. Every section background is hard-stop bands and every rock edge is a clip-path step, so no smooth gradient is used.
+- **Gated motion:** new shared `src/lib/useOnScreen.js` (also used by `CreatureScene` now). `App.jsx` observes About and Contact and adds `is-live` only when the section is on screen, creatures are not paused and the system does not prefer reduced motion. CSS animations default to `animation-play-state: paused`; `is-live` runs them. Ash rises on stepped transforms, the lava/ceiling breathe and the stars/glints twinkle. The pause button, reduced motion and off-screen sections stop all of it.
+- **Layout safety:** the 160px ground strip and 96/72px `--grass-depth` are unchanged, so the lane maths is untouched. About's top padding grew to 208px (176px at 760) and Contact's to 96px (80px at 760) to clear the taller ceiling and lip. Phones hide the pillars, wide star fields, extra rocks/glints and the third pool, and keep one edge glint.
+- **Kept as-is:** no new creatures. The existing 2e-3 creatures and `FloatCritter` are unchanged, as are Home, Projects, Pix's control code and the signpost anchors. Scenery is still pure CSS, with no images or downloads.
+- `npm run lint` and `npm run build` pass.
+
+## Built in Phase 2e-2 (first scenery pass)
+Superseded by the part A rework above.
 - **Section palettes:** `src/index.css` now has `.scene--ember` and `.scene--void`, written as variable-only scopes (plus `color-scheme: dark`) in the same style as the Cave theme. Ember: bg #1a0b0c, rock #3a1a14 / #240d0c, rock light #4a221b, lava #ff7a1a, hot core #ffd447, ash #8a8078, ink #f4ecd8, muted #d6bda9, accent #ff8a2a, focus #ffd447. Void: sky #07050f / #14081f, under #05030a, rock #e8dcc0 / #b8a88a, glint #b58cff, star #f4e9c1, ink #f4ecd8, muted #c3b6d6, accent #b58cff, focus #e8dcc0. Measured contrast (Node, WCAG relative luminance): Ember ink 16.3:1, muted 10.7:1, accent 8.1:1, link 9.8:1; Void ink 17.2:1, muted 10.6:1, accent 7.9:1, link 10.2:1, footer muted 10.7:1. All pass 4.5:1.
 - **Structure:** the old `.lower-world` night wrapper is gone. About and Contact are self-contained world sections with their own bands, scenery and ground, and the footer carries the Void palette so it continues the last world. Old `.lower-world`, `.lower-decor`, `.stars--lower`, `.hill--lower` and `.tree--lower` rules were removed.
 - **Ember scenery (About):** jagged ember ceiling under the cave exit, two rock pillars with a lava inner edge (the right one is mirrored), two stepped lava cracks in the lower padding, floating ember specks in the top band, and two lava pools in the hot rock below the walking band. Ground is ash over dark hot rock with a stepped lava seam at the ash line.
 - **Void scenery (Contact):** banded near-black violet background, cream star band pinned above the copy, a violet glint cluster, and three stepped floating islands with pale cream tops, ash-cream undersides and a hard 8px drop shadow. Ground is pale cream rock with a repeating violet seam at its top line.
 - **Layout safety:** About and Contact declare `--grass-depth: 96px` locally (72px at 600px and below) to match `CreatureScene`, so the 160px ground strip and the 64-108 / 88-120 lane bands are unchanged. Ground seams use the same variable.
 - **Responsive:** the two wide islands are hidden at 1024px and below, glints and ember specks at 760px and below, pillars shrink to 48x208 at 600px, and the lava pools narrow at 600px. Nothing sits behind the copy at any width.
-- **Kept as-is:** Home and Projects markup, all creature art and motion code, the sprite scale, the wanders, pause, reduced motion and `aria-hidden`. Every new scenery layer is static, so reduced motion needs no extra work.
+- **Kept as-is:** Home and Projects markup, all creature art and motion code, the sprite scale, the wanders, pause, reduced motion and `aria-hidden`. Every layer in this first pass was static; the part A rework above adds gated motion.
 - `npm run lint` and `npm run build` pass.
 
 ## Built in Phase 2e-1 (documentation only)
@@ -163,7 +196,9 @@ The world now descends instead of repeating: Home night grassland, Projects cave
 - Kept the 360px/desktop layouts, 16px minimum body text, keyboard access and `prefers-reduced-motion` guard. No animation, transitions, sprites or theme toggle were added.
 
 ## Next
-Phase 2e-3: add Emberimp and Ashwisp to About and Gloamer and Starmote to Contact, move Foxel to Home and Mossling to the Projects cave, and settle the phone roster (4 total, max 2 per section). Do not add the dragon or the deferred mobs yet.
+Screenshot review of Phase 2e-2 part B at 1440/1024/760/360: Home sky/ridges/ground details and the Home-to-Cave seam; Projects ceiling, stalactites, torches, crystals, dust, floor caps and the Cave-to-Ember seam. Check the pause button, reduced-motion reload and off-screen sections for stopped decoration, and re-check the signpost jumps.
+Part A (Ember/Void) is also still awaiting its screenshot review. The existing 2e-3 creature work (Emberimp, Ashwisp, Gloamer, Starmote, and the Foxel/Mossling moves) is already in the tree; do not re-add it or the deferred mobs.
+Phase 2c (Emberwing dragon, 32x32, rare flyover, can perch on the signpost, harmless sparkles) follows the review.
 
 ## Known issues
 - Phase 2b-fix4b has only been checked with a Node motion simulation over the real `groundMotion.js`, `npm run lint` and `npm run build`, not in a browser. The screenshot pass should watch a hold on W, S, W+D, W+A, S+D and S+A, then check that he stops cleanly on the back and front lane edges and that the 3/4 pose matches the diagonal.
@@ -178,25 +213,41 @@ Phase 2e-3: add Emberimp and Ashwisp to About and Gloamer and Starmote to Contac
 - Part 2 has only been checked with Node art/width checks and a production build, not in a browser. The first screenshot pass should look at the side-view readability of all four creatures, the flipped facing on left moves, the Gloop squash/stretch and shadow shrink, the Foxel outline at 4x, the Mossling/Bonemoss leg crossing, and 360px text clearance.
 - Walk and hop timing is now distance-driven. The tuning values are the `stride` props in `CreatureScene.jsx` (Gloop 6, Foxel 4, Mossling 5, Bonemoss 5 source pixels per full cycle) plus each creature's `speed`. Adjust those rather than frame rates if a foot slides.
 - The idle breathing bob moves the humanoid upper body down one pixel while the feet stay planted. Check that the tunic/cloth hem does not pinch at the waist in the screenshot.
-- Phase 2e-2 has only been checked with `npm run lint` and `npm run build`, not in a browser. The screenshot pass should look at the About ceiling and pillars, the lava seam and pools, the Contact star band and floating islands, the pale-rock ground, and the About-to-Contact seam at 1440, 1024, 760 and 360px.
-- Screen-reader and reduced-motion behaviour should be unchanged because every new scenery layer is static and `aria-hidden`, but the two new decor wrappers are worth a quick Tab/AT pass.
-- About still renders Foxel and Contact still renders Mossling on the new strips. That is the temporary 2e-2 state; 2e-3 replaces them with Emberimp/Ashwisp and Gloamer/Starmote and moves the old pair to Home and the cave.
-- The About-to-Contact seam is now an ash ledge directly above a violet void with no rock lip. If the screenshots read it as a flat cut rather than a drop, add a stepped lip to the top of Contact in 2e-3.
+- Phase 2e-2 part A scenery has only been checked with `npm run lint` and `npm run build`, not in a browser. The screenshot pass should look at the About ceiling, stalactites, pillars, strata, lava cracks/pools and drifting ash at 1440/1024/760/360; the Contact lip, star fields, floating island shelf caps and footer teeth; and the About-to-Contact seam at all four widths.
+- Phase 2e-2 part B scenery has only been checked with `npm run lint` and `npm run build`, not in a browser. The screenshot pass should look at Home's horizon bloom, star fields/crosses, meteor, moon halo/craters, three clouds, far ridges, third tree, bushes/rocks, fireflies and ground blades/flowers/pebbles/roots at all four widths; the Home-to-Cave seam; and Projects' 128px ceiling, six stalactites, drips, wall rocks/veins, four crystals, moss, four torches/embers, dust and stepped floor caps at all four widths.
+- The cave stalactites now start at `top: 0` and rely on the ceiling being painted after them to hide their square tops. Check that every visible stalactite connects to the ceiling edge with no gap and that the deepest tips still clear the Projects kicker by 32px.
+- The cave floor cap row is decor, not part of the 160px strip. Check that creatures still draw in front of it, that the caps clear the 88px phone lane top and that the dark gaps read as rock teeth rather than a second floor.
+- Home uses `vw`/`vh` positions for stars, clouds, fireflies and the meteor. Check a short laptop and a tall phone for stars bunching behind the copy, clouds drifting into the signpost, or the meteor crossing the title; the phone rules hide the extra cloud, ridge and star cross but keep one of each.
+- The cave wall rocks/veins and low torches are hidden at 1024px, and the main torches sit at 1% edges at 1024/760. Check that no flame/glow sits behind the first text glyph at 1024 or 760, and that the 600px cave still reads as a room without torches.
+- The cave crystals are scaled down and the two large ones are lowered at 760px; only one 0.6-scale crystal remains at 600px. Check that no crystal overlaps the last Projects copy line or the creature lane at any width.
+- The `is-live` class now also gates Home and Projects decoration. Check that the pause button stops Home stars/clouds/fireflies/grass and cave torches/crystals/drips/dust, that a reduced-motion reload keeps all decoration still, and that scrolling a section off screen pauses it.
+- Screen-reader and reduced-motion behaviour should be unchanged because the scenery is `aria-hidden`; the new `is-live` class only gates CSS animation. Worth a quick Tab/AT pass on the pause button and "Play anyway", plus a reduced-motion reload to confirm the ash, lava breathe and star/glint twinkle are all still stopped.
+- "Play anyway" deliberately restores creature motion only. Scenery stays paused under the system reduced-motion preference, so the page never animates decoration the user asked to suppress.
+- The stepped Contact lip is now in. Check that its 56px (48px at 760) teeth clear the Contact kicker and that the Ember ground above it does not show a straight cut at 1024/760/360.
+- The ash layers use `vh` offsets, so the drift band is tied to viewport height, not section height. Check on a short laptop and a tall phone that the specks stay inside the section and do not bunch at the top.
+- Both About and Contact can be `is-live` for a moment while the seam is on screen; the whole-section observer intentionally allows that. If it is too busy, switch the observer to a smaller sentinel.
+- The Ember pillars are pulled to the section edges at 1024px and hidden at 600px. Check the phone scene still reads as a room and that no pillar sits behind the copy at 760 or 1024.
+- The shelf caps are decor, not part of the ground strip. Check that creatures still draw in front of them at the back lane and that the caps do not cover a creature's feet.
+- The footer teeth overlap the bottom 16px of the Contact ground; check the seam does not look like a second ground.
+- Phase 2e-3 art and `FloatCritter` have only been checked with Node art/width checks, `npm run lint` and `npm run build`, not in a browser. The screenshot pass should check the four new sprites at 4x and 3x, the Emberimp horns/tail, the Ashwisp core and detached embers, the Starmote translucency over both Void bands, the Gloamer eye slit and hem, and the floating bob/shadow at both scales.
+- Floating creatures sway on a sine. Check that they do not clip the section edge, that the shadow stays on the ground while the body bobs, and that only the canvas flips when the sway changes direction.
+- Ashwisp and Starmote have no blink frames; their two-frame flicker is the only idle animation. Check that it reads as a flicker, not a stutter.
+- Gloamer's blink is a dimmed eye slit. Check that it reads as a blink and not a missing eye.
 - Ember text sits on maroon-black, not on the lava. If any deep-orange copy is added later, re-check it against the banded background; the current tokens keep normal text above 4.5:1.
 - `.scene--void` is reused on the footer purely as a palette scope. Keep both palette classes variable-only (`--bg`, `--ink`, accents); adding layout rules to `.scene--void` would also restyle the footer.
-- About and Contact now set `--grass-depth` themselves (96px, 72px at 600px and below). If the lane maths in `CreatureScene.jsx` changes, update these two rules together with the ground seams.
-- The planned desktop cast is 10 creatures (Home 3, Cave 3, Ember 2, Void 2), which is more than the existing 7-mob desktop cap. The doc treats the cap as an awake/visible budget because off-screen zones freeze, but 2e-3 must either confirm that reading or trim the roster. On phones the total is 4 with max 2 per section, so the planned 8 phone-capable creatures cannot all appear; the doc suggests one per zone and 2e-3 confirms the picks.
-- Creature sizes for the new cast are targets, not commitments: Emberimp, Ashwisp and Starmote are planned at 16x16 and Gloamer at 16x32. 2e-3 may change a grid if the silhouette does not read at 3x on phones.
-- Gloamer is the riskiest new silhouette because "tall hooded shadow with a single eye" sits close to Enderman territory. The doc bans long thin limbs, a tall rectangular head, purple particles and teleporting, and gives him a wide bell hem and short thick arms. Check the 3x phone size specifically; if it still reads as an Enderman, widen the hem further rather than recoloring.
+- Cave, About and Contact now set `--grass-depth` themselves (96px, 72px at 600px and below). If the lane maths in `CreatureScene.jsx` changes, update these three rules together with the ground seams.
+- The desktop roster is now settled at 10 creatures under the awake-budget reading. If a future phase adds more zones or stops freezing off-screen zones, the 7-awake cap has to be rechecked.
+- New art sizes are final for this pass: Emberimp, Ashwisp and Starmote are 16x16 and Gloamer is 16x32. A grid only changes if a silhouette fails at 3x on phones.
+- Gloamer is still the riskiest silhouette: check the 3x phone size specifically. If the rounded hood and wide hem still read as an Enderman, widen the hem or shorten the hood rather than recoloring.
 - Text sits directly on the scene, so the Ember orange kicker and the Void violet kicker need a real contrast check in the screenshots; both were chosen above 4.5:1 against their own backgrounds.
 - The Foxel silhouette is dense at 16x16 (tail, head and body all touch). If it reads as one blob at 4x, separate the tail by one more source pixel in `composeFox`.
 - Gloop's eye direction comes from the sprite flip, so it always looks the way the blob faces. Check that the pupil still reads at 3x on phones and that the hop lift (10px desktop, 6px phone) does not look like floating.
-- Creature grounds are four stacked ledges today. Once About becomes Ember and Contact becomes Void, the About strip will no longer be night grass, so the old "terrace meets sky" question is replaced by how each world's ground edge reads against the world below it. Check the About-to-Contact seam in 2e-2.
+- Each world's ground edge now meets a different world below it. Check the Home-to-Cave lip, the Cave-to-Ember ceiling, the Ember-to-Void lip (now added) and the Contact-to-footer teeth in the screenshots.
 - Creatures can overlap and walk through each other; there is no collision yet.
 - The pause toggle is global across all four zones, disables "Play as Pix" and releases control, on purpose.
 - "Play anyway" is session-only and has no off switch of its own; the system preference still controls the note and it is not remembered after a reload. If the system setting flips back to reduce-motion during the session, the override keeps creatures moving.
-- Phones show Pix, Gloop, Mossling and one Bonemoss (4 total) in the current build. Foxel is desktop-only so the About ground is empty on phones; the Bonemoss variant is also desktop-only. Phase 2e reallocates zones, so 2e-3 has to pick 4 of the then-8 phone-capable creatures under the max-2-per-section rule.
-- Verify the 16x32 heads (Pix, Mossling, Bonemoss) clear the dialogue box, portrait, signpost and cave objects at 360px in the screenshot; desktop clearance is 84px and phone clearance is 64px.
+- Phones now show Pix (Home), Bonemoss (Cave), Emberimp (Ember) and Gloamer (Void). Gloop, Foxel, the dark Bonemoss, Mossling, Ashwisp and Starmote are desktop-only, so Home and the cave are intentionally quieter at 360px.
+- Verify the 16x32 heads (Pix, Mossling, Bonemoss, Gloamer) clear the dialogue box, portrait, signpost and cave objects at 360px in the screenshot; desktop clearance is 84px and phone clearance is 64px. Gloamer also floats above the lane, so check its hood against the Contact copy at both widths.
 - Tap-to-walk uses pointer type, not a D-pad, and only moves Pix while he is controlled and Home is on screen. Tapping elsewhere releases control before the normal tap action runs.
 - `public/profile.jpg` still does not exist in the repo, so the pixel "YOUR PHOTO HERE" placeholder shows until the photo is added.
 - The signpost lives only in Home. About/Contact have no persistent nav; Contact includes a return link to the top.
@@ -225,7 +276,13 @@ Phase 2e-3: add Emberimp and Ashwisp to About and Gloamer and Starmote to Contac
 - The page is one descending world, so each section owns a palette scope and a fixed cast instead of the page owning one theme. Home keeps the Night/Day toggle; Projects, About and Contact keep their palette permanently.
 - Docs are written before the art for each new world (2e-1), so Ember and Void scenery has a written color, roster and anti-lookalike contract to build against. Docs-first is cheaper than reworking art that drifted.
 - Each world owns its palette scope and its scenery. Palette classes stay variable-only so the same scope can dress a section, a footer or a future dialog without dragging layout along.
-- Ember and Void scenery is pure CSS: banded gradients, `clip-path` rock, stepped `box-shadow` glows. No images, no animation, so reduced motion and the ticker are untouched.
+- Ember and Void scenery is pure CSS: banded gradients, `clip-path` rock, stepped `box-shadow`/`drop-shadow` glows. No images. Part A adds CSS-only motion behind an `is-live` class so reduced motion, the pause button and off-screen sections can stop it without touching the ticker.
+- Scenery motion is gated by `is-live` on the section, driven by a shared `useOnScreen` hook. The animation loop stays in CSS; JS only toggles the class.
+- The About-to-Contact seam gets the stepped Ember-rock lip in the scenery pass where the seam belongs, instead of waiting for the creature pass.
+- Phone scenery hides wide layers instead of shrinking them behind the copy. The ceiling, ash, one edge glint and the ground caps carry the scene at 360px.
+- The 7-mob desktop limit is kept as an awake/visible budget, not a total-cast limit. All 10 creatures exist in their zones; freezing off-screen zones means only one zone is awake at a time (at most 3 creatures, plus the dragon). Phones use one creature per zone to respect both the 4-total and 2-per-section limits.
+- Floating creatures get their own `FloatCritter` rather than a mode inside `Critter`. The ground wanderer's distance-driven walk, arrival easing and lane clamp do not apply to a bob, so keeping the two motion models apart avoids weakening either one.
+- Floating bodies bob on whole pixels and keep the existing ground wrapper and shadow. The shadow stays put while the body lifts, which reads as hovering without any new shadow logic.
 
 ## Lessons
 - Fontsource keeps self-hosted fonts inside the bundle and the Vite build fingerprints them automatically.
@@ -241,10 +298,16 @@ Phase 2e-3: add Emberimp and Ashwisp to About and Gloamer and Starmote to Contac
 - Exponential velocity easing (`1 - exp(-rate * dt)`) is frame-rate independent and gives both the start ramp and the stop glide without a separate acceleration state machine.
 - Advancing a walk phase with `distance / stride` is simpler than syncing a timer to speed, and it naturally freezes the feet when a creature is blocked or paused.
 - Per-section IntersectionObservers mean the shared ticker really does stop when every zone is off screen; only Pix's control state and each zone's ResizeObserver stay alive.
-- Writing the roster per zone exposed the arithmetic: 10 desktop creatures against a 7-mob cap, and 8 phone-capable creatures against a 4-mob total. The cap can only hold as an awake/visible budget or by trimming, so roster plans need the maths checked at the same time as the cast list.
+- Writing the roster per zone exposed the arithmetic: 10 desktop creatures against a 7-mob cap, and 8 phone-capable creatures against a 4-mob total. The cap can only hold as an awake/visible budget or by trimming, so roster plans need the maths checked at the same time as the cast list. Phase 2e-3 settled it: all 10 on desktop, one per zone on phones.
+- A floating sprite can share the ground creature's wrapper and shadow; only the body needs a separate lift/bob transform. That kept the new component small and preserved pause, reduced-motion and off-screen freezing without touching `Critter`.
+- Swaying on a sine with a per-creature phase gives a natural drift without a target-picking state machine. Initialising the phase in the placement pass avoids a first-frame jump when the zone wakes.
 - Hard-stop `linear-gradient` bands read as stacked rock and sky; a single soft radial gradient would have looked airbrushed and broken the pixel style.
 - Palette variables declared on the same element as the background work because both rules match that element; the trap is assuming the section's own CSS file has to define them.
 - Hiding wide decor at the existing 1024/760 breakpoints is cheaper than trying to keep it clear of a text column that reflows between 760 and 1024px.
+- `animation-play-state: paused` on the default state and a parent `.is-live` class is a cheap way to freeze CSS-only scenery off-screen or paused without a JS animation loop.
+- A shared IntersectionObserver hook avoids duplicating the sentinel logic between `CreatureScene` and `App`.
+- `box-shadow` glows are clipped by the element's `clip-path`; `filter: drop-shadow()` is the way to make a hard pixel glow follow a stepped shape.
+- `vh`-based ash offsets only cover one viewport band, so the field needs a layer near the top, middle and bottom of a tall section.
 
 
 

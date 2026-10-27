@@ -46,12 +46,26 @@
   --moon: #f0ead2;
   --moon-shade: #cfc7a6;
   --cloud: #26315f;
+  --cloud-shade: #1b2450;
+  --horizon-glow: rgba(255, 179, 71, 0.08);
+  --star-dim: rgba(244, 233, 193, 0.45);
+  --moon-glow: rgba(240, 234, 210, 0.12);
   --grass: #2f6b4a;
+  --grass-light: #3f8a5f;
+  --grass-dark: #24543b;
   --dirt: #3b2a1f;
+  --dirt-light: #4a3628;
+  --dirt-dark: #2a1c14;
+  --hill-far: #101a35;
+  --hill-mid: #14253f;
   --hill-back: #182544;
   --hill-front: #1d3a38;
+  --hill-edge: #2a3f5e;
   --tree: #1d3f36;
+  --tree-light: #2a5a4a;
+  --tree-shadow: #102a25;
   --tree-trunk: #3b2a1f;
+  --firefly: #ffd98a;
   --cave-rock: #3d3731;
 
   /* Shared world props. */
@@ -87,11 +101,22 @@
   --stone-a: #2a2623;
   --stone-b: #3d3731;
   --cave-wall: #2a2623;
+  --cave-wall-deep: #1b1815;
+  --cave-wall-warm: #4a423a;
+  --cave-stone-light: #4f4740;
+  --cave-stone-dark: #211d1a;
+  --cave-strata: #332c26;
   --cave-rock: #3d3731;
   --cave-floor: #1e1a17;
+  --cave-moss: #3f6b4a;
+  --cave-moss-light: #5a8a5f;
   --crystal: #5be3d0;
+  --crystal-deep: #2a9e92;
   --crystal-glow: rgba(91, 227, 208, 0.14);
+  --cave-glow: rgba(91, 227, 208, 0.08);
+  --cave-ember: rgba(255, 179, 71, 0.18);
   --torch: #ffb347;
+  --torch-hot: #ffd98a;
   --star: #5be3d0;
   --highlight: #5be3d0;
   --wood: #6b4a2f;
@@ -124,16 +149,30 @@
   --sky-top: #8fd3ff;
   --sky-bottom: #cdeeff;
   --cloud: #ffffff;
+  --cloud-shade: #d9eeff;
+  --horizon-glow: rgba(255, 212, 71, 0.18);
+  --star-dim: rgba(255, 255, 255, 0.6);
+  --moon-glow: rgba(255, 212, 71, 0.25);
   --sun: #ffd447;
   --moon: #ffd447;
   --moon-shade: #e0b831;
   --star: #ffffff;
   --grass: #5fbf5a;
+  --grass-light: #7fd67a;
+  --grass-dark: #3e8c3b;
   --dirt: #8a5a3b;
+  --dirt-light: #a06b47;
+  --dirt-dark: #6b422a;
+  --hill-far: #7fca78;
+  --hill-mid: #6bb964;
   --hill-back: #4fa64a;
   --hill-front: #3e8c3b;
+  --hill-edge: #a5e59c;
   --tree: #3e8c3b;
+  --tree-light: #57a852;
+  --tree-shadow: #2f6b2f;
   --tree-trunk: #8a5a3b;
+  --firefly: #fff3a8;
   --cave-rock: #8a5a3b;
 }
 
@@ -166,9 +205,12 @@
   --ember-rock: #3a1a14;
   --ember-rock-dark: #240d0c;
   --ember-rock-light: #4a221b;
+  --ember-rock-warm: #5a2a20;
+  --ember-strata: #2a100e;
   --ember-lava: #ff7a1a;
   --ember-hot: #ffd447;
   --ember-ash: #8a8078;
+  --ember-ash-deep: #5c5550;
   --ember-glow: rgba(255, 122, 26, 0.16);
 }
 
@@ -198,11 +240,17 @@
   --dirt: #b9a98d;
   --void-rock: #e8dcc0;
   --void-rock-shade: #b8a88a;
+  --void-rock-warm: #f7efd9;
   --void-under: #05030a;
   --void-bg-top: #05030a;
   --void-bg-bottom: #0e0618;
   --void-glint: #b58cff;
   --void-star: #f4e9c1;
+  --void-star-dim: rgba(244, 233, 193, 0.5);
+  --void-glow: rgba(181, 140, 255, 0.06);
+  --void-lip: #1a0b0c;
+  --void-lip-edge: #3a1a14;
+  --void-lip-glow: rgba(255, 122, 26, 0.28);
 }
 
 *,

@@ -918,3 +918,302 @@ export const FOX_FRAMES = {
     }),
   ),
 }
+
+// Emberimp: a small, chunky side-view imp for the Ember world. Tiny ash horns,
+// orange eyes, short legs and a thin ember-tipped tail. Original design; it is
+// not a Piglin (no snout, tusks or gold) and not a Magma Cube (no segments).
+export const EMBERIMP_PALETTE = {
+  r: '#7a3222', // maroon skin
+  R: '#a34a2e', // lit skin
+  d: '#4a1c14', // skin shade
+  e: '#ff8a2a', // orange eye
+  f: '#ffd447', // hot core and claw
+  h: '#d6bda9', // ash horns
+  t: '#ff7a1a', // ember tail
+}
+
+function composeEmberimp({
+  bob = 0,
+  front = 0,
+  back = 0,
+  frontLift = 0,
+  backLift = 0,
+  tail = 0,
+  arm = 0,
+  blink = false,
+} = {}) {
+  const grid = emptyGrid(16)
+  const y = 7 + bob
+
+  // Thin tail curls up behind the hip, with a hot pixel at the tip.
+  paint(grid, 2 + tail, y + 3, 2, 1, 't')
+  paint(grid, 1 + tail, y + 2, 2, 1, 't')
+  pixel(grid, tail, y + 1, 'f')
+
+  // Back leg and foot.
+  paint(grid, 4 + back, 12, 2, 3 - backLift, 'd')
+  paint(grid, 4 + back, 15 - backLift, 3, 1, 'd')
+
+  // Chunky body with a lit top edge and a darker belly.
+  paint(grid, 4, y, 7, 6, 'r')
+  paint(grid, 4, y, 7, 1, 'R')
+  paint(grid, 4, y + 5, 7, 1, 'd')
+
+  // Front leg and hot claw.
+  paint(grid, 8 + front, 12, 2, 3 - frontLift, 'r')
+  paint(grid, 8 + front, 15 - frontLift, 3, 1, 'r')
+  pixel(grid, 10 + front, 15 - frontLift, 'f')
+
+  // Short arm on the facing side.
+  paint(grid, 10, y + 1 - arm, 2, 3, 'r')
+  pixel(grid, 10, y + 4 - arm, 'd')
+
+  // Head, tiny horns, one orange eye and a small mouth (no snout).
+  paint(grid, 5, y - 5, 7, 5, 'r')
+  paint(grid, 5, y - 5, 7, 1, 'R')
+  pixel(grid, 6, y - 6, 'h')
+  pixel(grid, 6, y - 7, 'h')
+  pixel(grid, 10, y - 6, 'h')
+  pixel(grid, 10, y - 7, 'h')
+
+  if (blink) {
+    paint(grid, 9, y - 3, 2, 1, 'd')
+  } else {
+    paint(grid, 9, y - 3, 2, 2, 'e')
+    pixel(grid, 10, y - 3, 'f')
+  }
+
+  pixel(grid, 11, y - 1, 'd')
+
+  return grid
+}
+
+const EMBERIMP_STEPS = [0, 1, 0, -1]
+
+function buildEmberimp() {
+  return {
+    idle: [composeEmberimp(), composeEmberimp({ bob: 1 })],
+    idleBlink: [
+      composeEmberimp({ blink: true }),
+      composeEmberimp({ bob: 1, blink: true }),
+    ],
+    walk: EMBERIMP_STEPS.map((step, index) =>
+      composeEmberimp({
+        bob: index === 1 || index === 3 ? 1 : 0,
+        front: step,
+        back: -step,
+        frontLift: step > 0 ? 1 : 0,
+        backLift: step < 0 ? 1 : 0,
+        tail: index % 2 ? 1 : 0,
+        arm: index % 2 ? 1 : 0,
+      }),
+    ),
+  }
+}
+
+export const EMBERIMP_FRAMES = buildEmberimp()
+
+// Ashwisp: a floating teardrop flame with a bright core and a few detached
+// ember pixels. Original design; it is not a Blaze (no rods, no orbiting
+// parts) and not a torch.
+export const ASHWISP_PALETTE = {
+  o: '#b8410f', // outer ember edge
+  r: '#ff7a1a', // lava body
+  R: '#ffab4d', // inner glow
+  f: '#ffd447', // hot core
+  m: '#ff8a2a', // floating ember
+}
+
+const WISP_SPANS = [
+  [7, 8],
+  [6, 9],
+  [5, 10],
+  [4, 11],
+  [3, 12],
+  [2, 13],
+  [2, 13],
+  [2, 13],
+  [2, 13],
+  [3, 12],
+  [4, 11],
+  [5, 10],
+]
+
+function composeAshwisp({ flicker = 0 } = {}) {
+  const grid = emptyGrid(16)
+  const top = 2
+
+  WISP_SPANS.forEach(([left, right], index) => {
+    const y = top + index
+    paint(grid, left, y, right - left + 1, 1, 'o')
+    if (right - left > 1) paint(grid, left + 1, y, right - left - 1, 1, 'r')
+  })
+
+  // Inner glow on the left and a bright, flickering core.
+  paint(grid, 4, top + 4, 2, 4, 'R')
+  paint(grid, 6, top + 5, 4, 3, 'f')
+
+  if (flicker === 0) {
+    paint(grid, 7, top + 4, 2, 1, 'f')
+    paint(grid, 7, top + 8, 2, 1, 'f')
+    pixel(grid, 2, top + 1, 'm')
+    pixel(grid, 13, top + 4, 'm')
+    pixel(grid, 11, top - 1, 'm')
+  } else {
+    paint(grid, 6, top + 4, 1, 1, 'f')
+    paint(grid, 9, top + 4, 1, 1, 'f')
+    paint(grid, 7, top + 8, 1, 1, 'f')
+    pixel(grid, 3, top, 'm')
+    pixel(grid, 13, top + 6, 'm')
+    pixel(grid, 9, top - 1, 'm')
+  }
+
+  return grid
+}
+
+export const ASHWISP_FRAMES = {
+  idle: [composeAshwisp({ flicker: 0 }), composeAshwisp({ flicker: 1 })],
+  idleBlink: null,
+}
+
+// Gloamer: a tall, hooded Void shadow with short thick arms, a wide bell-shaped
+// hem and one pale-violet eye slit. Original design; the hem never shows legs.
+// Deliberately not an Enderman: no long thin limbs, no tall rectangular head,
+// no particles and no teleporting.
+export const GLOAMER_PALETTE = {
+  o: '#120a1c', // outline and deep shade
+  c: '#2a1740', // cloak
+  C: '#3d2459', // cloak highlight
+  d: '#1b0f2a', // cloak shade
+  e: '#b58cff', // eye slit
+  E: '#e6d6ff', // pale eye core
+}
+
+function composeGloamer({ blink = false, pulse = false } = {}) {
+  const grid = emptyGrid(32)
+
+  // Short, thick arms hang at the sides behind the cloak. The outer edge is
+  // shaded so each arm reads against the body instead of merging into it.
+  paint(grid, 2, 13, 2, 5, 'c')
+  paint(grid, 12, 13, 2, 5, 'c')
+  paint(grid, 2, 13, 1, 5, 'd')
+  paint(grid, 13, 13, 1, 5, 'd')
+  paint(grid, 2, 17, 2, 1, 'o')
+  paint(grid, 12, 17, 2, 1, 'o')
+
+  // Rounded hood: narrow at the crown, then a soft eight-wide face.
+  paint(grid, 5, 1, 6, 1, 'c')
+  paint(grid, 4, 2, 8, 6, 'c')
+  paint(grid, 5, 8, 6, 1, 'c')
+  paint(grid, 4, 2, 1, 6, 'C')
+  paint(grid, 11, 2, 1, 6, 'd')
+
+  // One pale-violet eye slit, never a pair of eyes.
+  if (blink) {
+    paint(grid, 6, 5, 4, 1, 'd')
+  } else {
+    paint(grid, 6, 5, 4, 1, 'e')
+    paint(grid, 7, 5, 2, 1, 'E')
+  }
+
+  // Shoulders and cloak body.
+  paint(grid, 3, 9, 10, 3, 'c')
+  paint(grid, 4, 12, 8, 9, 'c')
+  paint(grid, 3, 9, 1, 3, 'C')
+  paint(grid, 4, 12, 1, 9, 'C')
+  paint(grid, 11, 12, 1, 9, 'd')
+
+  // Wide bell hem: no legs, and the hem itself is the ground contact.
+  paint(grid, 3, 21, 10, 1, 'c')
+  paint(grid, 2, 22, 12, 2, 'c')
+  paint(grid, 1, 24, 14, 2, 'c')
+  paint(grid, 0, 26, 16, 3, 'c')
+  paint(grid, 0, 26, 8, 1, 'C')
+  paint(grid, 0, 29, 16, 1, 'd')
+
+  // Two cloak folds, shifted one pixel on the pulse frame.
+  const fold = pulse ? 1 : 0
+  paint(grid, 5 + fold, 12, 1, 9, 'd')
+  paint(grid, 9 - fold, 12, 1, 9, 'C')
+
+  return grid
+}
+
+export const GLOAMER_FRAMES = {
+  idle: [composeGloamer(), composeGloamer({ pulse: true })],
+  idleBlink: [
+    composeGloamer({ blink: true }),
+    composeGloamer({ blink: true, pulse: true }),
+  ],
+}
+
+// Starmote: a tiny floating star-jelly for the Void. A four-point cream star
+// core sits inside a soft, translucent violet body with a few violet glints.
+export const STARMOTE_PALETTE = {
+  o: 'rgba(181, 140, 255, 0.35)', // translucent jelly edge
+  b: 'rgba(181, 140, 255, 0.18)', // translucent jelly body
+  B: 'rgba(217, 194, 255, 0.32)', // jelly highlight
+  s: '#f4e9c1', // star core
+  S: '#fff6dd', // bright star center
+  g: '#b58cff', // violet glint
+}
+
+const STARMOTE_SPANS = [
+  [6, 9],
+  [4, 11],
+  [3, 12],
+  [2, 13],
+  [2, 13],
+  [2, 13],
+  [2, 13],
+  [3, 12],
+  [4, 11],
+  [5, 10],
+]
+
+function composeStarmote({ pulse = 0 } = {}) {
+  const grid = emptyGrid(16)
+  const top = 3
+
+  STARMOTE_SPANS.forEach(([left, right], index) => {
+    const y = top + index
+    paint(grid, left, y, right - left + 1, 1, 'b')
+    pixel(grid, left, y, 'o')
+    pixel(grid, right, y, 'o')
+  })
+
+  // Soft highlight on the upper left of the jelly.
+  paint(grid, 4, top + 1, 3, 2, 'B')
+  pixel(grid, 4, top + 3, 'B')
+
+  // Four-point star core: one vertical bar and one horizontal bar.
+  paint(grid, 7, top + 2, 2, 6, 's')
+  paint(grid, 5, top + 4, 6, 2, 's')
+  pixel(grid, 7, top + 4, 'S')
+  pixel(grid, 8, top + 5, 'S')
+
+  if (pulse) {
+    pixel(grid, 7, top + 1, 's')
+    pixel(grid, 8, top + 8, 's')
+    pixel(grid, 4, top + 4, 's')
+    pixel(grid, 11, top + 5, 's')
+  }
+
+  // A few violet glints around the body, swapped on the pulse frame.
+  if (pulse) {
+    pixel(grid, 1, top + 1, 'g')
+    pixel(grid, 14, top + 5, 'g')
+    pixel(grid, 12, top + 9, 'g')
+  } else {
+    pixel(grid, 2, top + 2, 'g')
+    pixel(grid, 13, top + 4, 'g')
+    pixel(grid, 13, top + 8, 'g')
+  }
+
+  return grid
+}
+
+export const STARMOTE_FRAMES = {
+  idle: [composeStarmote({ pulse: 0 }), composeStarmote({ pulse: 1 })],
+  idleBlink: null,
+}

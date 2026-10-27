@@ -310,6 +310,35 @@
   --shadow-scale: 0.9;
 }
 
+/* Floating creatures (Ashwisp, Gloamer, Starmote) keep the same ground
+   wrapper, but the body lifts and bobs above a smaller, dimmer shadow. */
+.float-critter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.float-critter__body {
+  display: block;
+}
+
+.critter__shadow--float {
+  width: 48%;
+  opacity: 0.5;
+}
+
+.float-critter--ashwisp .critter__shadow--float,
+.float-critter--starmote .critter__shadow--float {
+  width: 38%;
+  opacity: 0.35;
+}
+
+.float-critter--gloamer .critter__shadow--float {
+  width: 64%;
+  opacity: 0.55;
+}
+
 /* Pix is the one character that catches clicks, so he can be taken over. */
 .critter--pix {
   pointer-events: auto;

@@ -249,96 +249,111 @@ function App() {
           />
         </section>
 
-        <div className="lower-world">
-          <div className="lower-decor" aria-hidden="true">
-            <span className="stars stars--lower" />
-            <span className="hill hill--lower" />
-            <span className="tree tree--lower" />
+        <section
+          id="about"
+          className="scene scene--about scene--ember"
+          aria-labelledby="about-title"
+        >
+          <div className="ember-decor" aria-hidden="true">
+            <span className="ember-ceiling" />
+            <span className="ember-pillar ember-pillar--left" />
+            <span className="ember-pillar ember-pillar--right" />
+            <span className="ember-crack ember-crack--one" />
+            <span className="ember-crack ember-crack--two" />
+            <span className="ember-sparks" />
+            <span className="lava-pool lava-pool--one" />
+            <span className="lava-pool lava-pool--two" />
           </div>
 
-          <section id="about" className="scene scene--about" aria-labelledby="about-title">
-            <div className="container scene-copy scene-copy--about">
-              <p className="area-kicker">Level 03 / About</p>
-              <h2 id="about-title">About</h2>
-              <p className="scene-copy__lead">
-                Placeholder introduction for the about area. The text sits directly on the
-                night scene.
-              </p>
+          <div className="container scene-copy scene-copy--about">
+            <p className="area-kicker">Level 03 / About</p>
+            <h2 id="about-title">About</h2>
+            <p className="scene-copy__lead">
+              Placeholder introduction for the about area. The text sits directly on the
+              ember scene.
+            </p>
 
-              <DialogueBox className="about__dialogue" label="Dialogue" speaker="POP">
-                <p>Hi, I&apos;m POP.</p>
-              </DialogueBox>
+            <DialogueBox className="about__dialogue" label="Dialogue" speaker="POP">
+              <p>Hi, I&apos;m POP.</p>
+            </DialogueBox>
 
-              <div className="about__grid">
-                <div className="about__block">
-                  <h3>Profile</h3>
-                  <p>
-                    Placeholder bio paragraph. Real background details will replace this
-                    text later.
-                  </p>
-                  <p>
-                    A second placeholder paragraph checks the line length and breathing
-                    room.
-                  </p>
-                </div>
+            <div className="about__grid">
+              <div className="about__block">
+                <h3>Profile</h3>
+                <p>
+                  Placeholder bio paragraph. Real background details will replace this
+                  text later.
+                </p>
+                <p>
+                  A second placeholder paragraph checks the line length and breathing
+                  room.
+                </p>
+              </div>
 
-                <div className="about__block">
-                  <h3>Skills</h3>
-                  <ul className="pixel-list">
-                    <li>Placeholder skill one.</li>
-                    <li>Placeholder skill two.</li>
-                    <li>Placeholder skill three.</li>
-                    <li>Placeholder skill four.</li>
-                  </ul>
-                </div>
+              <div className="about__block">
+                <h3>Skills</h3>
+                <ul className="pixel-list">
+                  <li>Placeholder skill one.</li>
+                  <li>Placeholder skill two.</li>
+                  <li>Placeholder skill three.</li>
+                  <li>Placeholder skill four.</li>
+                </ul>
               </div>
             </div>
+          </div>
 
-            <span className="ground ground--section" aria-hidden="true" />
+          <span className="ground ground--section ground--ember" aria-hidden="true" />
 
-            <CreatureScene
-              zone="about"
-              paused={creaturesPaused}
-              reducedMotion={reducedMotion}
-              scale={spriteScale}
-            />
-          </section>
+          <CreatureScene
+            zone="about"
+            paused={creaturesPaused}
+            reducedMotion={reducedMotion}
+            scale={spriteScale}
+          />
+        </section>
 
-          <section
-            id="contact"
-            className="scene scene--contact"
-            aria-labelledby="contact-title"
-          >
-            <div className="container scene-copy scene-copy--contact">
-              <p className="area-kicker">Level 04 / Contact</p>
-              <h2 id="contact-title">Contact</h2>
-              <p className="scene-copy__lead">
-                Placeholder contact message. The real contact details come in a later phase.
-              </p>
-              <p>Email placeholder.</p>
-              <p>Social link placeholder.</p>
-              <PixelButton href="#home" variant="secondary">
-                Return to the signpost
-              </PixelButton>
-            </div>
+        <section
+          id="contact"
+          className="scene scene--contact scene--void"
+          aria-labelledby="contact-title"
+        >
+          <div className="void-decor" aria-hidden="true">
+            <span className="void-stars" />
+            <span className="void-glints" />
+            <span className="void-rock void-rock--one" />
+            <span className="void-rock void-rock--two" />
+            <span className="void-rock void-rock--three" />
+          </div>
 
-            <span className="ground ground--section" aria-hidden="true" />
+          <div className="container scene-copy scene-copy--contact">
+            <p className="area-kicker">Level 04 / Contact</p>
+            <h2 id="contact-title">Contact</h2>
+            <p className="scene-copy__lead">
+              Placeholder contact message. The real contact details come in a later phase.
+            </p>
+            <p>Email placeholder.</p>
+            <p>Social link placeholder.</p>
+            <PixelButton href="#home" variant="secondary">
+              Return to the signpost
+            </PixelButton>
+          </div>
 
-            <CreatureScene
-              zone="contact"
-              paused={creaturesPaused}
-              reducedMotion={reducedMotion}
-              scale={spriteScale}
-            />
-          </section>
+          <span className="ground ground--section ground--void" aria-hidden="true" />
 
-          <footer className="site-footer">
-            <div className="container site-footer__inner">
-              <p>Placeholder footer text.</p>
-              <p>POP / pixel portfolio</p>
-            </div>
-          </footer>
-        </div>
+          <CreatureScene
+            zone="contact"
+            paused={creaturesPaused}
+            reducedMotion={reducedMotion}
+            scale={spriteScale}
+          />
+        </section>
+
+        <footer className="site-footer scene--void">
+          <div className="container site-footer__inner">
+            <p>Placeholder footer text.</p>
+            <p>POP / pixel portfolio</p>
+          </div>
+        </footer>
       </main>
     </div>
   )

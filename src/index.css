@@ -137,6 +137,74 @@
   --cave-rock: #8a5a3b;
 }
 
+/* Ember theme. Applied locally to the About world area (a fiery underground). */
+.scene--ember {
+  color-scheme: dark;
+  --bg: #1a0b0c;
+  --bg-alt: #24100f;
+  --panel: #24100f;
+  --panel-alt: #2f1413;
+  --ink: #f4ecd8;
+  --ink-muted: #d6bda9;
+  --line: #a4573c;
+  --accent: #ff8a2a;
+  --accent-hover: #ffa457;
+  --accent-ink: #1a0b0c;
+  --link: #ffa457;
+  --link-hover: #ffbe7a;
+  --focus: #ffd447;
+  --shadow-color: #0a0405;
+  --shadow-soft: rgba(10, 4, 5, 0.5);
+  --panel-highlight: #3a1915;
+  --panel-shade: #120707;
+  --ground: #8a8078;
+  --ground-deep: #3a1a14;
+  --grass: #8a8078;
+  --dirt: #2a0f0e;
+  --ember-bg-top: #140708;
+  --ember-bg-bottom: #220e0d;
+  --ember-rock: #3a1a14;
+  --ember-rock-dark: #240d0c;
+  --ember-rock-light: #4a221b;
+  --ember-lava: #ff7a1a;
+  --ember-hot: #ffd447;
+  --ember-ash: #8a8078;
+  --ember-glow: rgba(255, 122, 26, 0.16);
+}
+
+/* Void theme. Applied locally to the Contact world area. */
+.scene--void {
+  color-scheme: dark;
+  --bg: #07050f;
+  --bg-alt: #14081f;
+  --panel: #120a1c;
+  --panel-alt: #1b0f2a;
+  --ink: #f4ecd8;
+  --ink-muted: #c3b6d6;
+  --line: #7d5fa8;
+  --accent: #b58cff;
+  --accent-hover: #c9a8ff;
+  --accent-ink: #07050f;
+  --link: #c9a8ff;
+  --link-hover: #e0ccff;
+  --focus: #e8dcc0;
+  --shadow-color: #020105;
+  --shadow-soft: rgba(2, 1, 5, 0.5);
+  --panel-highlight: #24143a;
+  --panel-shade: #05030a;
+  --ground: #e8dcc0;
+  --ground-deep: #b8a88a;
+  --grass: #e8dcc0;
+  --dirt: #b9a98d;
+  --void-rock: #e8dcc0;
+  --void-rock-shade: #b8a88a;
+  --void-under: #05030a;
+  --void-bg-top: #05030a;
+  --void-bg-bottom: #0e0618;
+  --void-glint: #b58cff;
+  --void-star: #f4e9c1;
+}
+
 *,
 *::before,
 *::after {

@@ -1032,100 +1032,316 @@ main {
   box-shadow: 0 0 0 var(--px) rgba(255, 179, 71, 0.12);
 }
 
-/* Lower world: About and Contact on the night scene ---------------------- */
+/* Ember world (About) ----------------------------------------------------- */
 
-.lower-world {
-  position: relative;
+/* The About section is a fiery underground room: dark rock overhead, lava
+   seams and heat in the floor. Scenery is layered behind the copy. */
+.scene--about {
+  --grass-depth: 96px;
+  z-index: 2;
   overflow: hidden;
-  background: var(--sky-top);
+  padding-block: 192px 320px;
+  background: linear-gradient(
+    180deg,
+    var(--ember-bg-top) 0 9%,
+    var(--bg) 9% 62%,
+    var(--ember-bg-bottom) 62% 100%
+  );
 }
 
-.lower-world::before {
-  content: '';
+.ember-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Jagged ceiling: the underside of the cave the visitor just left. */
+.ember-ceiling {
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
-  z-index: 3;
-  height: 96px;
-  background: var(--cave-rock, var(--dirt));
+  height: 88px;
+  background: linear-gradient(
+    180deg,
+    var(--ember-rock-light) 0 24%,
+    var(--ember-rock-dark) 24% 100%
+  );
   clip-path: polygon(
     0 0,
-    100% 0,
-    100% 60%,
-    94% 60%,
-    94% 80%,
-    86% 80%,
-    86% 60%,
-    78% 60%,
-    78% 90%,
-    70% 90%,
-    70% 60%,
-    62% 60%,
-    62% 80%,
-    54% 80%,
-    54% 50%,
-    46% 50%,
-    46% 80%,
-    38% 80%,
-    38% 60%,
-    30% 60%,
-    30% 90%,
-    22% 90%,
-    22% 60%,
-    14% 60%,
-    14% 80%,
-    6% 80%,
+    0 60%,
     6% 60%,
-    0 60%
+    6% 80%,
+    14% 80%,
+    14% 60%,
+    22% 60%,
+    22% 90%,
+    30% 90%,
+    30% 60%,
+    38% 60%,
+    38% 80%,
+    46% 80%,
+    46% 50%,
+    54% 50%,
+    54% 80%,
+    62% 80%,
+    62% 60%,
+    70% 60%,
+    70% 90%,
+    78% 90%,
+    78% 60%,
+    86% 60%,
+    86% 80%,
+    94% 80%,
+    94% 60%,
+    100% 60%,
+    100% 0
   );
 }
 
-.lower-decor {
+/* Rock pillars frame the room. The lava edge sits on the inner side, so the
+   right pillar is mirrored instead of being drawn twice. */
+.ember-pillar {
+  position: absolute;
+  bottom: 0;
+  width: 72px;
+  height: 256px;
+  background: linear-gradient(
+    180deg,
+    var(--ember-rock-light) 0 24px,
+    var(--ember-rock) 24px 100%
+  );
+  box-shadow:
+    inset -8px 0 0 var(--ember-lava),
+    inset -16px 0 0 var(--ember-glow);
+  clip-path: polygon(0 100%, 0 18%, 16% 18%, 16% 8%, 64% 8%, 64% 0, 100% 0, 100% 100%);
+}
+
+.ember-pillar--left {
+  left: 3%;
+}
+
+.ember-pillar--right {
+  right: 3%;
+  transform: scaleX(-1);
+}
+
+/* Stepped lava cracks. They sit in the lower padding, clear of the copy. */
+.ember-crack {
+  position: absolute;
+  bottom: 168px;
+  width: 4px;
+  height: 72px;
+  background: var(--ember-lava);
+  opacity: 0.8;
+}
+
+.ember-crack::before,
+.ember-crack::after {
+  content: '';
+  position: absolute;
+  height: 4px;
+  background: inherit;
+}
+
+.ember-crack::before {
+  top: 0;
+  left: 0;
+  width: 24px;
+}
+
+.ember-crack::after {
+  bottom: 0;
+  left: -20px;
+  width: 20px;
+}
+
+.ember-crack--one {
+  right: 14%;
+}
+
+.ember-crack--two {
+  right: 30%;
+  bottom: 196px;
+  height: 48px;
+  transform: scaleX(-1);
+}
+
+/* Floating embers stay in the top band, above the copy. */
+.ember-sparks {
+  position: absolute;
+  top: 96px;
+  right: 12%;
+  width: 4px;
+  height: 4px;
+  background: var(--ember-hot);
+  box-shadow:
+    0 40px 0 0 var(--ember-lava),
+    -56px 16px 0 0 var(--ember-hot),
+    -88px 56px 0 0 var(--ember-lava),
+    -24px 72px 0 0 var(--ember-hot),
+    -128px 32px 0 0 var(--ember-lava);
+  opacity: 0.9;
+}
+
+/* Pools of lava sit in the hot rock below the walking band. */
+.lava-pool {
+  position: absolute;
+  height: 8px;
+  background: var(--ember-lava);
+  box-shadow:
+    0 0 0 4px var(--ember-glow),
+    0 0 0 8px rgba(255, 122, 26, 0.07);
+}
+
+.lava-pool--one {
+  bottom: 48px;
+  left: 8%;
+  width: 112px;
+}
+
+.lava-pool--two {
+  right: 14%;
+  bottom: 28px;
+  width: 72px;
+}
+
+/* Void world (Contact) ---------------------------------------------------- */
+
+/* The Contact section is the drop below the world: near-black violet sky,
+   pale floating rock and a few violet glints. */
+.scene--contact {
+  --grass-depth: 96px;
+  z-index: 2;
+  overflow: hidden;
+  padding-block: 64px 320px;
+  background: linear-gradient(
+    180deg,
+    var(--void-bg-top) 0 16%,
+    var(--bg) 16% 66%,
+    var(--void-bg-bottom) 66% 100%
+  );
+}
+
+.void-decor {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.stars--lower {
-  top: 96px;
-  opacity: 0.7;
-  box-shadow:
-    7vw 8px 0 0 var(--star),
-    17vw 48px 0 0 var(--star),
-    29vw 20px 0 0 var(--star),
-    39vw 60px 0 0 var(--star),
-    51vw 12px 0 0 var(--star),
-    62vw 44px 0 0 var(--star),
-    74vw 24px 0 0 var(--star),
-    84vw 56px 0 0 var(--star),
-    94vw 16px 0 0 var(--star);
-}
-
-.hill--lower {
-  right: -10%;
-  bottom: 96px;
-  width: 76%;
-  height: 176px;
-  background: var(--hill-back);
-}
-
-.tree--lower {
-  bottom: 128px;
+/* Stars stay in the top band so they never sit behind the copy. */
+.void-stars {
+  position: absolute;
+  top: 12px;
   left: 6%;
-  transform: scale(0.9);
-  transform-origin: bottom center;
+  width: 4px;
+  height: 4px;
+  background: var(--void-star);
+  box-shadow:
+    8vw 0 0 0 var(--void-star),
+    16vw 20px 0 0 var(--void-star),
+    27vw 4px 0 0 var(--void-star),
+    38vw 24px 0 0 var(--void-star),
+    52vw 8px 0 0 var(--void-star),
+    64vw 28px 0 0 var(--void-star),
+    76vw 0 0 0 var(--void-star),
+    88vw 18px 0 0 var(--void-star);
+  opacity: 0.8;
 }
 
-.scene--about {
-  z-index: 2;
-  padding-block: 192px 320px;
+.void-glints {
+  position: absolute;
+  top: 30%;
+  right: 9%;
+  width: 4px;
+  height: 4px;
+  background: var(--void-glint);
+  box-shadow:
+    0 0 0 4px rgba(181, 140, 255, 0.14),
+    -96px 64px 0 0 var(--void-glint),
+    -160px 148px 0 0 var(--void-glint),
+    -32px 208px 0 0 var(--void-glint),
+    -128px 24px 0 0 var(--void-glint);
+  opacity: 0.9;
 }
 
-.scene--contact {
-  z-index: 2;
-  padding-block: 64px 320px;
+/* Stepped floating islands: pale cream tops, ash-cream undersides and a hard
+   drop shadow instead of a soft one. The shape lives on the pseudo-elements so
+   the shadow is not clipped by the rock's own clip-path. */
+.void-rock {
+  --rock-shape: polygon(
+    18% 0,
+    82% 0,
+    82% 14%,
+    94% 14%,
+    94% 36%,
+    100% 36%,
+    100% 62%,
+    86% 62%,
+    86% 80%,
+    68% 80%,
+    68% 94%,
+    52% 94%,
+    52% 100%,
+    26% 100%,
+    26% 86%,
+    12% 86%,
+    12% 70%,
+    0 70%,
+    0 46%,
+    12% 46%,
+    12% 24%,
+    18% 24%
+  );
+  position: absolute;
+}
+
+.void-rock::before,
+.void-rock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  clip-path: var(--rock-shape);
+}
+
+.void-rock::before {
+  background: var(--shadow-color);
+  transform: translateY(8px);
+}
+
+.void-rock::after {
+  background: linear-gradient(
+    180deg,
+    var(--void-rock) 0 56%,
+    var(--void-rock-shade) 56% 86%,
+    var(--void-under) 86% 100%
+  );
+}
+
+.void-rock--one {
+  top: 24%;
+  right: 6%;
+  width: 176px;
+  height: 104px;
+}
+
+.void-rock--two {
+  bottom: 208px;
+  left: 4%;
+  width: 72px;
+  height: 48px;
+}
+
+.void-rock--three {
+  right: 20%;
+  bottom: 248px;
+  width: 120px;
+  height: 72px;
+  opacity: 0.75;
 }
 
 /* Every section carries its own ground strip. Home's sits in its landscape
@@ -1134,6 +1350,41 @@ main {
   z-index: 0;
   box-shadow: 0 var(--px-2) 0 0 var(--shadow-color);
   pointer-events: none;
+}
+
+/* Ash over hot rock, with a stepped lava seam at the ash line. */
+.ground--ember::after {
+  content: '';
+  position: absolute;
+  top: var(--grass-depth);
+  right: 0;
+  left: 0;
+  height: var(--px);
+  background: linear-gradient(
+    90deg,
+    transparent 0 10%,
+    var(--ember-lava) 10% 34%,
+    var(--ember-hot) 34% 44%,
+    var(--ember-lava) 44% 66%,
+    transparent 66% 100%
+  );
+}
+
+/* Pale cream rock with a few violet seams at its top line. */
+.ground--void::after {
+  content: '';
+  position: absolute;
+  top: var(--grass-depth);
+  right: 0;
+  left: 0;
+  height: var(--px);
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 48px,
+    var(--void-glint) 48px 52px,
+    transparent 52px 120px
+  );
+  opacity: 0.55;
 }
 
 .scene--about .container,
@@ -1195,7 +1446,8 @@ main {
   position: relative;
   z-index: 4;
   padding: var(--px-12) 0 var(--px-12);
-  background: var(--dirt);
+  background: var(--void-under, var(--dirt));
+  box-shadow: inset 0 var(--px-2) 0 0 var(--bg-alt, var(--panel-alt));
 }
 
 .site-footer__inner {
@@ -1271,6 +1523,12 @@ main {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--px-8);
   }
+
+  /* The two wide islands would reach the copy below this width. */
+  .void-rock--one,
+  .void-rock--three {
+    display: none;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1304,6 +1562,11 @@ main {
 
   .scene--contact {
     padding-block: 64px 280px;
+  }
+
+  .void-glints,
+  .ember-sparks {
+    display: none;
   }
 }
 
@@ -1355,8 +1618,19 @@ main {
     display: none;
   }
 
-  .lower-world::before {
-    height: 80px;
+  .ember-pillar {
+    width: 48px;
+    height: 208px;
+  }
+
+  .lava-pool--one {
+    left: 4%;
+    width: 80px;
+  }
+
+  .lava-pool--two {
+    right: 8%;
+    width: 56px;
   }
 
   .site-footer {

@@ -1,66 +1,17 @@
-/* Shared pixel components. Every border/shadow offset is a multiple of 4px. */
+/* Only character dialogue is boxed. Everything else sits on the scene. */
 
-.panel,
-.dialogue-box,
-.card {
+.dialogue-box {
   position: relative;
+  display: flex;
+  flex-direction: column;
   color: var(--ink);
   background: var(--panel);
   border: var(--px) solid var(--line);
-}
-
-.panel,
-.dialogue-box {
   box-shadow:
     inset var(--px) var(--px) 0 0 var(--panel-highlight),
     inset var(--px-n) var(--px-n) 0 0 var(--panel-shade),
     var(--px) var(--px) 0 0 var(--shadow-color),
     var(--px-2) var(--px-2) 0 0 var(--shadow-soft);
-}
-
-/* Panel ------------------------------------------------------------------ */
-
-.panel {
-  display: flex;
-  flex-direction: column;
-  padding: var(--px-6);
-}
-
-.panel__header {
-  margin-bottom: var(--px-4);
-  padding-bottom: var(--px-4);
-  border-bottom: var(--px) solid var(--line);
-}
-
-.panel__eyebrow {
-  margin: 0 0 var(--px-2);
-  color: var(--ink-muted);
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.panel__title {
-  margin: 0;
-}
-
-.panel__body {
-  flex: 1;
-}
-
-.panel__footer {
-  margin-top: var(--px-4);
-  padding-top: var(--px-4);
-  border-top: var(--px) solid var(--line);
-}
-
-/* Dialogue box ----------------------------------------------------------- */
-
-.dialogue-box {
-  display: flex;
-  flex-direction: column;
 }
 
 .dialogue-box__bar {
@@ -96,7 +47,6 @@
 }
 
 .dialogue-box__body {
-  flex: 1;
   padding: var(--px-6);
 }
 
@@ -107,115 +57,200 @@
   margin-top: var(--px-4);
 }
 
-/* Card ------------------------------------------------------------------- */
+/* Portrait picture frame -------------------------------------------------- */
 
-.card {
+.portrait {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--px-4);
-  padding: var(--px-6);
+  align-items: center;
+  width: 100%;
+  padding-top: calc(var(--px-16) + var(--px-2));
+}
+
+.portrait__post {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 0;
+  width: var(--px-4);
+  height: calc(var(--px-16) + var(--px-2) + var(--px-6));
+  background: var(--wood-dark);
   box-shadow:
-    inset var(--px) var(--px) 0 0 var(--panel-highlight),
-    inset var(--px-n) var(--px-n) 0 0 var(--panel-shade),
-    var(--px) var(--px) 0 0 var(--shadow-color);
+    inset var(--px) 0 0 var(--wood),
+    var(--px) 0 0 0 var(--shadow-soft);
+  transform: translateX(-50%);
 }
 
-.card__header {
+.portrait__post::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(var(--px) * -2);
+  width: var(--px-8);
+  height: var(--px-2);
+  background: var(--wood);
+}
+
+.portrait__frame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 260px;
+  margin: 0;
+  background: var(--wood);
+  border: var(--px-2) solid var(--wood);
+  box-shadow:
+    var(--px) var(--px) 0 0 var(--shadow-color),
+    var(--px-2) var(--px-2) 0 0 var(--shadow-color),
+    var(--px-3) var(--px-3) 0 0 var(--shadow-soft);
+}
+
+.portrait__nail {
+  position: absolute;
+  top: calc(var(--px) * -1);
+  left: 50%;
+  z-index: 2;
+  width: var(--px-2);
+  height: var(--px-2);
+  background: var(--shadow-color);
+  transform: translateX(-50%);
+}
+
+.portrait__window {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: var(--bg-alt);
+  border: var(--px) solid var(--wood-dark);
+}
+
+.portrait__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: auto;
+}
+
+.portrait__placeholder {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--px-2);
-  padding-bottom: var(--px-3);
-  border-bottom: var(--px) solid var(--line);
+  height: 100%;
+  padding: var(--px);
+  background: var(--bg-alt);
 }
 
-.card__eyebrow {
-  margin: 0;
-  color: var(--link);
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.portrait__silhouette {
+  display: block;
+  flex: 0 0 auto;
+  width: 96px;
+  height: 128px;
+  background: var(--ink-muted);
+  opacity: 0.4;
+  clip-path: polygon(
+    33.333% 0,
+    66.667% 0,
+    66.667% 31.25%,
+    58.333% 31.25%,
+    58.333% 37.5%,
+    75% 37.5%,
+    75% 46.875%,
+    91.667% 46.875%,
+    91.667% 56.25%,
+    100% 56.25%,
+    100% 100%,
+    0 100%,
+    0 56.25%,
+    8.333% 56.25%,
+    8.333% 46.875%,
+    25% 46.875%,
+    25% 37.5%,
+    41.667% 37.5%,
+    41.667% 31.25%,
+    33.333% 31.25%
+  );
 }
 
-.card__title {
-  margin: 0;
-}
-
-.card__body {
-  flex: 1;
-}
-
-.card__footer {
-  margin-top: auto;
-  padding-top: var(--px-3);
-  border-top: var(--px) solid var(--line);
-}
-
-.card__note {
-  margin: 0;
+.portrait__placeholder-label {
+  max-width: 100%;
   color: var(--ink-muted);
-  font-size: 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.625rem;
   line-height: 1.5;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
-/* Button ----------------------------------------------------------------- */
+/* Unboxed action link ---------------------------------------------------- */
 
 .pixel-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: var(--px-2);
   min-height: var(--px-12);
-  padding: var(--px-3) var(--px-5);
-  color: var(--accent-ink);
-  background: var(--accent);
-  border: var(--px) solid var(--accent-ink);
-  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  padding: var(--px-2) 0;
+  color: var(--accent);
+  background: none;
+  border: 0;
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
-  line-height: 1.25;
-  text-align: center;
-  text-decoration: none;
+  line-height: 1.4;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: var(--px);
+  text-underline-offset: var(--px);
   cursor: pointer;
   appearance: none;
 }
 
-.pixel-button:not(:disabled):hover {
-  color: var(--accent-ink);
-  background: var(--accent-hover);
+.pixel-button::before {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--px-2);
+  height: var(--px-2);
+  background: currentColor;
 }
 
-.pixel-button:not(:disabled):active {
-  transform: translate(var(--px), var(--px));
-  box-shadow: none;
-}
-
-.pixel-button:disabled {
-  opacity: 0.55;
-  box-shadow: none;
+.pixel-button:hover {
+  color: var(--link-hover);
 }
 
 .pixel-button--secondary {
   color: var(--ink);
-  background: var(--panel-alt);
-  border-color: var(--line);
 }
 
-.pixel-button--secondary:not(:disabled):hover {
-  color: var(--accent-ink);
-  background: var(--accent);
-  border-color: var(--accent-ink);
+.pixel-button--secondary:hover {
+  color: var(--link-hover);
+}
+
+.pixel-button:active {
+  color: var(--link-hover);
+}
+
+.pixel-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 @media (max-width: 600px) {
-  .panel,
-  .card {
+  .dialogue-box__body {
     padding: var(--px-4);
   }
 
-  .dialogue-box__body {
-    padding: var(--px-4);
+  .portrait {
+    padding-top: var(--px-12);
+  }
+
+  .portrait__post {
+    height: calc(var(--px-12) + var(--px-6));
+  }
+
+  .portrait__frame {
+    max-width: 160px;
   }
 }

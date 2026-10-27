@@ -1,6 +1,4 @@
 .app {
-  display: flex;
-  flex-direction: column;
   min-height: 100svh;
 }
 
@@ -12,7 +10,7 @@
 }
 
 main {
-  flex: 1;
+  display: block;
 }
 
 /* Keyboard skip link ----------------------------------------------------- */
@@ -25,7 +23,6 @@ main {
   padding: var(--px-3) var(--px-4);
   color: var(--accent-ink);
   background: var(--accent);
-  border: var(--px) solid var(--accent-ink);
   box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
   font-weight: 700;
   text-decoration: none;
@@ -36,207 +33,31 @@ main {
   transform: translateY(0);
 }
 
-/* Header and level navigation ------------------------------------------- */
+/* Shared scene pieces ---------------------------------------------------- */
 
-.site-header {
-  background: var(--panel);
-  border-bottom: var(--px) solid var(--line);
-}
-
-.site-header__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--px-4);
-  padding-block: var(--px-4);
-}
-
-.brand {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--px-2);
-  color: var(--ink);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.brand:hover {
-  color: var(--ink);
-}
-
-.brand__mark {
-  display: block;
-  flex: 0 0 auto;
-  width: var(--px-4);
-  height: var(--px-4);
-  background: var(--accent);
-  border: var(--px) solid var(--accent-ink);
-  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
-}
-
-.brand__sub {
-  color: var(--ink-muted);
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.level-nav {
-  display: flex;
-  flex: 1 1 480px;
-  justify-content: flex-end;
-}
-
-.level-nav__list {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--px-2);
-  width: 100%;
-  max-width: 680px;
-  list-style: none;
-}
-
-.level-nav__link {
-  display: flex;
-  align-items: center;
-  gap: var(--px-2);
-  min-height: var(--px-12);
-  padding: var(--px-2) var(--px-3);
-  color: var(--ink);
-  background: var(--panel-alt);
-  border: var(--px) solid var(--line);
-  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-}
-
-.level-nav__link:hover {
-  color: var(--accent-ink);
-  background: var(--accent);
-  border-color: var(--accent-ink);
-}
-
-.level-nav__link:active {
-  transform: translate(var(--px), var(--px));
-  box-shadow: none;
-}
-
-.level-nav__link:focus-visible {
+.scene {
   position: relative;
-  z-index: 1;
 }
 
-.level-nav__level {
-  color: var(--link);
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-}
-
-.level-nav__link:hover .level-nav__level {
-  color: var(--accent-ink);
-}
-
-/* World areas ------------------------------------------------------------ */
-
-.area {
-  position: relative;
-  padding-block: var(--px-16);
-  padding-bottom: var(--px-12);
-  background: var(--bg);
-  border-bottom: var(--px) solid var(--line);
-}
-
-.area::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: var(--px-2);
-  background: var(--ground-deep);
-  border-top: var(--px) solid var(--ground);
-}
-
-.area--cave {
-  background: var(--bg);
-}
-
-.area__inner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--px-8);
-}
-
-.area__head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--px-3);
-}
-
-.area-tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--px-8);
+.area-kicker {
   margin: 0;
-  padding: 0 var(--px-3);
-  color: var(--link);
-  background: var(--panel);
-  border: var(--px) solid var(--line);
-  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  color: var(--accent);
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.4;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.area__lead {
-  max-width: 65ch;
-  margin: 0;
-  color: var(--ink-muted);
+.home h1,
+.section-intro h2,
+.scene-copy h2 {
+  text-shadow: var(--px) var(--px) 0 var(--shadow-color);
 }
-
-/* Area layouts ----------------------------------------------------------- */
-
-.home-grid,
-.about-grid,
-.contact-grid {
-  display: grid;
-  gap: var(--px-6);
-  align-items: start;
-}
-
-.home-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.about-grid,
-.contact-grid {
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 256px), 1fr));
-  gap: var(--px-6);
-}
-
-/* Shared content bits ---------------------------------------------------- */
 
 .pixel-list {
   display: grid;
   gap: var(--px-2);
-  margin-top: var(--px-4);
   list-style: none;
 }
 
@@ -255,12 +76,1085 @@ main {
   background: var(--accent);
 }
 
-/* Footer ----------------------------------------------------------------- */
+/* Home: sky, signpost, character dialogue -------------------------------- */
+
+.scene--home {
+  overflow: hidden;
+  min-height: 100svh;
+  background:
+    linear-gradient(
+      180deg,
+      var(--sky-top) 0 62%,
+      var(--sky-bottom) 62% 100%
+    );
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--px);
+  height: var(--px);
+  background: var(--star);
+  opacity: 0.9;
+}
+
+.stars--one {
+  box-shadow:
+    6vw 10vh 0 0 var(--star),
+    14vw 22vh 0 0 var(--star),
+    22vw 8vh 0 0 var(--star),
+    31vw 18vh 0 0 var(--star),
+    38vw 34vh 0 0 var(--star),
+    47vw 12vh 0 0 var(--star),
+    55vw 24vh 0 0 var(--star),
+    63vw 7vh 0 0 var(--star),
+    72vw 19vh 0 0 var(--star),
+    81vw 29vh 0 0 var(--star),
+    90vw 13vh 0 0 var(--star),
+    12vw 38vh 0 0 var(--star),
+    68vw 37vh 0 0 var(--star);
+}
+
+.stars--two {
+  opacity: 0.6;
+  box-shadow:
+    9vw 28vh 0 0 var(--star),
+    18vw 5vh 0 0 var(--star),
+    27vw 31vh 0 0 var(--star),
+    35vw 7vh 0 0 var(--star),
+    43vw 26vh 0 0 var(--star),
+    52vw 4vh 0 0 var(--star),
+    60vw 21vh 0 0 var(--star),
+    69vw 9vh 0 0 var(--star),
+    77vw 33vh 0 0 var(--star),
+    86vw 6vh 0 0 var(--star),
+    94vw 24vh 0 0 var(--star);
+}
+
+.moon {
+  position: absolute;
+  top: var(--px-4);
+  right: var(--px-4);
+  width: var(--px-16);
+  height: var(--px-16);
+  background: var(--moon);
+  clip-path: polygon(
+    25% 0,
+    75% 0,
+    75% 12.5%,
+    87.5% 12.5%,
+    87.5% 25%,
+    100% 25%,
+    100% 75%,
+    87.5% 75%,
+    87.5% 87.5%,
+    75% 87.5%,
+    75% 100%,
+    25% 100%,
+    25% 87.5%,
+    12.5% 87.5%,
+    12.5% 75%,
+    0 75%,
+    0 25%,
+    12.5% 25%,
+    12.5% 12.5%,
+    25% 12.5%
+  );
+}
+
+.moon::before {
+  content: '';
+  position: absolute;
+  top: var(--px-6);
+  left: var(--px-4);
+  width: var(--px-4);
+  height: var(--px-4);
+  background: var(--moon-shade);
+}
+
+.moon::after {
+  content: '';
+  position: absolute;
+  top: var(--px-12);
+  left: var(--px-12);
+  width: var(--px-2);
+  height: var(--px-2);
+  background: var(--moon-shade);
+}
+
+.cloud {
+  position: absolute;
+  width: 96px;
+  height: 24px;
+  background: var(--cloud);
+  opacity: 0.9;
+}
+
+.cloud::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: var(--px-4);
+  width: 48px;
+  height: var(--px-4);
+  background: var(--cloud);
+  box-shadow: var(--px-8) var(--px-2) 0 0 var(--cloud);
+}
+
+.cloud::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: var(--px-8);
+  height: var(--px-2);
+  background: var(--cloud);
+}
+
+.cloud--one {
+  top: 24%;
+  left: 4%;
+}
+
+.cloud--two {
+  top: 15%;
+  right: 22%;
+  transform: scale(0.75);
+  transform-origin: right top;
+}
+
+.home {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 288px;
+  grid-template-areas:
+    'header right'
+    'title right'
+    'copy right'
+    'dialogue right';
+  column-gap: var(--px-8);
+  row-gap: var(--px-8);
+  align-items: start;
+  padding-top: var(--px-8);
+  padding-bottom: 320px;
+}
+
+.home__header {
+  grid-area: header;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--px-2) var(--px-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-2);
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.brand:hover {
+  color: var(--ink);
+}
+
+.brand__mark {
+  display: block;
+  width: var(--px-4);
+  height: var(--px-4);
+  background: var(--accent);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+}
+
+.home__note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home__title {
+  grid-area: title;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-4);
+  padding-top: var(--px-6);
+}
+
+.home__copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-4);
+  max-width: 640px;
+}
+
+.home__right {
+  grid-area: right;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-6);
+  width: 100%;
+  padding-top: calc(var(--px-16) + var(--px-6));
+}
+
+.home__lead {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.home__body {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.home__portrait {
+  align-self: center;
+  justify-self: center;
+  width: 100%;
+  max-width: 260px;
+}
+
+.home__dialogue {
+  grid-area: dialogue;
+  width: 100%;
+  max-width: 560px;
+}
+
+/* Wooden signpost navigation --------------------------------------------- */
+
+.signpost {
+  position: relative;
+  grid-area: signpost;
+  justify-self: end;
+  width: 100%;
+  max-width: 288px;
+  min-height: 200px;
+  align-self: start;
+}
+
+.signpost__pole {
+  position: absolute;
+  top: 0;
+  bottom: var(--px-4);
+  left: 50%;
+  width: var(--px-4);
+  background: var(--wood-dark);
+  box-shadow: inset var(--px) 0 0 var(--wood);
+  transform: translateX(-50%);
+}
+
+.signpost__base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: var(--px-16);
+  height: var(--px-4);
+  background: var(--wood-dark);
+  transform: translateX(-50%);
+}
+
+.signpost__list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--px-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.signpost__item {
+  display: flex;
+}
+
+.signpost__item--left .signpost__link {
+  margin-right: auto;
+}
+
+.signpost__item--right .signpost__link {
+  margin-left: auto;
+}
+
+.signpost__link {
+  --sign-board: var(--wood);
+  --sign-shadow: var(--wood-dark);
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: calc(50% - var(--px-2));
+  min-height: var(--px-10);
+  padding: var(--px-2) var(--px-4);
+  color: var(--wood-ink);
+  background: var(--sign-board);
+  box-shadow: inset 0 calc(var(--px) * -2) 0 0 var(--sign-shadow);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.signpost__item--left .signpost__link {
+  justify-content: flex-end;
+  padding-right: var(--px-3);
+  padding-left: var(--px-6);
+  text-align: right;
+}
+
+.signpost__item--right .signpost__link {
+  justify-content: flex-start;
+  padding-right: var(--px-6);
+  padding-left: var(--px-3);
+}
+
+.signpost__link::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: var(--px-4);
+  height: 100%;
+  background: var(--sign-board);
+  clip-path: polygon(
+    0 0,
+    50% 0,
+    50% 20%,
+    75% 20%,
+    75% 40%,
+    100% 40%,
+    100% 60%,
+    75% 60%,
+    75% 80%,
+    50% 80%,
+    50% 100%,
+    0 100%
+  );
+}
+
+.signpost__item--right .signpost__link::after {
+  right: calc(var(--px) * -4);
+}
+
+.signpost__item--left .signpost__link::after {
+  left: calc(var(--px) * -4);
+  transform: scaleX(-1);
+}
+
+.signpost__link:hover {
+  --sign-board: var(--wood-dark);
+  --sign-shadow: var(--wood);
+  color: var(--wood-ink);
+}
+
+.signpost__link:focus-visible {
+  z-index: 2;
+}
+
+/* Home landscape --------------------------------------------------------- */
+
+.landscape {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hill {
+  position: absolute;
+  background: var(--hill-back);
+  clip-path: polygon(
+    0 100%,
+    0 70%,
+    8% 70%,
+    8% 55%,
+    20% 55%,
+    20% 40%,
+    32% 40%,
+    32% 25%,
+    44% 25%,
+    44% 40%,
+    58% 40%,
+    58% 55%,
+    72% 55%,
+    72% 70%,
+    88% 70%,
+    88% 80%,
+    100% 80%,
+    100% 100%
+  );
+}
+
+.hill--back {
+  bottom: 140px;
+  left: -8%;
+  width: 58%;
+  height: 176px;
+}
+
+.hill--front {
+  right: -8%;
+  bottom: 132px;
+  width: 64%;
+  height: 152px;
+  background: var(--hill-front);
+}
+
+.tree {
+  position: absolute;
+  width: 112px;
+  height: 112px;
+}
+
+.tree::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 52px;
+  width: var(--px-2);
+  height: var(--px-8);
+  background: var(--tree-trunk);
+}
+
+.tree::after {
+  content: '';
+  position: absolute;
+  bottom: var(--px-6);
+  left: 48px;
+  width: var(--px-4);
+  height: var(--px-4);
+  background: var(--tree);
+  box-shadow:
+    var(--px-n) 0 0 0 var(--tree),
+    var(--px-4) 0 0 0 var(--tree),
+    0 var(--px-n) 0 0 var(--tree),
+    var(--px-n) var(--px-n) 0 0 var(--tree),
+    var(--px-4) var(--px-n) 0 0 var(--tree),
+    var(--px-8) 0 0 0 var(--tree),
+    var(--px-n) var(--px-3) 0 0 var(--tree),
+    var(--px-4) var(--px-3) 0 0 var(--tree),
+    0 calc(var(--px) * -5) 0 0 var(--tree);
+}
+
+.tree--one {
+  bottom: 152px;
+  left: 7%;
+}
+
+.tree--two {
+  right: 12%;
+  bottom: 144px;
+  transform: scale(0.82);
+  transform-origin: bottom center;
+}
+
+.ground {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 160px;
+  background: linear-gradient(
+    180deg,
+    var(--grass) 0 var(--px-6),
+    var(--dirt) var(--px-6) 100%
+  );
+}
+
+.ground::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--px) * -2);
+  right: 0;
+  left: 0;
+  height: var(--px-2);
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--px-6),
+    var(--grass) var(--px-6) var(--px-8)
+  );
+}
+
+/* Cave: Projects --------------------------------------------------------- */
+
+.scene--cave {
+  overflow: hidden;
+  padding-block: 208px 160px;
+  background: var(--bg);
+}
+
+.scene--cave::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 96px;
+  background: var(--cave-floor);
+}
+
+.cave-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cave-ceiling {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 96px;
+  background: var(--cave-wall);
+}
+
+.stalactite {
+  position: absolute;
+  top: 96px;
+  width: 48px;
+  height: 48px;
+  background: var(--cave-wall);
+}
+
+.stalactite::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 25%;
+  width: 50%;
+  height: var(--px-8);
+  background: var(--cave-wall);
+}
+
+.stalactite--one {
+  left: 8%;
+  height: 64px;
+}
+
+.stalactite--two {
+  left: 27%;
+  width: 32px;
+  height: 32px;
+}
+
+.stalactite--three {
+  right: 24%;
+  width: 64px;
+  height: 48px;
+}
+
+.stalactite--four {
+  right: 7%;
+  width: 32px;
+  height: 24px;
+}
+
+.torch {
+  position: absolute;
+  width: var(--px-4);
+  height: 96px;
+}
+
+.torch--left {
+  top: 440px;
+  left: 8%;
+}
+
+.torch--right {
+  top: 520px;
+  right: 8%;
+}
+
+.torch::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--px-4);
+  height: 64px;
+  background: var(--wood-dark);
+}
+
+.torch__flame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--px-4);
+  height: 24px;
+  background: var(--torch);
+  box-shadow:
+    0 0 0 var(--px-2) rgba(255, 179, 71, 0.1),
+    0 0 0 var(--px-4) rgba(255, 179, 71, 0.05);
+}
+
+.cave-crystal {
+  position: absolute;
+  width: var(--px-8);
+  height: var(--px-12);
+  background: var(--crystal);
+  opacity: 0.55;
+  clip-path: polygon(
+    50% 0,
+    62.5% 12.5%,
+    75% 12.5%,
+    75% 25%,
+    87.5% 25%,
+    87.5% 75%,
+    75% 75%,
+    75% 87.5%,
+    62.5% 87.5%,
+    62.5% 100%,
+    37.5% 100%,
+    37.5% 87.5%,
+    25% 87.5%,
+    25% 75%,
+    12.5% 75%,
+    12.5% 25%,
+    25% 25%,
+    25% 12.5%,
+    37.5% 12.5%
+  );
+}
+
+.cave-crystal--one {
+  bottom: 160px;
+  left: 12%;
+  transform: scale(1.4);
+}
+
+.cave-crystal--two {
+  right: 14%;
+  bottom: 208px;
+  transform: scale(0.9);
+}
+
+.cave {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-12);
+}
+
+.section-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-4);
+  max-width: 680px;
+}
+
+.section-intro p:last-child {
+  max-width: 58ch;
+  color: var(--ink-muted);
+}
+
+.cave-wall {
+  width: 100%;
+}
+
+.cave-objects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--px-6);
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.cave-object {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-2);
+  min-height: 200px;
+  padding: var(--px-4) 0 var(--px-10);
+  color: var(--ink);
+  text-align: center;
+  text-decoration: none;
+}
+
+.cave-object__art {
+  position: relative;
+  display: block;
+  width: 96px;
+  height: 96px;
+}
+
+.cave-object__part {
+  position: absolute;
+  display: block;
+}
+
+.cave-object__name {
+  max-width: 100%;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.cave-object__tag {
+  position: absolute;
+  right: 0;
+  bottom: var(--px-2);
+  left: 0;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  opacity: 0;
+}
+
+.cave-object:hover .cave-object__tag,
+.cave-object:focus-visible .cave-object__tag {
+  opacity: 1;
+}
+
+.cave-object:hover .cave-object__art,
+.cave-object:focus-visible .cave-object__art {
+  filter: brightness(1.18);
+}
+
+.cave-wall__note {
+  margin: var(--px-6) auto 0;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Cave project objects: crystal, chest, torch-lit sign -------------------- */
+
+.cave-object__art--crystal .cave-object__part--a {
+  bottom: var(--px-2);
+  left: var(--px-6);
+  width: 48px;
+  height: 80px;
+  background: var(--crystal);
+  clip-path: polygon(
+    50% 0,
+    62.5% 12.5%,
+    75% 12.5%,
+    75% 25%,
+    87.5% 25%,
+    87.5% 75%,
+    75% 75%,
+    75% 87.5%,
+    62.5% 87.5%,
+    62.5% 100%,
+    37.5% 100%,
+    37.5% 87.5%,
+    25% 87.5%,
+    25% 75%,
+    12.5% 75%,
+    12.5% 25%,
+    25% 25%,
+    25% 12.5%,
+    37.5% 12.5%
+  );
+}
+
+.cave-object__art--crystal .cave-object__part--b {
+  bottom: var(--px-2);
+  left: var(--px-2);
+  width: 24px;
+  height: 48px;
+  background: var(--crystal);
+  clip-path: polygon(
+    50% 0,
+    75% 25%,
+    75% 75%,
+    50% 100%,
+    25% 75%,
+    25% 25%
+  );
+  opacity: 0.7;
+}
+
+.cave-object__art--crystal .cave-object__part--c {
+  bottom: 0;
+  left: 0;
+  width: 96px;
+  height: 96px;
+  background: var(--crystal-glow);
+  clip-path: polygon(
+    42% 0,
+    58% 0,
+    58% 12.5%,
+    75% 12.5%,
+    75% 25%,
+    100% 25%,
+    100% 75%,
+    75% 75%,
+    75% 87.5%,
+    58% 87.5%,
+    58% 100%,
+    42% 100%,
+    42% 87.5%,
+    25% 87.5%,
+    25% 75%,
+    0 75%,
+    0 25%,
+    25% 25%,
+    25% 12.5%,
+    42% 12.5%
+  );
+}
+
+.cave-object__art--chest .cave-object__part--a {
+  bottom: var(--px-2);
+  left: var(--px-2);
+  width: 80px;
+  height: 40px;
+  background: var(--wood);
+  box-shadow: inset 0 calc(var(--px) * -2) 0 0 var(--wood-dark);
+}
+
+.cave-object__art--chest .cave-object__part--b {
+  bottom: var(--px-12);
+  left: 0;
+  width: 96px;
+  height: 24px;
+  background: var(--wood-dark);
+  box-shadow: inset 0 var(--px-2) 0 0 var(--wood);
+}
+
+.cave-object__art--chest .cave-object__part--c {
+  bottom: 24px;
+  left: 44px;
+  width: var(--px-2);
+  height: var(--px-4);
+  background: var(--torch);
+}
+
+.cave-object__art--sign .cave-object__part--a {
+  bottom: var(--px-2);
+  left: 44px;
+  width: var(--px-2);
+  height: 48px;
+  background: var(--wood-dark);
+}
+
+.cave-object__art--sign .cave-object__part--b {
+  bottom: 48px;
+  left: var(--px-2);
+  width: 80px;
+  height: 32px;
+  background: var(--wood);
+  box-shadow: inset 0 calc(var(--px) * -2) 0 0 var(--wood-dark);
+}
+
+.cave-object__art--sign .cave-object__part--c {
+  top: 0;
+  left: 64px;
+  width: var(--px-2);
+  height: var(--px-4);
+  background: var(--torch);
+  box-shadow: 0 0 0 var(--px) rgba(255, 179, 71, 0.12);
+}
+
+/* Lower world: About and Contact on the night scene ---------------------- */
+
+.lower-world {
+  position: relative;
+  overflow: hidden;
+  background: var(--sky-top);
+}
+
+.lower-world::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: 96px;
+  background: var(--cave-rock, var(--dirt));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 60%,
+    94% 60%,
+    94% 80%,
+    86% 80%,
+    86% 60%,
+    78% 60%,
+    78% 90%,
+    70% 90%,
+    70% 60%,
+    62% 60%,
+    62% 80%,
+    54% 80%,
+    54% 50%,
+    46% 50%,
+    46% 80%,
+    38% 80%,
+    38% 60%,
+    30% 60%,
+    30% 90%,
+    22% 90%,
+    22% 60%,
+    14% 60%,
+    14% 80%,
+    6% 80%,
+    6% 60%,
+    0 60%
+  );
+}
+
+.lower-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stars--lower {
+  top: 160px;
+  opacity: 0.7;
+  box-shadow:
+    7vw 4vh 0 0 var(--star),
+    17vw 16vh 0 0 var(--star),
+    29vw 9vh 0 0 var(--star),
+    39vw 22vh 0 0 var(--star),
+    51vw 6vh 0 0 var(--star),
+    62vw 18vh 0 0 var(--star),
+    74vw 11vh 0 0 var(--star),
+    84vw 25vh 0 0 var(--star),
+    94vw 8vh 0 0 var(--star);
+}
+
+.hill--lower {
+  right: -10%;
+  bottom: 96px;
+  width: 76%;
+  height: 176px;
+  background: var(--hill-back);
+}
+
+.tree--lower {
+  bottom: 128px;
+  left: 6%;
+  transform: scale(0.9);
+  transform-origin: bottom center;
+}
+
+.lower-ground {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  height: 160px;
+  background: linear-gradient(
+    180deg,
+    var(--grass) 0 var(--px-6),
+    var(--dirt) var(--px-6) 100%
+  );
+}
+
+.lower-ground::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--px) * -2);
+  right: 0;
+  left: 0;
+  height: var(--px-2);
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--px-6),
+    var(--grass) var(--px-6) var(--px-8)
+  );
+}
+
+.scene--about {
+  z-index: 2;
+  padding-block: 192px 96px;
+}
+
+.scene--contact {
+  z-index: 2;
+  padding-block: var(--px-8) 96px;
+}
+
+.scene-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-4);
+  max-width: 720px;
+}
+
+.scene-copy--about {
+  max-width: 880px;
+}
+
+.scene-copy__lead {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.scene-copy > p:not(.area-kicker):not(.scene-copy__lead) {
+  color: var(--ink-muted);
+}
+
+.about__dialogue {
+  width: 100%;
+  max-width: 600px;
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--px-12);
+  width: 100%;
+  margin-top: var(--px-2);
+}
+
+.about__block h3 {
+  margin-bottom: var(--px-2);
+}
+
+.about__block p {
+  max-width: 42ch;
+}
+
+.scene-copy--contact {
+  max-width: 600px;
+}
 
 .site-footer {
-  padding-block: var(--px-6);
-  background: var(--panel);
-  border-top: var(--px) solid var(--line);
+  position: relative;
+  z-index: 4;
+  padding: var(--px-12) 0 160px;
 }
 
 .site-footer__inner {
@@ -279,40 +1173,92 @@ main {
 
 /* Responsive ------------------------------------------------------------- */
 
-@media (max-width: 900px) {
-  .home-grid,
-  .about-grid,
-  .contact-grid {
+@media (max-width: 1024px) {
+  .home {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'header'
+      'signpost'
+      'title'
+      'portrait'
+      'copy'
+      'dialogue';
+    row-gap: var(--px-6);
+  }
+
+  .home__right {
+    display: contents;
+  }
+
+  .signpost {
+    justify-self: center;
+  }
+
+  .home__title {
+    padding-top: 0;
+  }
+
+  .home__dialogue {
+    max-width: none;
+  }
+
+  .home__portrait {
+    grid-area: portrait;
+    justify-self: center;
+  }
+
+  .moon {
+    top: var(--px-2);
+    right: 6%;
+    width: var(--px-12);
+    height: var(--px-12);
+  }
+
+  .moon::before {
+    top: var(--px-4);
+    left: var(--px-2);
+    width: var(--px-3);
+    height: var(--px-3);
+  }
+
+  .moon::after {
+    top: var(--px-8);
+    left: var(--px-8);
+  }
+
+  .about__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--px-8);
   }
 }
 
 @media (max-width: 760px) {
-  .site-header__inner {
-    gap: var(--px-3);
-    padding-block: var(--px-3);
+  .scene--cave {
+    padding-block: 208px 128px;
   }
 
-  .brand {
-    width: 100%;
+  .torch--left {
+    left: 3%;
   }
 
-  .level-nav {
-    flex-basis: 100%;
+  .torch--right {
+    right: 3%;
   }
 
-  .level-nav__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: none;
+  .cave-objects {
+    gap: var(--px-2);
   }
 
-  .area {
-    padding-block: var(--px-10);
-    padding-bottom: var(--px-12);
+  .cave-object__art {
+    transform: scale(0.82);
   }
 
-  .area__inner {
-    gap: var(--px-6);
+  .cave-object__name {
+    font-size: 1rem;
+  }
+
+  .scene--about {
+    padding-block: 160px 80px;
   }
 }
 
@@ -321,7 +1267,63 @@ main {
     padding-inline: var(--px-4);
   }
 
-  .level-nav__link {
-    padding-inline: var(--px-2);
+  .signpost {
+    max-width: 256px;
+  }
+
+  .home__note {
+    display: none;
+  }
+
+  .moon {
+    right: var(--px-4);
+  }
+
+  .cloud--one {
+    left: -12%;
+  }
+
+  .cloud--two {
+    right: 4%;
+  }
+
+  .tree--two,
+  .hill--front {
+    display: none;
+  }
+
+  .cave-object {
+    padding-bottom: 48px;
+  }
+
+  .cave-object__tag {
+    bottom: 0;
+  }
+
+  .torch {
+    display: none;
+  }
+
+  .scene--cave::after {
+    height: 64px;
+  }
+
+  .lower-world::before {
+    height: 80px;
+  }
+
+  .site-footer {
+    padding-bottom: 176px;
+  }
+}
+
+@media (max-width: 400px) {
+  .cave-object__art {
+    transform: scale(0.72);
+    margin-block: calc(var(--px) * -2);
+  }
+
+  .cave-object__tag {
+    font-size: 1rem;
   }
 }

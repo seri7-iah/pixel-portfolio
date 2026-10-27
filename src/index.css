@@ -44,13 +44,26 @@
   --sky-bottom: #1b2250;
   --star: #f4e9c1;
   --moon: #f0ead2;
+  --moon-shade: #cfc7a6;
+  --cloud: #26315f;
   --grass: #2f6b4a;
   --dirt: #3b2a1f;
+  --hill-back: #182544;
+  --hill-front: #1d3a38;
+  --tree: #1d3f36;
+  --tree-trunk: #3b2a1f;
+  --cave-rock: #3d3731;
+
+  /* Shared world props. */
+  --wood: #8a5a3b;
+  --wood-dark: #5a3a24;
+  --wood-ink: #f4ecd8;
+  --crystal-glow: rgba(91, 227, 208, 0.14);
 }
 
 /* Cave theme. Also applied locally to the Projects world area. */
 [data-theme='cave'],
-.area--cave {
+.scene--cave {
   color-scheme: dark;
   --bg: #14110f;
   --bg-alt: #1e1a17;
@@ -73,10 +86,17 @@
   --ground-deep: #2a2623;
   --stone-a: #2a2623;
   --stone-b: #3d3731;
+  --cave-wall: #2a2623;
+  --cave-rock: #3d3731;
+  --cave-floor: #1e1a17;
   --crystal: #5be3d0;
+  --crystal-glow: rgba(91, 227, 208, 0.14);
   --torch: #ffb347;
   --star: #5be3d0;
   --highlight: #5be3d0;
+  --wood: #6b4a2f;
+  --wood-dark: #3e2a1b;
+  --wood-ink: #f4ecd8;
 }
 
 /* Day theme. */
@@ -105,8 +125,16 @@
   --sky-bottom: #cdeeff;
   --cloud: #ffffff;
   --sun: #ffd447;
+  --moon: #ffd447;
+  --moon-shade: #e0b831;
+  --star: #ffffff;
   --grass: #5fbf5a;
   --dirt: #8a5a3b;
+  --hill-back: #4fa64a;
+  --hill-front: #3e8c3b;
+  --tree: #3e8c3b;
+  --tree-trunk: #8a5a3b;
+  --cave-rock: #8a5a3b;
 }
 
 *,
@@ -153,11 +181,11 @@ h4 {
 }
 
 h1 {
-  font-size: clamp(1.5rem, 1.2rem + 1.6vw, 2.5rem);
+  font-size: clamp(2rem, 1rem + 5vw, 4rem);
 }
 
 h2 {
-  font-size: clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
+  font-size: clamp(1.5rem, 1rem + 2.5vw, 2.75rem);
 }
 
 h3,
@@ -225,19 +253,6 @@ img {
 
 :where(button, [role='button']):disabled {
   cursor: not-allowed;
-}
-
-/* Utility: visually hidden but still available to screen readers. */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

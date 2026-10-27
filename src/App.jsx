@@ -1,30 +1,62 @@
-import Card from './components/Card.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
-import Panel from './components/Panel.jsx'
 import PixelButton from './components/PixelButton.jsx'
+import PortraitFrame from './components/PortraitFrame.jsx'
 import './App.css'
 
-const areas = [
-  { id: 'home', label: 'Home', level: '01' },
-  { id: 'projects', label: 'Projects', level: '02' },
-  { id: 'about', label: 'About', level: '03' },
-  { id: 'contact', label: 'Contact', level: '04' },
+const navItems = [
+  { id: 'home', label: 'Home', side: 'left' },
+  { id: 'projects', label: 'Projects', side: 'right' },
+  { id: 'about', label: 'About', side: 'left' },
+  { id: 'contact', label: 'Contact', side: 'right' },
 ]
 
-const projectSlots = [
-  {
-    id: '01',
-    title: 'Project slot 01',
-    summary: 'Placeholder project summary. Replace this with a short description of the build.',
-    detail: 'Placeholder detail line for tools, role, or a result.',
-  },
-  {
-    id: '02',
-    title: 'Project slot 02',
-    summary: 'Placeholder project summary. This card shows how a second project will sit in the grid.',
-    detail: 'Placeholder detail line for tools, role, or a result.',
-  },
+const projects = [
+  { id: '01', name: 'Project 01', tag: 'Crystal cache', art: 'crystal' },
+  { id: '02', name: 'Project 02', tag: 'Supply chest', art: 'chest' },
+  { id: '03', name: 'Project 03', tag: 'Trail sign', art: 'sign' },
 ]
+
+function Signpost() {
+  return (
+    <nav className="signpost" aria-label="World areas">
+      <span className="signpost__pole" aria-hidden="true" />
+      <ol className="signpost__list">
+        {navItems.map((item) => (
+          <li
+            key={item.id}
+            className={`signpost__item signpost__item--${item.side}`}
+          >
+            <a className="signpost__link" href={`#${item.id}`}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+      <span className="signpost__base" aria-hidden="true" />
+    </nav>
+  )
+}
+
+function CaveObject({ project }) {
+  return (
+    <a
+      className="cave-object"
+      href="#contact"
+      aria-label={`${project.name}: ${project.tag}. Placeholder project link.`}
+    >
+      <span
+        className={`cave-object__art cave-object__art--${project.art}`}
+        aria-hidden="true"
+      >
+        <span className="cave-object__part cave-object__part--a" />
+        <span className="cave-object__part cave-object__part--b" />
+        <span className="cave-object__part cave-object__part--c" />
+      </span>
+      <span className="cave-object__name">{project.name}</span>
+      <span className="cave-object__tag">{project.tag}</span>
+    </a>
+  )
+}
 
 function App() {
   return (
@@ -33,192 +65,187 @@ function App() {
         Skip to content
       </a>
 
-      <header className="site-header">
-        <div className="container site-header__inner">
-          <a className="brand" href="#home" aria-label="POP, back to the home area">
-            <span className="brand__mark" aria-hidden="true" />
-            <span>POP</span>
-            <span className="brand__sub">pixel portfolio</span>
-          </a>
-
-          <nav className="level-nav" aria-label="World areas">
-            <ol className="level-nav__list">
-              {areas.map((area) => (
-                <li key={area.id}>
-                  <a className="level-nav__link" href={`#${area.id}`}>
-                    <span className="level-nav__level" aria-hidden="true">
-                      {area.level}
-                    </span>
-                    <span>{area.label}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        </div>
-      </header>
-
       <main id="main-content">
-        <section id="home" className="area area--home" aria-labelledby="home-title">
-          <div className="container area__inner">
-            <header className="area__head">
-              <p className="area-tag">Level 01 / Home</p>
-              <h1 id="home-title">Home</h1>
-              <p className="area__lead">
-                Placeholder introduction for the home area. Real copy will be written in a
-                later phase.
-              </p>
+        <section id="home" className="scene scene--home" aria-labelledby="home-title">
+          <div className="sky sky--home" aria-hidden="true">
+            <span className="moon" />
+            <span className="stars stars--one" />
+            <span className="stars stars--two" />
+            <span className="cloud cloud--one" />
+            <span className="cloud cloud--two" />
+          </div>
+
+          <div className="container home">
+            <header className="home__header">
+              <a className="brand" href="#home" aria-label="POP, home">
+                <span className="brand__mark" aria-hidden="true" />
+                <span>POP</span>
+              </a>
+              <p className="home__note">Pixel portfolio / placeholder world</p>
             </header>
 
-            <div className="home-grid">
-              <Panel eyebrow="Quest log" title="Start here" headingLevel={2}>
-                <p>
-                  Placeholder panel text. This block can hold a short welcome or a summary of
-                  what I do.
-                </p>
-                <ul className="pixel-list">
-                  <li>Placeholder list item one.</li>
-                  <li>Placeholder list item two.</li>
-                  <li>Placeholder list item three.</li>
-                </ul>
-              </Panel>
+            <div className="home__title">
+              <p className="area-kicker">Home / Level 01</p>
+              <h1 id="home-title">POP</h1>
+            </div>
 
+            <div className="home__right">
+              <Signpost />
+              <div className="home__portrait">
+                <PortraitFrame />
+              </div>
+            </div>
+
+            <div className="home__copy">
+              <p className="home__lead">
+                Placeholder welcome for the home area. Real copy will arrive in a later
+                phase.
+              </p>
+              <p className="home__body">
+                Placeholder supporting line. Keep this short so the scene has room to
+                breathe.
+              </p>
+              <PixelButton href="#projects">Enter the cave</PixelButton>
+            </div>
+
+            <div className="home__dialogue">
               <DialogueBox label="Dialogue" speaker="Guide">
                 <p>
-                  Placeholder dialogue line. This box will hold short, friendly messages in
-                  the finished portfolio.
+                  Placeholder dialogue. This box belongs to a character speaking, so keep
+                  the line short.
                 </p>
-                <p>
-                  A second placeholder line shows the spacing and reading width inside the
-                  box.
-                </p>
-                <div className="dialogue-box__actions">
-                  <PixelButton href="#projects">Enter the projects area</PixelButton>
-                </div>
+                <p>Placeholder second line for spacing.</p>
               </DialogueBox>
             </div>
+          </div>
+
+          <div className="landscape" aria-hidden="true">
+            <span className="hill hill--back" />
+            <span className="hill hill--front" />
+            <span className="tree tree--one" />
+            <span className="tree tree--two" />
+            <span className="ground" />
           </div>
         </section>
 
         <section
           id="projects"
-          className="area area--cave"
+          className="scene scene--cave"
           aria-labelledby="projects-title"
         >
-          <div className="container area__inner">
-            <header className="area__head">
-              <p className="area-tag">Level 02 / Projects</p>
+          <div className="cave-decor" aria-hidden="true">
+            <span className="cave-ceiling" />
+            <span className="stalactite stalactite--one" />
+            <span className="stalactite stalactite--two" />
+            <span className="stalactite stalactite--three" />
+            <span className="stalactite stalactite--four" />
+            <span className="torch torch--left">
+              <span className="torch__flame" />
+            </span>
+            <span className="torch torch--right">
+              <span className="torch__flame" />
+            </span>
+            <span className="cave-crystal cave-crystal--one" />
+            <span className="cave-crystal cave-crystal--two" />
+          </div>
+
+          <div className="container cave">
+            <header className="section-intro">
+              <p className="area-kicker">Level 02 / Projects</p>
               <h2 id="projects-title">Projects</h2>
-              <p className="area__lead">
-                Placeholder introduction for the projects area. This section uses the Cave
-                palette.
-              </p>
-            </header>
-
-            <div className="card-grid">
-              {projectSlots.map((project) => (
-                <Card
-                  key={project.id}
-                  eyebrow={`Project ${project.id}`}
-                  title={project.title}
-                  headingLevel={3}
-                  footer={<p className="card__note">Live site link placeholder.</p>}
-                >
-                  <p>{project.summary}</p>
-                  <p>{project.detail}</p>
-                </Card>
-              ))}
-            </div>
-
-            <Panel eyebrow="Cave note" title="More projects later" headingLevel={3}>
               <p>
-                Placeholder note for extra projects. The card grid will grow here when real
-                projects are added.
-              </p>
-            </Panel>
-          </div>
-        </section>
-
-        <section id="about" className="area area--about" aria-labelledby="about-title">
-          <div className="container area__inner">
-            <header className="area__head">
-              <p className="area-tag">Level 03 / About</p>
-              <h2 id="about-title">About</h2>
-              <p className="area__lead">
-                Placeholder introduction for the about area. This is where the longer story
-                will live.
+                Placeholder introduction for the cave. Three objects stand in for projects
+                until real work and links are added.
               </p>
             </header>
 
-            <div className="about-grid">
-              <Panel eyebrow="Player profile" title="Who is POP?" headingLevel={3}>
-                <p>
-                  Placeholder bio paragraph. Real background details will replace this text
-                  later.
-                </p>
-                <p>
-                  A second placeholder paragraph checks the line length and spacing of longer
-                  body copy.
-                </p>
-              </Panel>
-
-              <Panel eyebrow="Inventory" title="Skills" headingLevel={3}>
-                <ul className="pixel-list">
-                  <li>Placeholder skill one.</li>
-                  <li>Placeholder skill two.</li>
-                  <li>Placeholder skill three.</li>
-                  <li>Placeholder skill four.</li>
-                </ul>
-              </Panel>
+            <div className="cave-wall">
+              <div className="cave-objects">
+                {projects.map((project) => (
+                  <CaveObject key={project.id} project={project} />
+                ))}
+              </div>
+              <p className="cave-wall__note">
+                Hover or tab to an object to reveal its short label.
+              </p>
             </div>
           </div>
         </section>
 
-        <section
-          id="contact"
-          className="area area--contact"
-          aria-labelledby="contact-title"
-        >
-          <div className="container area__inner">
-            <header className="area__head">
-              <p className="area-tag">Level 04 / Contact</p>
-              <h2 id="contact-title">Contact</h2>
-              <p className="area__lead">
-                Placeholder introduction for the contact area. The real contact details come
-                in a later phase.
-              </p>
-            </header>
+        <div className="lower-world">
+          <div className="lower-decor" aria-hidden="true">
+            <span className="stars stars--lower" />
+            <span className="hill hill--lower" />
+            <span className="tree tree--lower" />
+            <span className="lower-ground" />
+          </div>
 
-            <div className="contact-grid">
-              <DialogueBox label="Message" speaker="System">
-                <p>
-                  Placeholder contact message. This dialogue box will hold the final invite
-                  to get in touch.
-                </p>
-                <p>Placeholder note about response time or preferred contact method.</p>
-                <div className="dialogue-box__actions">
-                  <PixelButton href="#home" variant="secondary">
-                    Return to Home
-                  </PixelButton>
-                </div>
+          <section id="about" className="scene scene--about" aria-labelledby="about-title">
+            <div className="container scene-copy scene-copy--about">
+              <p className="area-kicker">Level 03 / About</p>
+              <h2 id="about-title">About</h2>
+              <p className="scene-copy__lead">
+                Placeholder introduction for the about area. The text sits directly on the
+                night scene.
+              </p>
+
+              <DialogueBox className="about__dialogue" label="Dialogue" speaker="POP">
+                <p>Hi, I&apos;m POP.</p>
               </DialogueBox>
 
-              <Panel eyebrow="Contact details" title="Placeholder" headingLevel={3}>
-                <p>Email placeholder.</p>
-                <p>Social link placeholder.</p>
-                <p>Location placeholder.</p>
-              </Panel>
-            </div>
-          </div>
-        </section>
-      </main>
+              <div className="about__grid">
+                <div className="about__block">
+                  <h3>Profile</h3>
+                  <p>
+                    Placeholder bio paragraph. Real background details will replace this
+                    text later.
+                  </p>
+                  <p>
+                    A second placeholder paragraph checks the line length and breathing
+                    room.
+                  </p>
+                </div>
 
-      <footer className="site-footer">
-        <div className="container site-footer__inner">
-          <p>Placeholder footer text.</p>
-          <p>POP / pixel portfolio</p>
+                <div className="about__block">
+                  <h3>Skills</h3>
+                  <ul className="pixel-list">
+                    <li>Placeholder skill one.</li>
+                    <li>Placeholder skill two.</li>
+                    <li>Placeholder skill three.</li>
+                    <li>Placeholder skill four.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="contact"
+            className="scene scene--contact"
+            aria-labelledby="contact-title"
+          >
+            <div className="container scene-copy scene-copy--contact">
+              <p className="area-kicker">Level 04 / Contact</p>
+              <h2 id="contact-title">Contact</h2>
+              <p className="scene-copy__lead">
+                Placeholder contact message. The real contact details come in a later phase.
+              </p>
+              <p>Email placeholder.</p>
+              <p>Social link placeholder.</p>
+              <PixelButton href="#home" variant="secondary">
+                Return to the signpost
+              </PixelButton>
+            </div>
+          </section>
+
+          <footer className="site-footer">
+            <div className="container site-footer__inner">
+              <p>Placeholder footer text.</p>
+              <p>POP / pixel portfolio</p>
+            </div>
+          </footer>
         </div>
-      </footer>
+      </main>
     </div>
   )
 }

@@ -1,0 +1,2 @@
+# PRODUCT.md
+A personal portfolio for POP (IT student, Philippines) that looks and feels like an 8-bit adventure game. Audience: recruiters, clients, classmates. Goal: memorable first impression, then fast access to projects. Projects link directly to the live sites. Tone: playful, friendly, clear. Content is written later.

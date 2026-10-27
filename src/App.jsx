@@ -1,6 +1,9 @@
+import { useState } from 'react'
+import CreatureScene from './components/CreatureScene.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
 import PixelButton from './components/PixelButton.jsx'
 import PortraitFrame from './components/PortraitFrame.jsx'
+import { usePrefersReducedMotion, useSpriteScale } from './lib/useMotion.js'
 import './App.css'
 
 const navItems = [
@@ -59,6 +62,19 @@ function CaveObject({ project }) {
 }
 
 function App() {
+  const [creaturesPaused, setCreaturesPaused] = useState(false)
+  const [pixControl, setPixControl] = useState(false)
+  const [motionOverride, setMotionOverride] = useState(false)
+  const systemReducedMotion = usePrefersReducedMotion()
+  const reducedMotion = systemReducedMotion && !motionOverride
+  const spriteScale = useSpriteScale()
+
+  const toggleCreatures = () => {
+    const next = !creaturesPaused
+    setCreaturesPaused(next)
+    if (next) setPixControl(false)
+  }
+
   return (
     <div className="app">
       <a className="skip-link" href="#main-content">
@@ -82,7 +98,49 @@ function App() {
                 <span>POP</span>
               </a>
               <p className="home__note">Pixel portfolio / placeholder world</p>
+              <div className="home__actions">
+                <button
+                  type="button"
+                  className="pixel-button pix-control"
+                  aria-pressed={pixControl}
+                  aria-describedby="pix-control-help"
+                  data-pix-control
+                  disabled={creaturesPaused}
+                  onClick={() => setPixControl((value) => !value)}
+                >
+                  Play as Pix
+                </button>
+                <span id="pix-control-help" className="sr-only">
+                  Use W, A, S, D or the arrow keys to move Pix, or tap the ground
+                  on a touch screen. Press Escape to release control.
+                </span>
+                <button
+                  type="button"
+                  className="creature-toggle"
+                  aria-pressed={creaturesPaused}
+                  onClick={toggleCreatures}
+                >
+                  <span className="creature-toggle__mark" aria-hidden="true" />
+                  Pause creatures
+                </button>
+                {systemReducedMotion && !motionOverride && !creaturesPaused ? (
+                  <p className="motion-note">
+                    Creatures are resting because your system has animations off
+                    <button
+                      type="button"
+                      className="motion-note__action"
+                      onClick={() => setMotionOverride(true)}
+                    >
+                      Play anyway
+                    </button>
+                  </p>
+                ) : null}
+              </div>
             </header>
+
+            <p className="sr-only" role="status" aria-live="polite">
+              {pixControl ? 'Controlling Pix' : 'Pix is wandering'}
+            </p>
 
             <div className="home__title">
               <p className="area-kicker">Home / Level 01</p>
@@ -126,6 +184,15 @@ function App() {
             <span className="tree tree--two" />
             <span className="ground" />
           </div>
+
+          <CreatureScene
+            zone="home"
+            paused={creaturesPaused}
+            reducedMotion={reducedMotion}
+            scale={spriteScale}
+            controlling={pixControl}
+            onControllingChange={setPixControl}
+          />
         </section>
 
         <section
@@ -147,6 +214,9 @@ function App() {
             </span>
             <span className="cave-crystal cave-crystal--one" />
             <span className="cave-crystal cave-crystal--two" />
+            <span className="cave-floor">
+              <span className="cave-floor__crystals" />
+            </span>
           </div>
 
           <div className="container cave">
@@ -170,6 +240,13 @@ function App() {
               </p>
             </div>
           </div>
+
+          <CreatureScene
+            zone="cave"
+            paused={creaturesPaused}
+            reducedMotion={reducedMotion}
+            scale={spriteScale}
+          />
         </section>
 
         <div className="lower-world">
@@ -177,7 +254,6 @@ function App() {
             <span className="stars stars--lower" />
             <span className="hill hill--lower" />
             <span className="tree tree--lower" />
-            <span className="lower-ground" />
           </div>
 
           <section id="about" className="scene scene--about" aria-labelledby="about-title">
@@ -217,6 +293,15 @@ function App() {
                 </div>
               </div>
             </div>
+
+            <span className="ground ground--section" aria-hidden="true" />
+
+            <CreatureScene
+              zone="about"
+              paused={creaturesPaused}
+              reducedMotion={reducedMotion}
+              scale={spriteScale}
+            />
           </section>
 
           <section
@@ -236,6 +321,15 @@ function App() {
                 Return to the signpost
               </PixelButton>
             </div>
+
+            <span className="ground ground--section" aria-hidden="true" />
+
+            <CreatureScene
+              zone="contact"
+              paused={creaturesPaused}
+              reducedMotion={reducedMotion}
+              scale={spriteScale}
+            />
           </section>
 
           <footer className="site-footer">

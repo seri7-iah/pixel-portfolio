@@ -237,6 +237,213 @@
   cursor: not-allowed;
 }
 
+/* Text-grid sprite ------------------------------------------------------- */
+
+.sprite {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.sprite--flip {
+  transform: scaleX(-1);
+}
+
+/* Wandering creatures ---------------------------------------------------- */
+
+.creatures {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The zone wakes only while this ground-area sentinel is on screen. */
+.creatures__watch {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 320px;
+}
+
+.critter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.critter__body {
+  display: block;
+}
+
+/* A stepped oval on the ground. Any creature can set --shadow-scale (Gloop
+   shrinks it while airborne); the lift class is Pix's boot-lift pulse. */
+.critter__shadow {
+  --shadow-scale: 1;
+  position: absolute;
+  bottom: calc(var(--px) * -1);
+  left: 50%;
+  width: 62%;
+  height: var(--px-2);
+  background: var(--shadow-soft);
+  transform: translateX(-50%) scaleX(var(--shadow-scale));
+  transform-origin: 50% 100%;
+  clip-path: polygon(
+    20% 0,
+    80% 0,
+    80% 25%,
+    100% 25%,
+    100% 75%,
+    80% 75%,
+    80% 100%,
+    20% 100%,
+    20% 75%,
+    0 75%,
+    0 25%,
+    20% 25%
+  );
+}
+
+.critter__shadow--lift {
+  --shadow-scale: 0.9;
+}
+
+/* Pix is the one character that catches clicks, so he can be taken over. */
+.critter--pix {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.pix-hint {
+  position: absolute;
+  bottom: calc(100% + var(--px-2));
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(248px, 72vw);
+  padding: var(--px) var(--px-3);
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.pix-hint[data-align='left'] {
+  left: 0;
+  transform: none;
+}
+
+.pix-hint[data-align='right'] {
+  left: 100%;
+  transform: translateX(-100%);
+}
+
+.pix-hint__touch {
+  display: none;
+  margin-top: var(--px);
+  color: var(--accent);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .pix-hint__touch {
+    display: block;
+  }
+}
+
+/* Play as Pix button ----------------------------------------------------- */
+
+.pix-control[aria-pressed='true'] {
+  color: var(--ink);
+}
+
+.pix-control[aria-pressed='true']::before {
+  background: var(--ink);
+}
+
+/* Pause creatures toggle ------------------------------------------------- */
+
+.creature-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-2);
+  min-height: calc(var(--px-10) + var(--px));
+  padding: 0;
+  color: var(--ink-muted);
+  background: none;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-decoration-thickness: var(--px);
+  text-underline-offset: var(--px);
+  cursor: pointer;
+  appearance: none;
+}
+
+.creature-toggle:hover {
+  color: var(--ink);
+}
+
+.creature-toggle__mark {
+  flex: 0 0 auto;
+  width: var(--px-3);
+  height: var(--px-3);
+  background: var(--accent);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+}
+
+.creature-toggle[aria-pressed='true'] .creature-toggle__mark {
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--px) var(--ink-muted);
+}
+
+/* Reduced-motion note --------------------------------------------------- */
+
+.motion-note {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--px-2);
+  max-width: min(560px, 100%);
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.motion-note__action {
+  min-height: calc(var(--px-10) + var(--px));
+  padding: 0;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-decoration-thickness: var(--px);
+  text-underline-offset: var(--px);
+  cursor: pointer;
+  appearance: none;
+}
+
+.motion-note__action:hover {
+  color: var(--link-hover);
+}
+
 @media (max-width: 600px) {
   .dialogue-box__body {
     padding: var(--px-4);

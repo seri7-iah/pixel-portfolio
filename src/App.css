@@ -79,6 +79,7 @@ main {
 /* Home: sky, signpost, character dialogue -------------------------------- */
 
 .scene--home {
+  --grass-depth: 96px;
   overflow: hidden;
   min-height: 100svh;
   background:
@@ -108,35 +109,38 @@ main {
 
 .stars--one {
   box-shadow:
-    6vw 10vh 0 0 var(--star),
-    14vw 22vh 0 0 var(--star),
-    22vw 8vh 0 0 var(--star),
-    31vw 18vh 0 0 var(--star),
-    38vw 34vh 0 0 var(--star),
-    47vw 12vh 0 0 var(--star),
-    55vw 24vh 0 0 var(--star),
-    63vw 7vh 0 0 var(--star),
-    72vw 19vh 0 0 var(--star),
-    81vw 29vh 0 0 var(--star),
-    90vw 13vh 0 0 var(--star),
-    12vw 38vh 0 0 var(--star),
-    68vw 37vh 0 0 var(--star);
+    3vw 12px 0 0 var(--star),
+    9vw 44px 0 0 var(--star),
+    14vw 24px 0 0 var(--star),
+    20vw 56px 0 0 var(--star),
+    26vw 8px 0 0 var(--star),
+    32vw 36px 0 0 var(--star),
+    38vw 16px 0 0 var(--star),
+    44vw 60px 0 0 var(--star),
+    50vw 28px 0 0 var(--star),
+    56vw 48px 0 0 var(--star),
+    62vw 4px 0 0 var(--star),
+    68vw 32px 0 0 var(--star),
+    74vw 52px 0 0 var(--star);
 }
 
 .stars--two {
   opacity: 0.6;
   box-shadow:
-    9vw 28vh 0 0 var(--star),
-    18vw 5vh 0 0 var(--star),
-    27vw 31vh 0 0 var(--star),
-    35vw 7vh 0 0 var(--star),
-    43vw 26vh 0 0 var(--star),
-    52vw 4vh 0 0 var(--star),
-    60vw 21vh 0 0 var(--star),
-    69vw 9vh 0 0 var(--star),
-    77vw 33vh 0 0 var(--star),
-    86vw 6vh 0 0 var(--star),
-    94vw 24vh 0 0 var(--star);
+    5vw 4px 0 0 var(--star),
+    11vw 56px 0 0 var(--star),
+    17vw 12px 0 0 var(--star),
+    23vw 40px 0 0 var(--star),
+    29vw 20px 0 0 var(--star),
+    35vw 60px 0 0 var(--star),
+    41vw 32px 0 0 var(--star),
+    47vw 8px 0 0 var(--star),
+    53vw 44px 0 0 var(--star),
+    59vw 24px 0 0 var(--star),
+    65vw 52px 0 0 var(--star),
+    71vw 16px 0 0 var(--star),
+    1vw 34vh 0 0 var(--star),
+    98.5vw 62vh 0 0 var(--star);
 }
 
 .moon {
@@ -244,7 +248,7 @@ main {
   column-gap: var(--px-8);
   row-gap: var(--px-8);
   align-items: start;
-  padding-top: var(--px-8);
+  padding-top: calc(var(--px-16) + var(--px-4));
   padding-bottom: 320px;
 }
 
@@ -288,6 +292,15 @@ main {
   line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.home__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--px-2) var(--px-4);
+  min-width: 0;
+  margin-left: auto;
 }
 
 .home__title {
@@ -579,8 +592,8 @@ main {
   height: 160px;
   background: linear-gradient(
     180deg,
-    var(--grass) 0 var(--px-6),
-    var(--dirt) var(--px-6) 100%
+    var(--grass) 0 var(--grass-depth, 96px),
+    var(--dirt) var(--grass-depth, 96px) 100%
   );
 }
 
@@ -602,18 +615,8 @@ main {
 
 .scene--cave {
   overflow: hidden;
-  padding-block: 208px 160px;
+  padding-block: 208px 320px;
   background: var(--bg);
-}
-
-.scene--cave::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 96px;
-  background: var(--cave-floor);
 }
 
 .cave-decor {
@@ -750,6 +753,57 @@ main {
   right: 14%;
   bottom: 208px;
   transform: scale(0.9);
+}
+
+/* Cave stone floor: the ground strip for the Projects Bonemosses. */
+.cave-floor {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 160px;
+  background: linear-gradient(
+    180deg,
+    var(--stone-b) 0 96px,
+    var(--stone-a) 96px 100%
+  );
+}
+
+.cave-floor::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--px) * -2);
+  right: 0;
+  left: 0;
+  height: var(--px-2);
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--px-4),
+    var(--stone-b) var(--px-4) var(--px-6)
+  );
+}
+
+.cave-floor__crystals {
+  position: absolute;
+  top: 56px;
+  left: 8%;
+  width: var(--px);
+  height: var(--px);
+  background: var(--crystal);
+  box-shadow:
+    0 0 0 var(--px) var(--crystal-glow),
+    9vw 18px 0 0 var(--crystal),
+    9vw 18px 0 var(--px) var(--crystal-glow),
+    26vw -14px 0 0 var(--crystal),
+    26vw -14px 0 var(--px) var(--crystal-glow),
+    41vw 24px 0 0 var(--crystal),
+    41vw 24px 0 var(--px) var(--crystal-glow),
+    57vw -6px 0 0 var(--crystal),
+    57vw -6px 0 var(--px) var(--crystal-glow),
+    68vw 30px 0 0 var(--crystal),
+    68vw 30px 0 var(--px) var(--crystal-glow),
+    82vw 8px 0 0 var(--crystal),
+    82vw 8px 0 var(--px) var(--crystal-glow);
 }
 
 .cave {
@@ -1035,18 +1089,18 @@ main {
 }
 
 .stars--lower {
-  top: 160px;
+  top: 96px;
   opacity: 0.7;
   box-shadow:
-    7vw 4vh 0 0 var(--star),
-    17vw 16vh 0 0 var(--star),
-    29vw 9vh 0 0 var(--star),
-    39vw 22vh 0 0 var(--star),
-    51vw 6vh 0 0 var(--star),
-    62vw 18vh 0 0 var(--star),
-    74vw 11vh 0 0 var(--star),
-    84vw 25vh 0 0 var(--star),
-    94vw 8vh 0 0 var(--star);
+    7vw 8px 0 0 var(--star),
+    17vw 48px 0 0 var(--star),
+    29vw 20px 0 0 var(--star),
+    39vw 60px 0 0 var(--star),
+    51vw 12px 0 0 var(--star),
+    62vw 44px 0 0 var(--star),
+    74vw 24px 0 0 var(--star),
+    84vw 56px 0 0 var(--star),
+    94vw 16px 0 0 var(--star);
 }
 
 .hill--lower {
@@ -1064,42 +1118,28 @@ main {
   transform-origin: bottom center;
 }
 
-.lower-ground {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 3;
-  height: 160px;
-  background: linear-gradient(
-    180deg,
-    var(--grass) 0 var(--px-6),
-    var(--dirt) var(--px-6) 100%
-  );
-}
-
-.lower-ground::before {
-  content: '';
-  position: absolute;
-  top: calc(var(--px) * -2);
-  right: 0;
-  left: 0;
-  height: var(--px-2);
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0 var(--px-6),
-    var(--grass) var(--px-6) var(--px-8)
-  );
-}
-
 .scene--about {
   z-index: 2;
-  padding-block: 192px 96px;
+  padding-block: 192px 320px;
 }
 
 .scene--contact {
   z-index: 2;
-  padding-block: var(--px-8) 96px;
+  padding-block: 64px 320px;
+}
+
+/* Every section carries its own ground strip. Home's sits in its landscape
+   layer; About and Contact add one here. */
+.ground--section {
+  z-index: 0;
+  box-shadow: 0 var(--px-2) 0 0 var(--shadow-color);
+  pointer-events: none;
+}
+
+.scene--about .container,
+.scene--contact .container {
+  position: relative;
+  z-index: 2;
 }
 
 .scene-copy {
@@ -1154,7 +1194,8 @@ main {
 .site-footer {
   position: relative;
   z-index: 4;
-  padding: var(--px-12) 0 160px;
+  padding: var(--px-12) 0 var(--px-12);
+  background: var(--dirt);
 }
 
 .site-footer__inner {
@@ -1234,7 +1275,7 @@ main {
 
 @media (max-width: 760px) {
   .scene--cave {
-    padding-block: 208px 128px;
+    padding-block: 208px 280px;
   }
 
   .torch--left {
@@ -1258,13 +1299,23 @@ main {
   }
 
   .scene--about {
-    padding-block: 160px 80px;
+    padding-block: 160px 280px;
+  }
+
+  .scene--contact {
+    padding-block: 64px 280px;
   }
 }
 
 @media (max-width: 600px) {
   .container {
     padding-inline: var(--px-4);
+  }
+
+  .scene--home,
+  .scene--about,
+  .scene--contact {
+    --grass-depth: 72px;
   }
 
   .signpost {
@@ -1304,16 +1355,12 @@ main {
     display: none;
   }
 
-  .scene--cave::after {
-    height: 64px;
-  }
-
   .lower-world::before {
     height: 80px;
   }
 
   .site-footer {
-    padding-bottom: 176px;
+    padding-block: var(--px-10) var(--px-16);
   }
 }
 

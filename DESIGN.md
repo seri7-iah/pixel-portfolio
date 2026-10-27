@@ -19,16 +19,23 @@ An 8-bit adventure world. Blocky, chunky, cozy. Original characters only: never 
 - Night and Day are the same scene with swapped colors (a sun/moon toggle button). Cave is used for the Projects area.
 - The initial theme follows `prefers-color-scheme`. Contrast text/background at least 4.5:1.
 
-## Characters (all original, 4 walk frames + 2 idle frames unless noted)
-- **Hero "Pix"**: blocky explorer, brown hair, teal jacket, amber backpack. Wanders on its own. Click/tap it to take control (WASD/arrows; Esc releases).
-- **Gloop**: round jelly blob with one big eye. Hops.
-- **Foxel**: square fox with a white tail tip. Trots.
-- **Lunabun**: moon bunny. Hops. Night theme.
-- **Puffcloud**: tiny cloud critter that drifts across the sky.
-- **Glowmoth**: glowing moth that flutters near lanterns. Night/cave.
-- **Gemmite**: crystal beetle that scuttles. Cave.
-- **Mushling**: small mushroom with legs. Cave and day.
-- **Emberwing (dragon, 32x32)**: friendly teal and amber dragon. Rare flyover every ~40s, can perch on the nav, breathes harmless sparkles. Not black, no purple eyes.
+## Characters (all original)
+Original characters only. Never use Minecraft/Mojang characters, skins, mobs or lookalikes. Take only the general blocky 8-bit style.
+
+- **Pix (hero)**, 16x32 sprite: square head 8x8, body 8x12, arms and legs 4x12, stiff swinging walk. Black hair, red-orange headband, cream hoodie with ink-blue sleeves, dark slate pants, amber boots, green backpack with amber strap. 2 idle + 4 walk frames. Wanders on its own. Click/tap to take control (WASD/arrows, Esc releases). Keyboard button "Play as Pix".
+- **Gloop**, 16x16: round teal jelly blob with one big eye. Hops. Night and day.
+- **Mossling** (zombie-style feel, original), 16x32: slow shambling blocky wanderer, moss-green skin, patched rags, arms held forward, a small lantern or leaf on its head. Spooky but friendly. Night, on the grass. Must not copy the Minecraft zombie's colors, clothes or face.
+- **Foxel**, 16x16: square fox with a white tail tip. Trots.
+- **Lunabun**, 16x16: moon bunny, hops. Night.
+- **Puffcloud**, 16x16: tiny cloud critter drifting across the sky.
+- **Gemmite**, 16x16: crystal beetle that scuttles. Cave.
+- **Deepwatcher** (warden-style feel, original), 24x40: tall, wide, silent cave guardian made of dark stone with glowing teal cracks and two small glowing eyes. Stands still, slowly turns its head. Lives in the Projects cave guarding the project crystals. Must NOT copy the Warden's horns/antennae, ribcage glow pattern, or face. Cave only.
+- **Glowmoth**, 16x16: glowing moth fluttering near lanterns. Night and cave.
+- **Emberwing (dragon)**, 32x32: friendly teal and amber dragon, rare flyover about every 40 seconds, can perch on the signpost, breathes harmless sparkles. Not black, no purple eyes.
+
+### Roster limits
+- Max 7 mobs on desktop plus the dragon, max 4 on phones. Which mobs appear is decided at build time.
+- Keep mob counts and speeds light for performance, and pause everything when the tab is hidden.
 
 ## Motion rules
 - Sprites: CSS `steps()` on sprite sheets, or frame-swapped text-grid sprites.

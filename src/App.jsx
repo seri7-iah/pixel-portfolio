@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import CaveDebris from './components/CaveDebris.jsx'
 import CreatureScene from './components/CreatureScene.jsx'
+import DepthMeter from './components/DepthMeter.jsx'
 import DescendBand from './components/DescendBand.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
 import DropHeading from './components/DropHeading.jsx'
@@ -241,6 +242,8 @@ function App() {
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
+
+      <DepthMeter />
 
       <main id="main-content">
         <section

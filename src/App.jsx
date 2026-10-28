@@ -1,11 +1,22 @@
 import { useRef, useState } from 'react'
 import CreatureScene from './components/CreatureScene.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
+import DropHeading from './components/DropHeading.jsx'
 import PixelButton from './components/PixelButton.jsx'
 import PortraitFrame from './components/PortraitFrame.jsx'
+import Typewriter from './components/Typewriter.jsx'
 import useOnScreen from './lib/useOnScreen.js'
 import { usePrefersReducedMotion, useSpriteScale } from './lib/useMotion.js'
+import { useReveal } from './lib/reveal.js'
 import './App.css'
+import './reveal.css'
+
+function revealClasses(base, reveal) {
+  const classes = [base]
+  if (reveal.revealed) classes.push('is-revealed')
+  if (reveal.revealed && !reveal.settled) classes.push('is-revealing')
+  return classes.join(' ')
+}
 
 const navItems = [
   { id: 'home', label: 'Home', side: 'left' },
@@ -20,9 +31,13 @@ const projects = [
   { id: '03', name: 'Project 03', tag: 'Trail sign', art: 'sign' },
 ]
 
-function Signpost() {
+function Signpost({ revealIndex = 0 }) {
   return (
-    <nav className="signpost" aria-label="World areas">
+    <nav
+      className="signpost rv-wipe"
+      aria-label="World areas"
+      style={{ '--rv-i': revealIndex }}
+    >
       <span className="signpost__pole" aria-hidden="true" />
       <ol className="signpost__list">
         {navItems.map((item) => (
@@ -41,12 +56,13 @@ function Signpost() {
   )
 }
 
-function CaveObject({ project }) {
+function CaveObject({ project, revealIndex = 0 }) {
   return (
     <a
-      className="cave-object"
+      className="cave-object rv-wipe"
       href="#contact"
       aria-label={`${project.name}: ${project.tag}. Placeholder project link.`}
+      style={{ '--rv-i': revealIndex }}
     >
       <span
         className={`cave-object__art cave-object__art--${project.art}`}
@@ -78,21 +94,33 @@ function App() {
   const projectsOnScreen = useOnScreen(projectsRef)
   const aboutOnScreen = useOnScreen(aboutRef)
   const contactOnScreen = useOnScreen(contactRef)
+  const homeReveal = useReveal(homeRef)
+  const projectsReveal = useReveal(projectsRef)
+  const aboutReveal = useReveal(aboutRef)
+  const contactReveal = useReveal(contactRef)
   // Scenery animations follow the same pause button as the creatures and stop
   // for the system reduced-motion preference. They also stop off screen.
   const decorLive = !creaturesPaused && !systemReducedMotion
-  const homeSceneClass = `scene scene--home${
-    decorLive && homeOnScreen ? ' is-live' : ''
-  }`
-  const caveSceneClass = `scene scene--cave${
-    decorLive && projectsOnScreen ? ' is-live' : ''
-  }`
-  const aboutSceneClass = `scene scene--about scene--ember${
-    decorLive && aboutOnScreen ? ' is-live' : ''
-  }`
-  const contactSceneClass = `scene scene--contact scene--void${
-    decorLive && contactOnScreen ? ' is-live' : ''
-  }`
+  const homeSceneClass = revealClasses(
+    `scene scene--home${decorLive && homeOnScreen ? ' is-live' : ''}`,
+    homeReveal,
+  )
+  const caveSceneClass = revealClasses(
+    `scene scene--cave${decorLive && projectsOnScreen ? ' is-live' : ''}`,
+    projectsReveal,
+  )
+  const aboutSceneClass = revealClasses(
+    `scene scene--about scene--ember${
+      decorLive && aboutOnScreen ? ' is-live' : ''
+    }`,
+    aboutReveal,
+  )
+  const contactSceneClass = revealClasses(
+    `scene scene--contact scene--void${
+      decorLive && contactOnScreen ? ' is-live' : ''
+    }`,
+    contactReveal,
+  )
 
   const toggleCreatures = () => {
     const next = !creaturesPaused
@@ -179,31 +207,48 @@ function App() {
             </p>
 
             <div className="home__title">
-              <p className="area-kicker">Home / Level 01</p>
-              <h1 id="home-title">POP</h1>
+              <Typewriter
+                as="p"
+                className="area-kicker"
+                text="Home / Level 01"
+              />
+              <DropHeading as="h1" id="home-title" text="POP" />
             </div>
 
             <div className="home__right">
-              <Signpost />
+              <Signpost revealIndex={0} />
               <div className="home__portrait">
                 <PortraitFrame />
               </div>
             </div>
 
             <div className="home__copy">
-              <p className="home__lead">
+              <p className="home__lead rv-wipe" style={{ '--rv-i': 1 }}>
                 Placeholder welcome for the home area. Real copy will arrive in a later
                 phase.
+                <span className="rv-bar" aria-hidden="true" />
               </p>
-              <p className="home__body">
+              <p className="home__body rv-wipe" style={{ '--rv-i': 2 }}>
                 Placeholder supporting line. Keep this short so the scene has room to
                 breathe.
+                <span className="rv-bar" aria-hidden="true" />
               </p>
-              <PixelButton href="#projects">Enter the cave</PixelButton>
+              <PixelButton
+                href="#projects"
+                className="rv-wipe"
+                style={{ '--rv-i': 3 }}
+              >
+                Enter the cave
+              </PixelButton>
             </div>
 
             <div className="home__dialogue">
-              <DialogueBox label="Dialogue" speaker="Guide">
+              <DialogueBox
+                className="rv-wipe"
+                label="Dialogue"
+                speaker="Guide"
+                revealIndex={4}
+              >
                 <p>
                   Placeholder dialogue. This box belongs to a character speaking, so keep
                   the line short.
@@ -311,22 +356,32 @@ function App() {
 
           <div className="container cave">
             <header className="section-intro">
-              <p className="area-kicker">Level 02 / Projects</p>
-              <h2 id="projects-title">Projects</h2>
-              <p>
+              <Typewriter
+                as="p"
+                className="area-kicker"
+                text="Level 02 / Projects"
+              />
+              <DropHeading as="h2" id="projects-title" text="Projects" />
+              <p className="rv-wipe" style={{ '--rv-i': 0 }}>
                 Placeholder introduction for the cave. Three objects stand in for projects
                 until real work and links are added.
+                <span className="rv-bar" aria-hidden="true" />
               </p>
             </header>
 
             <div className="cave-wall">
               <div className="cave-objects">
-                {projects.map((project) => (
-                  <CaveObject key={project.id} project={project} />
+                {projects.map((project, index) => (
+                  <CaveObject
+                    key={project.id}
+                    project={project}
+                    revealIndex={index + 1}
+                  />
                 ))}
               </div>
-              <p className="cave-wall__note">
+              <p className="cave-wall__note rv-wipe" style={{ '--rv-i': 4 }}>
                 Hover or tab to an object to reveal its short label.
+                <span className="rv-bar" aria-hidden="true" />
               </p>
             </div>
           </div>
@@ -375,19 +430,29 @@ function App() {
           </div>
 
           <div className="container scene-copy scene-copy--about">
-            <p className="area-kicker">Level 03 / About</p>
-            <h2 id="about-title">About</h2>
-            <p className="scene-copy__lead">
+            <Typewriter
+              as="p"
+              className="area-kicker"
+              text="Level 03 / About"
+            />
+            <DropHeading as="h2" id="about-title" text="About" />
+            <p className="scene-copy__lead rv-wipe" style={{ '--rv-i': 0 }}>
               Placeholder introduction for the about area. The text sits directly on the
               ember scene.
+              <span className="rv-bar" aria-hidden="true" />
             </p>
 
-            <DialogueBox className="about__dialogue" label="Dialogue" speaker="POP">
-              <p>Hi, I&apos;m POP.</p>
-            </DialogueBox>
+            <DialogueBox
+              className="about__dialogue rv-dialogue"
+              label="Dialogue"
+              speaker="POP"
+              typed
+              lines={["Hi, I'm POP."]}
+              revealIndex={1}
+            />
 
             <div className="about__grid">
-              <div className="about__block">
+              <div className="about__block rv-wipe" style={{ '--rv-i': 2 }}>
                 <h3>Profile</h3>
                 <p>
                   Placeholder bio paragraph. Real background details will replace this
@@ -397,9 +462,10 @@ function App() {
                   A second placeholder paragraph checks the line length and breathing
                   room.
                 </p>
+                <span className="rv-bar" aria-hidden="true" />
               </div>
 
-              <div className="about__block">
+              <div className="about__block rv-wipe" style={{ '--rv-i': 3 }}>
                 <h3>Skills</h3>
                 <ul className="pixel-list">
                   <li>Placeholder skill one.</li>
@@ -407,6 +473,7 @@ function App() {
                   <li>Placeholder skill three.</li>
                   <li>Placeholder skill four.</li>
                 </ul>
+                <span className="rv-bar" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -456,14 +523,30 @@ function App() {
           </div>
 
           <div className="container scene-copy scene-copy--contact">
-            <p className="area-kicker">Level 04 / Contact</p>
-            <h2 id="contact-title">Contact</h2>
-            <p className="scene-copy__lead">
+            <Typewriter
+              as="p"
+              className="area-kicker"
+              text="Level 04 / Contact"
+            />
+            <DropHeading as="h2" id="contact-title" text="Contact" />
+            <p className="scene-copy__lead rv-wipe" style={{ '--rv-i': 0 }}>
               Placeholder contact message. The real contact details come in a later phase.
+              <span className="rv-bar" aria-hidden="true" />
             </p>
-            <p>Email placeholder.</p>
-            <p>Social link placeholder.</p>
-            <PixelButton href="#home" variant="secondary">
+            <p className="rv-wipe" style={{ '--rv-i': 1 }}>
+              Email placeholder.
+              <span className="rv-bar" aria-hidden="true" />
+            </p>
+            <p className="rv-wipe" style={{ '--rv-i': 2 }}>
+              Social link placeholder.
+              <span className="rv-bar" aria-hidden="true" />
+            </p>
+            <PixelButton
+              href="#home"
+              variant="secondary"
+              className="rv-wipe"
+              style={{ '--rv-i': 3 }}
+            >
               Return to the signpost
             </PixelButton>
           </div>

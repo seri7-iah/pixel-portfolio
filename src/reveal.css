@@ -1,0 +1,282 @@
+/* Phase 3a-fix: section reveal as original 8-bit game-UI motion.
+   Rules:
+   - only transform and clip-path are animated (no width/height/top/left/margin)
+   - text is never faded: glyphs are clipped in one at a time
+   - no React render happens per frame or per character; CSS owns the timeline
+   - the base state is readable, hidden states only exist while a section waits
+   - will-change is tied to .is-revealing and removed when the reveal settles */
+
+.rv-wipe {
+  position: relative;
+}
+
+/* Blocks that carry the amber edge contain only text, so clipping their
+   horizontal overflow keeps the sweeping bar out of the page scroll width. */
+.rv-wipe:has(> .rv-bar) {
+  overflow: hidden;
+}
+
+.rv-type__layer,
+.rv-drop__layer {
+  display: inline;
+}
+
+.rv-type__word,
+.rv-drop__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.rv-type__char,
+.rv-drop__char {
+  display: inline-block;
+}
+
+.rv-type__char {
+  white-space: pre;
+}
+
+/* Solid 4x16px block cursor. Hidden entirely under reduced motion. */
+.rv-cursor {
+  display: none;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  transform-origin: 50% 100%;
+}
+
+/* 4px amber bar that leads each wipe. It is only visible while sweeping. */
+.rv-bar {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-left: 4px solid var(--rv-amber, #ffb347);
+  pointer-events: none;
+  clip-path: inset(0 0 0 100%);
+}
+
+/* Small stepped pixel down-arrow at the end of typed dialogue. */
+.rv-arrow {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-top: 8px;
+  background: var(--accent);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 25%,
+    87.5% 25%,
+    87.5% 50%,
+    75% 50%,
+    75% 75%,
+    62.5% 75%,
+    62.5% 100%,
+    37.5% 100%,
+    37.5% 75%,
+    25% 75%,
+    25% 50%,
+    12.5% 50%,
+    12.5% 25%,
+    0 25%
+  );
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+}
+
+.scene {
+  --rv-base: 320ms;
+  --rv-step: 120ms;
+  --rv-amber: #ffb347;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Waiting state. Base styles stay readable if an animation never runs. */
+  .scene:not(.is-revealed) .rv-wipe {
+    clip-path: inset(-16px 100% -16px 0);
+  }
+
+  .scene:not(.is-revealed) .rv-dialogue {
+    clip-path: inset(50% -16px 50% -16px);
+  }
+
+  .scene:not(.is-revealed) .rv-type__char {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .scene:not(.is-revealed) .rv-drop__char {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  /* will-change only while the reveal runs. */
+  .scene.is-revealing .rv-wipe,
+  .scene.is-revealing .rv-dialogue,
+  .scene.is-revealing .rv-bar,
+  .scene.is-revealing .rv-type__layer,
+  .scene.is-revealing .rv-drop__layer,
+  .scene.is-revealing .rv-cursor,
+  .scene.is-revealing .rv-arrow {
+    will-change: transform, clip-path;
+  }
+
+  /* 1. Section label: typewriter, 28ms a glyph, then the cursor blinks out. */
+  .scene.is-revealed .rv-type__char {
+    animation: rv-type 1ms linear backwards;
+    animation-delay: calc(
+      var(--rv-start, 0ms) + var(--rv-glyph, 0) * var(--rv-speed, 28ms)
+    );
+  }
+
+  .scene.is-revealed .rv-cursor {
+    display: inline-block;
+    animation:
+      rv-blink 900ms linear infinite,
+      rv-cursor-off 1ms linear forwards;
+    animation-delay:
+      var(--rv-start, 0ms),
+      calc(
+        var(--rv-start, 0ms) + var(--rv-count, 0) * var(--rv-speed, 28ms) + 400ms
+      );
+  }
+
+  /* 2. Heading: gravity drop, one 3px bounce, settle. */
+  .scene.is-revealed .rv-drop__char {
+    animation: rv-drop 420ms linear backwards;
+    animation-delay: calc(
+      var(--rv-start, 160ms) + var(--rv-glyph, 0) * var(--rv-stagger, 45ms)
+    );
+  }
+
+  /* 3. Paragraphs, lists and links: left-to-right clip wipe plus amber edge. */
+  .scene.is-revealed .rv-wipe {
+    animation: rv-wipe 450ms linear backwards;
+    animation-delay: calc(
+      var(--rv-base, 320ms) + var(--rv-i, 0) * var(--rv-step, 120ms)
+    );
+  }
+
+  .scene.is-revealed .rv-bar {
+    animation: rv-bar 450ms linear;
+    animation-delay: calc(
+      var(--rv-base, 320ms) + var(--rv-i, 0) * var(--rv-step, 120ms)
+    );
+  }
+
+  /* 4. Dialogue box: opens from its centre line outward. */
+  .scene.is-revealed .rv-dialogue {
+    animation: rv-open 250ms linear backwards;
+    animation-delay: calc(
+      var(--rv-base, 320ms) + var(--rv-i, 0) * var(--rv-step, 120ms)
+    );
+  }
+
+  /* 5. Typed dialogue trailer: blinking pixel down-arrow. */
+  .scene.is-revealed .rv-arrow {
+    animation: rv-arrow-blink 880ms linear infinite;
+    animation-delay: var(--rv-start, 0ms);
+  }
+}
+
+/* Every hidden state is additive and inside the no-preference block above, so
+   a browser without clip-path support, or a reduced-motion visitor, simply
+   reads the finished text. */
+
+@keyframes rv-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes rv-blink {
+  0%,
+  49.99% {
+    transform: scaleY(1);
+  }
+  50%,
+  100% {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes rv-cursor-off {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes rv-drop {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-24px);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  2% {
+    clip-path: inset(-8px -8px -8px -8px);
+    transform: translateY(-24px);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  52% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  66% {
+    transform: translateY(-3px);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.45);
+  }
+  82% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  100% {
+    clip-path: inset(-8px -8px -8px -8px);
+    transform: translateY(0);
+  }
+}
+
+@keyframes rv-wipe {
+  from {
+    clip-path: inset(-16px 100% -16px 0);
+  }
+  to {
+    clip-path: inset(-16px 0 -16px 0);
+  }
+}
+
+@keyframes rv-bar {
+  from {
+    clip-path: inset(0);
+    transform: translateX(0);
+  }
+  to {
+    clip-path: inset(0);
+    transform: translateX(calc(100% - 4px));
+  }
+}
+
+@keyframes rv-open {
+  from {
+    clip-path: inset(50% -16px 50% -16px);
+  }
+  to {
+    clip-path: inset(-16px -16px -16px -16px);
+  }
+}
+
+@keyframes rv-arrow-blink {
+  0%,
+  49.99% {
+    transform: scaleY(1);
+  }
+  50%,
+  100% {
+    transform: scaleY(0);
+  }
+}

@@ -1,7 +1,7 @@
 # NOTES.md
 
 ## Status
-Phase 2c complete: Emberwing is a 32x32 obsidian-and-violet void dragon in Contact (Void), with jagged crystal spines, luminous purple wings, an ember-orange eye and trail, a four-frame wing flap, a rare 25-45 second flyover, a five-second perch on a new pale rock ledge, and a still perched frame under reduced motion. Phase 2e-2 is now complete (parts A, B and C). The earlier 2e-3 creature pass remains unchanged; desktop keeps the full 10-creature cast under the awake-budget reading, phones show one per zone plus Emberwing in Contact (Gloamer and Emberwing, Starmote hidden), and Emberwing is outside the seven-mob budget. Screenshot review is next, then Phase 3.
+Phase 3a-fix complete: the generic Motion fade/slide reveal is gone. Sections still trigger once at about 30% visibility, but the reveal is now original 8-bit game-UI motion: a 28 ms typewriter label with a block cursor, a gravity letter drop with one 3 px bounce, 450 ms clip-path wipes with a 4 px amber edge, and a centre-line dialogue box that types at 22 ms per character and ends on a blinking arrow. CSS owns the timeline; React state changes twice per section, never per frame or character. Screenshot review of 3a-fix (and the still-open 2c/2e and 3a passes) comes first, then Phase 3b (parallax with scroll-velocity effects).
 
 ## Phase plan
 Original characters only, never Minecraft lookalikes.
@@ -25,7 +25,13 @@ Original characters only, never Minecraft lookalikes.
 - Phase 2b-2 (superseded): Lunabun, Puffcloud, Glowmoth. Not in the four-zone roster; deferred until they have a place.
 - Phase 2c: done as Phase 2e-2 part C. Emberwing now lives in the Void/Contact zone; the old signpost-perch plan is removed.
 - Phase 2d (superseded): cave mobs Gemmite and Deepwatcher. The cave roster is fixed at Bonemoss x2 plus Mossling; deferred.
-- Phase 3: transitions, Press Start screen, and the Night/Day toggle for Home only.
+- Phase 3 (split): 3a and 3b.
+- Phase 3a: done, then replaced by 3a-fix. The old one-shot Motion fade/slide is removed.
+- Phase 3a-fix: done. 8-bit game-UI reveal: typewriter label, gravity letter drop, clip-path wipes with an amber edge, centre-line dialogue open, typed POP line and blinking arrow.
+- Phase 3b: next. Parallax with scroll-velocity effects.
+- Phase 3c: dither transitions between worlds.
+- Phase 3d: depth meter.
+- Phase 3e: Press Start screen and the Home-only Night/Day toggle.
 - Phase 4: content and project links.
 - Phase 5: polish and deploy.
 
@@ -33,6 +39,33 @@ Original characters only, never Minecraft lookalikes.
 A distinctive 8-bit WORLD, not a webpage of boxes. Everything is one continuous scene and text sits directly on it. Original characters and art only, never Minecraft/Mojang lookalikes.
 
 The world now descends instead of repeating: Home night grassland, Projects cave, About Ember, Contact Void. Each section owns its palette scope and its own creature zone, and the cast per zone is fixed.
+
+## Built in Phase 3a-fix (8-bit game-UI reveal)
+- **Trigger reused, motion replaced:** `src/lib/reveal.js` no longer exports Motion variants. It now exports `useReveal(ref)`, a one-shot IntersectionObserver that adds `is-revealed` when about 30% of a section is visible. Tall phone sections can never reach 30%, so the threshold is lowered to whatever 90% of the viewport can cover, and it reconnects on resize. No section ever replays.
+- **No Motion in the reveal:** `App.jsx` sections are plain `<section>` elements and the reveal components have no `motion` imports or variants. The whole reveal is CSS. The `motion` package stays in `package.json` but nothing in `src/` imports it now.
+- **Label typewriter:** new `Typewriter.jsx` renders the full string in `.sr-only` and an `aria-hidden` layer of pre-split glyph spans. Each glyph is clipped in after `glyph * 28ms`, so no character ever re-renders React. A solid block cursor blinks and is scaled away 400 ms after the last glyph. Words keep `nowrap` wrappers so inline-block glyphs never break mid-word.
+- **Heading drop:** new `DropHeading.jsx` splits the heading into word/glyph spans and keeps the full string in `.sr-only`. Every glyph falls 24px on `cubic-bezier(0.55, 0, 1, 0.45)` (slow start, accelerating), lands, bounces up 3px once on an ease-out, then settles. All keyframe offsets are whole pixels (-24, 0, -3, 0); the motion itself is continuous at 60 fps. Stagger is 45ms per glyph and the heading starts 160ms after the section reveal.
+- **Wipes:** paragraphs, lists and blocks use a linear `clip-path` wipe over 450ms from left to right, plus a 4px amber vertical bar (`#ffb347`) that travels with the leading edge through `translateX`. Base delay is 320ms and each block starts 120ms after the previous one. Only text blocks carry the bar; links use the same wipe without it.
+- **Dialogue box (About):** `DialogueBox` gains `typed`, `lines` and `revealIndex`. The box opens from its horizontal centre line outward with `clip-path: inset(50% ...)` over 250ms, then the line types at 22ms per character, then a stepped 12px down-arrow blinks. The Home Guide box uses the ordinary block wipe instead.
+- **Links and signpost:** the signpost, cave objects and both `PixelButton` links wipe in on the same 120ms cadence right after their text. Hover and focus styles, DOM order, tab stops and the focus outline are untouched.
+- **Reduced motion:** every hidden state and every animation lives inside `@media (prefers-reduced-motion: no-preference)`. With reduce set, nothing is clipped, nothing is delayed, no cursor or bar is drawn, and all text is visible immediately. Changing the preference mid-session updates it without a reload.
+- **Fallback and accessibility:** the visible glyph layers are `aria-hidden` and both typewriter and heading render the complete string for assistive tech. Wiped text is normal DOM text, so screen readers always get it in full. Outside the no-preference block the base state is readable, so a failed or unsupported animation cannot leave text hidden.
+- **Performance:** only `transform` and `clip-path` are animated. No width, height, top, left, margin, opacity or per-frame React state. `will-change` is limited to `.is-revealing` and removed 1700ms after the reveal starts; the `is-revealing` class is a single state flip, after the longest animation has finished. Typewriters and wipes are pure CSS timelines.
+- **Timing:** Home and Projects finish at about 1.25s, About at about 1.25s (arrow included) and Contact at about 1.13s, all under the 1.6s ceiling. The label types for about 0.4s; the heading drop for long words ends around 0.7s.
+- **New files:** `src/components/Typewriter.jsx`, `src/components/DropHeading.jsx`, `src/lib/glyphs.js` (word/glyph splitter) and `src/reveal.css` (all reveal styles and keyframes). `DialogueBox.jsx`, `PixelButton.jsx`, `reveal.js` and `App.jsx` were updated in place.
+- **Verification:** `npm run lint` and `npm run build` pass. A Node render of the real `App.jsx` through Vite SSR confirmed the sr-only strings, the aria-hidden glyph layers, 4 sections, 10 amber-bar blocks, 17 wiped elements and no inline opacity/translate styles. No browser pass yet (no browser tools allowed).
+
+## Built in Phase 3a (section reveals, superseded by 3a-fix)
+- The Motion-based stepped fade/slide described below was removed in 3a-fix. Kept for history only.
+- **Motion setup:** new `src/lib/reveal.js` holds the shared variants. The four worlds are now `motion.section` elements with `initial="hidden"`, `whileInView="show"` and `viewport={{ once: true, amount: 0.12 }}`, so a section's reveal plays the first time it comes into view and never replays on later scrolls.
+- **Stepped motion:** `REVEAL_EASE` is Motion's `steps(4, 'end')` easing. Each item fades through four hard opacity levels while sliding up 16px in four 4px hops (16 -> 12 -> 8 -> 4 -> 0), so the reveal lands on the design grid instead of gliding. No blur, no spring, no filter; only `opacity` and `transform` are animated, so nothing reflows.
+- **Stagger:** `REVEAL_GROUP` sets `staggerChildren: 0.08`, giving the 80ms gap between a section's kicker, heading, paragraphs, links and blocks in DOM order.
+- **Covered items:** Home (kicker, POP title, signpost, lead, body, "Enter the cave", Guide dialogue), Projects (kicker, heading, intro, three cave object links, hint), About (kicker, heading, lead, Profile and Skills blocks), Contact (kicker, heading, lead, email, social, "Return to the signpost"). About's POP `DialogueBox` uses `REVEAL_POP`: opacity plus scale 0.95 -> 1 on the same stepped easing.
+- **Component hooks:** `DialogueBox` now renders a `motion.div` and `PixelButton` a `motion.a`/`motion.button`, so their existing `...rest` spread carries `variants` without adding wrapper elements. No markup nesting or CSS layout changed, so the grid areas, safe zones, focus order and 360px layout are untouched.
+- **Reduced motion:** sections mount with `initial="show"` and no `whileInView`, so every item renders at its final value immediately with no offset and no stagger delay. "Play anyway" still affects creatures only; it does not re-enable the reveal.
+- **Fallback:** content is hidden only by Motion's runtime `initial` styles, never by a stylesheet rule, so a failed animation cannot leave text permanently invisible. Signpost anchors and scroll behaviour are unchanged (the page had no smooth scrolling, so none was added).
+- **Verification:** `npm run lint`, `npm run build`, a Node render of the hidden/show variant states, and a Node check of the stepped easing values all pass. No browser pass yet.
+- `npm run lint` and `npm run build` pass.
 
 ## Built in Phase 2e-3
 - **New creatures:** `src/lib/pixelArt.js` now exports Emberimp (16x16), Ashwisp (16x16), Gloamer (16x32) and Starmote (16x16), all original text-grid art with per-character palettes. Emberimp is a chunky maroon imp with ash horns, orange eyes, short legs and a thin ember-tipped tail; it has no snout, tusks or gold, so it cannot read as a Piglin, and no lava-cube segments. Ashwisp is a teardrop flame with a bright core and three detached ember pixels; no rods or orbiting parts, so it is not a Blaze or a torch. Gloamer is a rounded hood with one pale-violet eye slit, short thick arms and a wide bell hem with no legs; it has no long thin limbs, tall rectangular head, particles or teleport. Starmote is a translucent violet jelly with a four-point cream star core and three violet glints.
@@ -205,11 +238,25 @@ Superseded by the part A rework above.
 - Kept the 360px/desktop layouts, 16px minimum body text, keyboard access and `prefers-reduced-motion` guard. No animation, transitions, sprites or theme toggle were added.
 
 ## Next
-Screenshot review of Phase 2c at 1440/1024/760/360: scroll to Contact and wait about 3-5 seconds for the first flyover, then check the top band, the right-hand descent, the pale perch, the five-second rest, the takeoff/leave, the four wing frames and the eye trail. Later visits wait 25-45 seconds. Check the dragon clears the Contact heading, text, links and "Return to the signpost" at every width, and that the phone shows only Gloamer and Emberwing in Contact (Starmote hidden).
-Also re-check the pause button, a reduced-motion reload (one still perched frame), an off-screen Contact section (no ticker), and the existing Phase 2e-2 parts A/B scenery and the 2e-3 creatures. The 2e-3 creature work is already in the tree; do not re-add it or the deferred mobs.
-After that review, Phase 3 follows: transitions, Press Start and the Home-only Night/Day toggle.
+Screenshot review of Phase 3a-fix first, at 1440/1024/760/360: reload Home and watch the label type, the POP letters drop and bounce, the wipes with the amber edge, and the Guide box; then use the signpost anchors to reach each world and confirm the reveal plays once on entry and never replays. Check About's dialogue box opening, its 22ms typing and the blinking arrow, and a reduced-motion reload where everything is simply there with no cursor, bar or arrow.
+Then the still-open Phase 2c screenshot review: scroll to Contact and wait about 3-5 seconds for the first flyover, then check the top band, the right-hand descent, the pale perch, the five-second rest, the takeoff/leave, the four wing frames and the eye trail. Later visits wait 25-45 seconds. Check the dragon clears the Contact heading, text, links and "Return to the signpost" at every width, and that the phone shows only Gloamer and Emberwing in Contact (Starmote hidden).
+Also re-check the pause button, a reduced-motion reload (one still perched frame), an off-screen Contact section (no ticker), and the Phase 2e-2 parts A/B scenery and 2e-3 creatures.
+After the reviews, Phase 3b follows: parallax with scroll-velocity effects.
 
 ## Known issues
+- Phase 3a-fix has only been checked with `npm run lint`, `npm run build` and static checks (no browser tools allowed). The screenshot pass must confirm the feel of all five effects at all four widths.
+- The label's block cursor sits at the end of the full label rather than travelling with the typing edge, because the glyphs keep their layout width while clipped. Check whether that reads as a typewriter or as a cursor waiting at the end; if it reads wrong, the fix is a per-glyph cursor slot, not a layout animation.
+- Heading letters fall from 24px above, so they briefly overlap the kicker above them. Check on the Home title and the longer "Projects" word at 360px; if it reads as a collision, start the drop at 300ms or shorten the 160ms heading lead-in.
+- The wipe's 4px amber bar is clipped by `overflow: hidden` on blocks that contain one (`:has(> .rv-bar)`). If `:has` is unsupported, the bar can leave the block during its 450ms sweep and widen the page scroll area; verify no horizontal scrollbar appears at 360px.
+- About's Profile and Skills wipe as single blocks, so their h3 and paragraphs share one amber edge rather than one edge per paragraph. That is intentional for this pass; revisit if it reads as a missed stagger.
+- The reveal waiting state is a CSS rule keyed on `.scene:not(.is-revealed)` inside the no-preference media query. If the IntersectionObserver never fires (not "animation fails"), a section would stay hidden; the hook falls back to revealed when `IntersectionObserver` is missing. Confirm a normal reload and a hash jump to `#contact` both reveal.
+- The reveal threshold is 30% of the section, lowered when 90% of the viewport cannot cover that much. Check a tall 360px phone (long Contact section) that the copy arrives as the section enters, not after it is already fully on screen.
+- Home's header controls and the portrait are deliberately outside the reveal, so they are painted before the label types. Check that this still reads as intentional.
+- `will-change` is attached to `.is-revealing` for 1700ms after the reveal starts. If long About typing plus the blinking arrow feels like it should keep the hint longer, raise `REVEAL_TOTAL`; do not move `will-change` into the base rules.
+- The wipe animates `clip-path` on text blocks; on a low-end phone, check that four simultaneous wipes plus the letter drop stay smooth. Only `transform` and `clip-path` are animated and no React state changes during the timeline.
+- Screen readers get the full label and heading from the `.sr-only` copy while the glyph layer is `aria-hidden`; check with a screen reader that the kicker and heading are not announced twice and that typed dialogue reads as a full sentence.
+- Keyboard Tab through a section that has not revealed yet still scrolls it into view and starts the reveal. The reveal adds no tab stops and does not change DOM order; check that the focus outline is not clipped after a wipe (the clip is released when the animation ends).
+- The old Phase 3a Motion reveal is gone, so its fade/stagger issues are closed. The 2c/2e screenshot checks below still apply.
 - The first Emberwing visit was made quick (2.5-4.5 seconds after Contact becomes visible) because the 25-45 second wait made the dragon easy to miss on arrival. Later visits keep the long, rare gap; check that the first one actually appears near the top band and that the later schedule still feels rare.
 - Contact's creature sentinel now covers the whole section instead of only the bottom 320px, so the flyover keeps running whenever any part of Contact is on screen. Check that scrolling Contact fully off screen still stops the ticker.
 - Phase 2c / 2e-2 part C has only been checked with Node art previews, `npm run lint` and `npm run build`, not in a browser. The screenshot pass should check the obsidian/violet silhouette at 4x and 3x, that the dark wings still read against the void sky, the four wing poses, the luminous wing ribs, the black crystal spines, the swept horns, the violet tail tip, the ember-orange eye and trail, the top-band clearance, the right-hand descent, the pale perch alignment, and the five-second rest.
@@ -299,6 +346,10 @@ After that review, Phase 3 follows: transitions, Press Start and the Home-only N
 - The 7-mob desktop limit is kept as an awake/visible budget, not a total-cast limit. All 10 creatures exist in their zones; freezing off-screen zones means only one zone is awake at a time (at most 3 creatures, plus the dragon). Phones use one creature per zone to respect both the 4-total and 2-per-section limits.
 - Floating creatures get their own `FloatCritter` rather than a mode inside `Critter`. The ground wanderer's distance-driven walk, arrival easing and lane clamp do not apply to a bob, so keeping the two motion models apart avoids weakening either one.
 - Floating bodies bob on whole pixels and keep the existing ground wrapper and shadow. The shadow stays put while the body lifts, which reads as hovering without any new shadow logic.
+- Section reveals live on the section as Motion variant parents, so each label, heading, paragraph and link opts in with one `variants` prop and the 80ms stagger comes from DOM order. This avoided adding wrappers that could disturb the existing grid areas and safe zones.
+- The reveal uses Motion's built-in `steps(4, 'end')` easing instead of smooth bezier timing. Four hard hops keep the motion on the 4px grid and match the pixel style; a 16px slide with four steps lands exactly on 16/12/8/4/0.
+- `DialogueBox` and `PixelButton` became Motion roots so their existing `...rest` spread can carry `variants`. This keeps reveal props out of the DOM and avoids wrappers around boxes and links.
+- Reduced motion mounts sections with `initial="show"` and no `whileInView`, rather than animating with zero duration. Final values are applied in the first paint, so there is no hidden frame and no stagger delay.
 
 ## Lessons
 - Fontsource keeps self-hosted fonts inside the bundle and the Vite build fingerprints them automatically.
@@ -324,6 +375,8 @@ After that review, Phase 3 follows: transitions, Press Start and the Home-only N
 - A shared IntersectionObserver hook avoids duplicating the sentinel logic between `CreatureScene` and `App`.
 - `box-shadow` glows are clipped by the element's `clip-path`; `filter: drop-shadow()` is the way to make a hard pixel glow follow a stepped shape.
 - `vh`-based ash offsets only cover one viewport band, so the field needs a layer near the top, middle and bottom of a tall section.
+- A custom stepped easing does not have to end at 1: Motion's JS animation substitutes the exact final keyframe when the tween finishes, so `steps(4)` can hold at 0.75 and still land on the real target.
+- Framer Motion variants propagate through plain DOM wrappers via React context, so a section can own the reveal state without every intermediate div becoming a motion element.
 
 
 

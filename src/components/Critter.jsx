@@ -9,6 +9,14 @@ import {
   walkStep,
 } from '../lib/groundMotion.js'
 import useIdleAnimation from '../lib/useIdleAnimation.js'
+import {
+  NOTICE_MS,
+  NOTICE_STAGGER,
+  faceTowardMiddle,
+  noticeLift,
+  useNoticeSchedule,
+} from '../lib/notice.js'
+import NoticeBubble from './NoticeBubble.jsx'
 
 const EDGE = 8
 const WANDER_RATE = 7
@@ -43,10 +51,14 @@ export default function Critter({
   blinkMax = 7000,
   easeDistance = 18,
   active = true,
+  noticeArmed = false,
+  noticeIndex = 0,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
   const shadowRef = useRef(null)
+  const bubbleRef = useRef(null)
+  const noticeRef = useRef({ active: false, started: false, elapsed: 0 })
   const posRef = useRef({ x: 0, y: laneMin, placed: false })
   const planRef = useRef({ mode: 'idle', wait: 900, tx: 0, ty: laneMin })
   const velocityRef = useRef({ vx: 0, vy: 0 })
@@ -124,6 +136,36 @@ export default function Critter({
     blinkMax,
   })
 
+  const noticeOn = useNoticeSchedule({
+    armed: noticeArmed,
+    active,
+    delay: noticeIndex * NOTICE_STAGGER,
+  })
+
+  // One 700ms notice beat: stop the wander plan, turn towards the middle of the
+  // screen and raise the "!" bubble. The ticker drives the hop and the bubble
+  // toggle, so this effect runs once and never re-renders during the reaction.
+  useEffect(() => {
+    if (!noticeOn || !active) return
+    if (noticeRef.current.started) return
+    noticeRef.current.started = true
+
+    const plan = planRef.current
+    const velocity = velocityRef.current
+    plan.mode = 'idle'
+    plan.wait = randomBetween(700, 1400)
+    velocity.vx = 0
+    velocity.vy = 0
+
+    setMoving(false)
+    const direction = faceTowardMiddle(ref.current)
+    if (direction) face(direction)
+
+    noticeRef.current.active = true
+    noticeRef.current.elapsed = 0
+    if (bubbleRef.current) bubbleRef.current.classList.add('is-on')
+  }, [noticeOn, active, face, setMoving])
+
   // While inactive the render already falls back to the first idle frame, a
   // flat body and a full-size shadow; the motion effect resets the pose when
   // the creature wakes up again.
@@ -164,7 +206,18 @@ export default function Critter({
   // Wandering: ease towards the target, pause, repeat. The shared ticker stops
   // this effect whenever the section is off screen, paused or reduced motion.
   useEffect(() => {
-    if (!active) return undefined
+    if (!active) {
+      // Leaving the section, pausing or turning on reduced motion mid-beat
+      // clears the hop and the bubble so nothing stays frozen on screen. The
+      // reaction counts as seen; it is a once-per-load greeting.
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.active = false
+        if (bodyRef.current) bodyRef.current.style.transform = ''
+        if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+      }
+      return undefined
+    }
 
     const el = ref.current
     const layer = el?.parentElement
@@ -213,6 +266,21 @@ export default function Critter({
     }
 
     return subscribe((delta) => {
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.elapsed += delta
+        const lift = noticeLift(notice.elapsed, scale)
+        const body = bodyRef.current
+        if (body) body.style.transform = lift > 0 ? `translateY(${-lift}px)` : ''
+
+        if (notice.elapsed >= NOTICE_MS) {
+          notice.active = false
+          if (body) body.style.transform = ''
+          if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+        }
+        return
+      }
+
       if (plan.mode === 'idle') {
         velocity.vx = 0
         velocity.vy = 0
@@ -272,6 +340,7 @@ export default function Critter({
   }, [
     active,
     size,
+    scale,
     speed,
     stride,
     laneMin,
@@ -315,6 +384,7 @@ export default function Critter({
           frameIndex={frameIndex}
           playing={false}
         />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
       </span>
     </div>
   )

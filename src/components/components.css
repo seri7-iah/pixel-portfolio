@@ -282,6 +282,7 @@
 }
 
 .critter__body {
+  position: relative;
   display: block;
 }
 
@@ -327,6 +328,7 @@
 }
 
 .float-critter__body {
+  position: relative;
   display: block;
 }
 
@@ -344,6 +346,79 @@
 .float-critter--gloamer .critter__shadow--float {
   width: 64%;
   opacity: 0.55;
+}
+
+/* Phase 3b-2: first-look "!" bubble -------------------------------------- */
+
+/* The bubble is a text-grid sprite inside the creature body, so it scales with
+   the same 4x/3x canvas. Only the parent's `.is-on` class changes during a
+   notice beat; there is no per-frame React state. */
+.notice {
+  position: absolute;
+  bottom: calc(100% + var(--px));
+  left: 50%;
+  display: none;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.notice.is-on {
+  display: block;
+}
+
+/* Emberwing's bubble hangs off the sprite box, clear of the wing bank. */
+.emberwing .notice {
+  bottom: calc(100% + var(--px));
+}
+
+/* Phase 3b-2: Home wish star --------------------------------------------- */
+
+.wish-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Only the star itself catches a click or tap; the layer and the burst canvas
+   let every other pointer event through to the page. */
+.wish-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  margin: calc(var(--px) * -1);
+  padding: var(--px);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  will-change: transform;
+}
+
+.wish-star.is-on {
+  display: block;
+}
+
+.wish-star .sprite {
+  pointer-events: none;
+}
+
+.wish-burst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: block;
+  image-rendering: pixelated;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice,
+  .wish-layer {
+    display: none !important;
+  }
 }
 
 /* Emberwing flyover ------------------------------------------------------- */

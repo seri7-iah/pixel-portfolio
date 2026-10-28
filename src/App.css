@@ -39,6 +39,42 @@ main {
   position: relative;
 }
 
+/* Phase 3b-1: one pixel-particle canvas per world. It sits behind the scenery,
+   text and creatures. The JS draws at integer coordinates with fillRect. */
+.particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* Phase 3b-2: rock chips in the cave. Above the cave art so they read against
+   the rock, but still below the copy (z-index 2) and the creatures. */
+.cave-debris {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* Phase 3b-1: each rock ceiling moves as one parallax layer. The light edge,
+   glowing seam, stalactites and drips stay attached to the rock instead of
+   sliding apart from it. */
+.cave-ceiling-stack,
+.ember-ceiling-stack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .area-kicker {
   margin: 0;
   color: var(--accent);
@@ -180,6 +216,29 @@ main {
     93vw 58vh 0 0 var(--star-dim),
     8vw 52vh 0 0 var(--star-dim),
     88vw 8vh 0 0 var(--star-dim);
+}
+
+/* Phase 3b-1: a few palette-cycled stars. Each box-shadow pixel reads a
+   different cycle variable, so neighbouring stars sit on different offsets and
+   the three cream shades rotate in hard 8 fps steps. */
+.cycle-stars {
+  position: absolute;
+  top: var(--px-4);
+  left: 4%;
+  width: var(--px);
+  height: var(--px);
+  background: var(--cycle-star-0, var(--star));
+  opacity: 0.95;
+  box-shadow:
+    8vw 1vh 0 0 var(--cycle-star-1, var(--star)),
+    17vw 3vh 0 0 var(--cycle-star-2, var(--star)),
+    27vw 1vh 0 0 var(--cycle-star-0, var(--star)),
+    36vw 4vh 0 0 var(--cycle-star-1, var(--star)),
+    45vw 2vh 0 0 var(--cycle-star-2, var(--star)),
+    58vw 3vh 0 0 var(--cycle-star-0, var(--star)),
+    70vw 1vh 0 0 var(--cycle-star-1, var(--star)),
+    84vw 4vh 0 0 var(--cycle-star-2, var(--star)),
+    93vw 2vh 0 0 var(--cycle-star-0, var(--star));
 }
 
 /* A couple of stepped four-point stars break up the dot field. */
@@ -1476,6 +1535,53 @@ main {
   animation-play-state: paused;
 }
 
+/* Phase 3b-2: one short, hard-stepped glint the first time the cave appears.
+   The ::after is clipped by the crystal shape, so no light spills past it. */
+.cave-crystal::after {
+  content: '';
+  position: absolute;
+  top: 24%;
+  left: 42%;
+  width: var(--px);
+  height: var(--px-3);
+  background: #f4ecd8;
+  box-shadow:
+    calc(var(--px) * -2) var(--px) 0 0 #f4ecd8,
+    var(--px-2) var(--px) 0 0 #f4ecd8;
+  transform: scale(0);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.scene--cave.is-glinting .cave-crystal::after {
+  animation: crystal-glint 760ms steps(1, jump-none) 1;
+}
+
+.scene--cave.is-glinting .cave-crystal--two::after {
+  animation-delay: 90ms;
+}
+
+.scene--cave.is-glinting .cave-crystal--three::after {
+  animation-delay: 180ms;
+}
+
+.scene--cave.is-glinting .cave-crystal--four::after {
+  animation-delay: 270ms;
+}
+
+@keyframes crystal-glint {
+  0% {
+    transform: scale(0);
+  }
+  24%,
+  70% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
 .cave-crystal--one {
   bottom: 200px;
   left: 10%;
@@ -2374,7 +2480,7 @@ main {
   position: absolute;
   top: 52px;
   width: 4px;
-  background: var(--ember-lava);
+  background: var(--cycle-lava-0, var(--ember-lava));
   box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.14);
 }
 
@@ -2396,7 +2502,7 @@ main {
 .ember-drip--two {
   right: 29%;
   height: 40px;
-  background: var(--ember-hot);
+  background: var(--cycle-lava-2, var(--ember-hot));
 }
 
 /* Rock pillars frame the room. The lava seam sits on the inner edge, so the
@@ -2482,12 +2588,9 @@ main {
   position: absolute;
   width: 4px;
   height: 88px;
-  background: linear-gradient(
-    180deg,
-    var(--ember-hot) 0 8%,
-    var(--ember-lava) 8% 100%
-  );
+  background: var(--cycle-lava-1, var(--ember-lava));
   box-shadow:
+    inset 0 4px 0 var(--cycle-lava-0, var(--ember-hot)),
     0 0 0 4px rgba(255, 122, 26, 0.14),
     0 0 0 8px rgba(255, 122, 26, 0.06);
   opacity: 0.9;
@@ -2522,6 +2625,7 @@ main {
   right: 30%;
   bottom: 196px;
   height: 48px;
+  background: var(--cycle-lava-2, var(--ember-lava));
   transform: scaleX(-1);
 }
 
@@ -2529,13 +2633,17 @@ main {
   left: 17%;
   bottom: 180px;
   height: 56px;
+  background: var(--cycle-lava-3, var(--ember-lava));
   opacity: 0.6;
 }
 
-/* Lava pools sit in the hot rock below the walking band. */
+/* Lava pools sit in the hot rock below the walking band. Phase 3b-1: the body
+   and the 4px pixel row read different palette-cycle variables, so neighbouring
+   pixels shimmer on different offsets. */
 .lava-pool {
   position: absolute;
   height: 12px;
+  overflow: hidden;
   filter:
     drop-shadow(0 -4px 0 var(--ember-rock-dark))
     drop-shadow(0 4px 0 rgba(255, 122, 26, 0.3))
@@ -2548,11 +2656,8 @@ main {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    var(--ember-hot) 0 4px,
-    var(--ember-lava) 4px 100%
-  );
+  background: var(--cycle-lava-0, var(--ember-lava));
+  box-shadow: inset 0 4px 0 var(--cycle-lava-1, var(--ember-hot));
   clip-path: polygon(
     0 100%,
     0 30%,
@@ -2577,6 +2682,24 @@ main {
   );
 }
 
+/* Hard 4px lava pixels across the pool. Neighbours use different shades. */
+.lava-pool::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  background: var(--cycle-lava-2, var(--ember-hot));
+  box-shadow:
+    16px 0 0 0 var(--cycle-lava-3, var(--ember-lava)),
+    40px 0 0 0 var(--cycle-lava-0, var(--ember-hot)),
+    64px 0 0 0 var(--cycle-lava-1, var(--ember-lava)),
+    88px 0 0 0 var(--cycle-lava-2, var(--ember-lava)),
+    112px 0 0 0 var(--cycle-lava-3, var(--ember-hot));
+  opacity: 0.9;
+}
+
 .lava-pool--one {
   bottom: 48px;
   left: 8%;
@@ -2590,11 +2713,21 @@ main {
   animation-delay: -1.6s;
 }
 
+.lava-pool--two::before {
+  background: var(--cycle-lava-1, var(--ember-lava));
+  box-shadow: inset 0 4px 0 var(--cycle-lava-2, var(--ember-hot));
+}
+
 .lava-pool--three {
   bottom: 40px;
   left: 46%;
   width: 64px;
   animation-delay: -2.8s;
+}
+
+.lava-pool--three::before {
+  background: var(--cycle-lava-3, var(--ember-lava));
+  box-shadow: inset 0 4px 0 var(--cycle-lava-0, var(--ember-hot));
 }
 
 /* Faint ash rises through the room. Each layer is a group of 4px specks; the
@@ -2897,19 +3030,21 @@ main {
   transform: scale(0.75);
 }
 
-/* Violet glints twinkle in place. */
+/* Violet glints twinkle in place. Phase 3b-1: the main pixel and each shadow
+   pixel read different violet cycle variables, so the cluster shimmers on
+   separate offsets. */
 .void-glints {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: var(--void-glint);
+  background: var(--cycle-glint-0, var(--void-glint));
   box-shadow:
     0 0 0 4px rgba(181, 140, 255, 0.12),
     0 0 0 8px rgba(181, 140, 255, 0.05),
-    -96px 64px 0 0 var(--void-glint),
-    -160px 148px 0 0 var(--void-glint),
-    -32px 208px 0 0 var(--void-glint),
-    -128px 24px 0 0 var(--void-glint);
+    -96px 64px 0 0 var(--cycle-glint-1, var(--void-glint)),
+    -160px 148px 0 0 var(--cycle-glint-2, var(--void-glint)),
+    -32px 208px 0 0 var(--cycle-glint-0, var(--void-glint)),
+    -128px 24px 0 0 var(--cycle-glint-1, var(--void-glint));
   animation: void-twinkle 3.8s steps(2, jump-none) infinite;
   animation-play-state: paused;
 }
@@ -3624,7 +3759,9 @@ main {
     right: 4%;
     box-shadow:
       0 0 0 4px rgba(181, 140, 255, 0.12),
-      0 0 0 8px rgba(181, 140, 255, 0.05);
+      0 0 0 8px rgba(181, 140, 255, 0.05),
+      -32px 56px 0 0 var(--cycle-glint-1, var(--void-glint)),
+      -64px 112px 0 0 var(--cycle-glint-2, var(--void-glint));
   }
 
   /* Keep one of each home detail so the scene stays quiet behind the copy. */
@@ -3774,5 +3911,18 @@ main {
 
   .cave-object__tag {
     font-size: 1rem;
+  }
+}
+
+/* Phase 3b-1: with reduced motion, no particles and no parallax at all. The
+   palette variables are painted once to their pleasant static shades by JS. */
+@media (prefers-reduced-motion: reduce) {
+  .particles,
+  .cave-debris {
+    display: none;
+  }
+
+  [data-parallax] {
+    transform: none !important;
   }
 }

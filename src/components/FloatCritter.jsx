@@ -9,6 +9,14 @@ import Sprite from './Sprite.jsx'
 import { subscribe } from '../lib/ticker.js'
 import { clamp, snapPx } from '../lib/groundMotion.js'
 import useIdleAnimation from '../lib/useIdleAnimation.js'
+import {
+  NOTICE_MS,
+  NOTICE_STAGGER,
+  faceTowardMiddle,
+  noticeBob,
+  useNoticeSchedule,
+} from '../lib/notice.js'
+import NoticeBubble from './NoticeBubble.jsx'
 
 const EDGE = 8
 const TAU = Math.PI * 2
@@ -39,9 +47,13 @@ export default function FloatCritter({
   blinkMin = 4200,
   blinkMax = 7000,
   active = true,
+  noticeArmed = false,
+  noticeIndex = 0,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
+  const bubbleRef = useRef(null)
+  const noticeRef = useRef({ active: false, started: false, elapsed: 0 })
   const baseRef = useRef({ x: 0, y: laneMin, placed: false })
   const maxXRef = useRef(EDGE)
   const swayRef = useRef(phase * TAU)
@@ -57,6 +69,31 @@ export default function FloatCritter({
     blinkMin,
     blinkMax,
   })
+
+  const noticeOn = useNoticeSchedule({
+    armed: noticeArmed,
+    active,
+    delay: noticeIndex * NOTICE_STAGGER,
+  })
+
+  // A floating creature keeps hovering but adds one extra bob instead of a hop.
+  // Drift and sway freeze for the 700ms beat, and only the canvas facing and the
+  // bubble class change; the bob itself is written from the ticker.
+  useEffect(() => {
+    if (!noticeOn || !active) return
+    if (noticeRef.current.started) return
+    noticeRef.current.started = true
+
+    const direction = faceTowardMiddle(ref.current)
+    if (direction && direction !== facingRef.current) {
+      facingRef.current = direction
+      setFacing(direction)
+    }
+
+    noticeRef.current.active = true
+    noticeRef.current.elapsed = 0
+    if (bubbleRef.current) bubbleRef.current.classList.add('is-on')
+  }, [noticeOn, active])
 
   const draw = useCallback((x, y) => {
     const el = ref.current
@@ -108,6 +145,13 @@ export default function FloatCritter({
   useEffect(() => {
     if (!active) {
       setLift(hover)
+
+      // Pausing or leaving mid-beat hides the bubble; the greeting is spent.
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.active = false
+        if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+      }
       return undefined
     }
 
@@ -120,6 +164,19 @@ export default function FloatCritter({
     )
 
     return subscribe((delta) => {
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.elapsed += delta
+        const bobOffset = Math.sin((elapsed / bobMs) * TAU) * bob
+        setLift(hover + bobOffset + noticeBob(notice.elapsed, scale))
+
+        if (notice.elapsed >= NOTICE_MS) {
+          notice.active = false
+          if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+        }
+        return
+      }
+
       elapsed = (elapsed + delta) % bobMs
       swayRef.current = (swayRef.current + (delta / driftMs) * TAU) % TAU
 
@@ -147,7 +204,7 @@ export default function FloatCritter({
 
       draw(x, base.y)
     })
-  }, [active, hover, bob, bobMs, drift, driftMs, draw, setLift])
+  }, [active, scale, hover, bob, bobMs, drift, driftMs, draw, setLift])
 
   const blinkIdle = blinking && idleBlinkFrames
   const frames = blinkIdle ? idleBlinkFrames : idleFrames
@@ -171,6 +228,7 @@ export default function FloatCritter({
           frameIndex={frame}
           playing={false}
         />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
       </span>
     </div>
   )

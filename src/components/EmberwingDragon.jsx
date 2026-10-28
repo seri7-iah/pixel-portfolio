@@ -7,6 +7,12 @@ import {
   EMBERWING_PALETTE,
   EMBERWING_PERCH_FRAMES,
 } from '../lib/emberwingArt.js'
+import {
+  NOTICE_MS,
+  faceTowardMiddle,
+  noticeBob,
+} from '../lib/notice.js'
+import NoticeBubble from './NoticeBubble.jsx'
 
 const FLY_WAIT_MIN = 25000
 const FLY_WAIT_MAX = 45000
@@ -40,9 +46,12 @@ export default function EmberwingDragon({
   active = true,
   reducedMotion = false,
   scale = 4,
+  noticeArmed = false,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
+  const bubbleRef = useRef(null)
+  const noticeRef = useRef({ active: false, started: false, elapsed: 0 })
   const size = 32 * scale
 
   const posRef = useRef({ x: -size, y: PERCH_TOP, placed: false })
@@ -207,7 +216,15 @@ export default function EmberwingDragon({
   }, [reducedMotion, setFrameIndex])
 
   useEffect(() => {
-    if (!active) return undefined
+    if (!active) {
+      // Pausing or leaving mid-beat clears the bob and bubble; spent for good.
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.active = false
+        if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+      }
+      return undefined
+    }
 
     const el = ref.current
     const layer = el?.parentElement
@@ -220,6 +237,38 @@ export default function EmberwingDragon({
       const plan = planRef.current
       const pos = posRef.current
       const velocity = velocityRef.current
+
+      // The world reveal arms the beat, but Emberwing is usually still waiting
+      // off screen at that moment. Start the reaction on its first flyover once
+      // it has actually entered the sky band, so the bob and bubble are seen.
+      const notice = noticeRef.current
+      if (
+        noticeArmed &&
+        !notice.started &&
+        plan.visible &&
+        pos.x > bounds.width * 0.08
+      ) {
+        notice.started = true
+        notice.active = true
+        notice.elapsed = 0
+
+        const direction = faceTowardMiddle(el)
+        if (direction) setFacingDirection(direction)
+        if (bubbleRef.current) bubbleRef.current.classList.add('is-on')
+      }
+
+      if (notice.active) {
+        notice.elapsed += delta
+        draw(pos.x, pos.y, 0, noticeBob(notice.elapsed, scale))
+
+        if (notice.elapsed >= NOTICE_MS) {
+          notice.active = false
+          if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+          // Every normal flight path leaves to the right, so restore that facing.
+          setFacingDirection(1)
+        }
+        return
+      }
 
       if (plan.mode === 'wait') {
         plan.wait -= delta
@@ -359,6 +408,8 @@ export default function EmberwingDragon({
   }, [
     active,
     size,
+    scale,
+    noticeArmed,
     draw,
     setFrameIndex,
     setFacingDirection,
@@ -385,6 +436,7 @@ export default function EmberwingDragon({
           flip={facing < 0}
         />
       </span>
+      <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
     </span>
   )
 }

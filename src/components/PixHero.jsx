@@ -10,6 +10,14 @@ import {
   walkStep,
 } from '../lib/groundMotion.js'
 import useIdleAnimation from '../lib/useIdleAnimation.js'
+import {
+  NOTICE_MS,
+  NOTICE_STAGGER,
+  faceTowardMiddle,
+  noticeLift,
+  useNoticeSchedule,
+} from '../lib/notice.js'
+import NoticeBubble from './NoticeBubble.jsx'
 
 const EDGE = 8
 const IDLE_RELEASE_MS = 20000
@@ -150,8 +158,13 @@ export default function PixHero({
   startX = 0.2,
   wanderSpeed = 24,
   controlSpeed = 120,
+  noticeArmed = false,
+  noticeIndex = 0,
 }) {
   const rootRef = useRef(null)
+  const bodyRef = useRef(null)
+  const bubbleRef = useRef(null)
+  const noticeRef = useRef({ active: false, started: false, elapsed: 0 })
   const hintRef = useRef(null)
   const hintWidthRef = useRef(0)
   const posRef = useRef({ x: 0, y: laneMin, placed: false })
@@ -254,6 +267,35 @@ export default function PixHero({
     frameCount: viewFrames.idle.length,
   })
 
+  const noticeOn = useNoticeSchedule({
+    armed: noticeArmed,
+    active: active && !controlling,
+    delay: noticeIndex * NOTICE_STAGGER,
+  })
+
+  // The player always outranks the reaction: the schedule is not armed while
+  // Pix is controlled, and taking over mid-beat clears the hop and the bubble.
+  useEffect(() => {
+    if (!noticeOn || !active || controlling) return
+    if (noticeRef.current.started) return
+    noticeRef.current.started = true
+
+    const plan = planRef.current
+    const velocity = velocityRef.current
+    plan.mode = 'idle'
+    plan.wait = randomBetween(700, 1400)
+    velocity.vx = 0
+    velocity.vy = 0
+
+    setMoving(false)
+    const direction = faceTowardMiddle(rootRef.current)
+    if (direction) face(direction)
+
+    noticeRef.current.active = true
+    noticeRef.current.elapsed = 0
+    if (bubbleRef.current) bubbleRef.current.classList.add('is-on')
+  }, [noticeOn, active, controlling, face, setMoving])
+
   // Control always starts and ends on the side view. Resetting the stored pose
   // on release means the next takeover never flashes the old front/back view.
   useEffect(() => {
@@ -322,7 +364,16 @@ export default function PixHero({
   // Wandering resumes whenever Pix is not being controlled. Speed eases in and
   // out, and the walk cycle advances from the distance actually travelled.
   useEffect(() => {
-    if (paused || reducedMotion || controlling || !active) return undefined
+    if (paused || reducedMotion || controlling || !active) {
+      // Pausing, taking control or leaving mid-beat clears the hop and bubble.
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.active = false
+        if (bodyRef.current) bodyRef.current.style.transform = ''
+        if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+      }
+      return undefined
+    }
 
     const el = rootRef.current
     const layer = el?.parentElement
@@ -372,6 +423,21 @@ export default function PixHero({
     }
 
     return subscribe((delta) => {
+      const notice = noticeRef.current
+      if (notice.active) {
+        notice.elapsed += delta
+        const lift = noticeLift(notice.elapsed, scale)
+        const body = bodyRef.current
+        if (body) body.style.transform = lift > 0 ? `translateY(${-lift}px)` : ''
+
+        if (notice.elapsed >= NOTICE_MS) {
+          notice.active = false
+          if (body) body.style.transform = ''
+          if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+        }
+        return
+      }
+
       if (plan.mode === 'idle') {
         velocity.vx = 0
         velocity.vy = 0
@@ -425,6 +491,7 @@ export default function PixHero({
     controlling,
     active,
     size,
+    scale,
     wanderSpeed,
     laneMin,
     laneMax,
@@ -453,6 +520,13 @@ export default function PixHero({
     velocity.vx = 0
     velocity.vy = 0
     setMoving(false)
+
+    // Taking over cancels a notice beat that is still in progress.
+    if (noticeRef.current.active) {
+      noticeRef.current.active = false
+      if (bodyRef.current) bodyRef.current.style.transform = ''
+      if (bubbleRef.current) bubbleRef.current.classList.remove('is-on')
+    }
 
     let idleElapsed = 0
     let tapTarget = null
@@ -756,7 +830,7 @@ export default function PixHero({
         className={`critter__shadow${shadowLifted ? ' critter__shadow--lift' : ''}`}
         aria-hidden="true"
       />
-      <span className="critter__body">
+      <span className="critter__body" ref={bodyRef}>
         <Sprite
           frames={frames}
           palette={PIX_PALETTE}
@@ -765,6 +839,7 @@ export default function PixHero({
           frameIndex={frameIndex}
           playing={false}
         />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
       </span>
       {controlling ? (
         <span ref={hintRef} className="pix-hint" aria-hidden="true">

@@ -1,13 +1,17 @@
 import { useRef, useState } from 'react'
+import CaveDebris from './components/CaveDebris.jsx'
 import CreatureScene from './components/CreatureScene.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
 import DropHeading from './components/DropHeading.jsx'
+import ParticleField from './components/ParticleField.jsx'
 import PixelButton from './components/PixelButton.jsx'
 import PortraitFrame from './components/PortraitFrame.jsx'
 import Typewriter from './components/Typewriter.jsx'
+import WishStar from './components/WishStar.jsx'
 import useOnScreen from './lib/useOnScreen.js'
 import { usePrefersReducedMotion, useSpriteScale } from './lib/useMotion.js'
 import { useReveal } from './lib/reveal.js'
+import useSceneFx from './lib/sceneFx.js'
 import './App.css'
 import './reveal.css'
 
@@ -98,6 +102,36 @@ function App() {
   const projectsReveal = useReveal(projectsRef)
   const aboutReveal = useReveal(aboutRef)
   const contactReveal = useReveal(contactRef)
+
+  // Phase 3b-1: parallax layers, palette cycling and particle fields. These
+  // read the system preference directly, so "Play anyway" cannot re-enable
+  // decorative motion the visitor asked to suppress.
+  const fxReduced = systemReducedMotion
+  const fxPaused = creaturesPaused
+  useSceneFx(homeRef, {
+    cycle: 'home',
+    onScreen: homeOnScreen,
+    paused: fxPaused,
+    reducedMotion: fxReduced,
+  })
+  useSceneFx(projectsRef, {
+    onScreen: projectsOnScreen,
+    paused: fxPaused,
+    reducedMotion: fxReduced,
+  })
+  useSceneFx(aboutRef, {
+    cycle: 'ember',
+    onScreen: aboutOnScreen,
+    paused: fxPaused,
+    reducedMotion: fxReduced,
+  })
+  useSceneFx(contactRef, {
+    cycle: 'void',
+    onScreen: contactOnScreen,
+    paused: fxPaused,
+    reducedMotion: fxReduced,
+  })
+
   // Scenery animations follow the same pause button as the creatures and stop
   // for the system reduced-motion preference. They also stop off screen.
   const decorLive = !creaturesPaused && !systemReducedMotion
@@ -105,8 +139,13 @@ function App() {
     `scene scene--home${decorLive && homeOnScreen ? ' is-live' : ''}`,
     homeReveal,
   )
+  // The reveal fires once per page load, so it is also the trigger for the
+  // one-shot crystal glint. Reduced motion keeps the crystals still.
+  const caveGlint = projectsReveal.revealed && !systemReducedMotion
   const caveSceneClass = revealClasses(
-    `scene scene--cave${decorLive && projectsOnScreen ? ' is-live' : ''}`,
+    `scene scene--cave${decorLive && projectsOnScreen ? ' is-live' : ''}${
+      caveGlint ? ' is-glinting' : ''
+    }`,
     projectsReveal,
   )
   const aboutSceneClass = revealClasses(
@@ -141,11 +180,12 @@ function App() {
           className={homeSceneClass}
           aria-labelledby="home-title"
         >
-          <div className="sky sky--home" aria-hidden="true">
+          <div className="sky sky--home" aria-hidden="true" data-parallax="48">
             <span className="sky-horizon" />
             <span className="stars stars--one" />
             <span className="stars stars--two" />
             <span className="stars stars--three" />
+            <span className="cycle-stars" />
             <span className="star-cross star-cross--one" />
             <span className="star-cross star-cross--two" />
             <span className="shooting-star" />
@@ -154,6 +194,12 @@ function App() {
             <span className="cloud cloud--two" />
             <span className="cloud cloud--three" />
           </div>
+
+          <WishStar
+            active={homeOnScreen && !creaturesPaused && !fxReduced}
+            reducedMotion={fxReduced}
+            scale={spriteScale}
+          />
 
           <div className="container home">
             <header className="home__header">
@@ -263,7 +309,7 @@ function App() {
             <span className="ridge ridge--mid" />
             <span className="ridge-tree ridge-tree--one" />
             <span className="ridge-tree ridge-tree--two" />
-            <span className="hill hill--back" />
+            <span className="hill hill--back" data-parallax="16" />
             <span className="hill hill--front" />
             <span className="tree tree--one" />
             <span className="tree tree--two" />
@@ -289,6 +335,8 @@ function App() {
             scale={spriteScale}
             controlling={pixControl}
             onControllingChange={setPixControl}
+            sectionRevealed={homeReveal.revealed}
+            fxReduced={fxReduced}
           />
         </section>
 
@@ -298,19 +346,32 @@ function App() {
           className={caveSceneClass}
           aria-labelledby="projects-title"
         >
+          <ParticleField
+            kind="dust"
+            scale={spriteScale}
+            active={projectsOnScreen && !fxPaused && !fxReduced}
+          />
+
+          <CaveDebris
+            scale={spriteScale}
+            active={projectsOnScreen && !fxPaused && !fxReduced}
+          />
+
           <div className="cave-decor" aria-hidden="true">
-            <span className="cave-glow" />
-            <span className="cave-ceiling-glow" />
-            <span className="cave-ceiling-edge" />
-            <span className="stalactite stalactite--one" />
-            <span className="stalactite stalactite--two" />
-            <span className="stalactite stalactite--three" />
-            <span className="stalactite stalactite--four" />
-            <span className="stalactite stalactite--five" />
-            <span className="stalactite stalactite--six" />
-            <span className="cave-drip cave-drip--one" />
-            <span className="cave-drip cave-drip--two" />
-            <span className="cave-ceiling" />
+            <span className="cave-glow" data-parallax="16" />
+            <span className="cave-ceiling-stack" data-parallax="32">
+              <span className="cave-ceiling-glow" />
+              <span className="cave-ceiling-edge" />
+              <span className="stalactite stalactite--one" />
+              <span className="stalactite stalactite--two" />
+              <span className="stalactite stalactite--three" />
+              <span className="stalactite stalactite--four" />
+              <span className="stalactite stalactite--five" />
+              <span className="stalactite stalactite--six" />
+              <span className="cave-drip cave-drip--one" />
+              <span className="cave-drip cave-drip--two" />
+              <span className="cave-ceiling" />
+            </span>
             <span className="cave-wall-rock cave-wall-rock--left" />
             <span className="cave-wall-rock cave-wall-rock--right" />
             <span className="cave-vein cave-vein--one" />
@@ -391,6 +452,8 @@ function App() {
             paused={creaturesPaused}
             reducedMotion={reducedMotion}
             scale={spriteScale}
+            sectionRevealed={projectsReveal.revealed}
+            fxReduced={fxReduced}
           />
         </section>
 
@@ -400,18 +463,26 @@ function App() {
           className={aboutSceneClass}
           aria-labelledby="about-title"
         >
+          <ParticleField
+            kind="ash"
+            scale={spriteScale}
+            active={aboutOnScreen && !fxPaused && !fxReduced}
+          />
+
           <div className="ember-decor" aria-hidden="true">
             <span className="ember-glow" />
-            <span className="ember-ceiling-glow ember-ceiling-glow--soft" />
-            <span className="ember-ceiling-glow" />
-            <span className="ember-stalactite ember-stalactite--one" />
-            <span className="ember-stalactite ember-stalactite--two ember-stalactite--hot" />
-            <span className="ember-stalactite ember-stalactite--three ember-stalactite--hot" />
-            <span className="ember-stalactite ember-stalactite--four" />
-            <span className="ember-stalactite ember-stalactite--five" />
-            <span className="ember-drip ember-drip--one" />
-            <span className="ember-drip ember-drip--two" />
-            <span className="ember-ceiling" />
+            <span className="ember-ceiling-stack" data-parallax="32">
+              <span className="ember-ceiling-glow ember-ceiling-glow--soft" />
+              <span className="ember-ceiling-glow" />
+              <span className="ember-stalactite ember-stalactite--one" />
+              <span className="ember-stalactite ember-stalactite--two ember-stalactite--hot" />
+              <span className="ember-stalactite ember-stalactite--three ember-stalactite--hot" />
+              <span className="ember-stalactite ember-stalactite--four" />
+              <span className="ember-stalactite ember-stalactite--five" />
+              <span className="ember-drip ember-drip--one" />
+              <span className="ember-drip ember-drip--two" />
+              <span className="ember-ceiling" />
+            </span>
             <span className="ember-pillar ember-pillar--far-left" />
             <span className="ember-pillar ember-pillar--far-right" />
             <span className="ember-pillar ember-pillar--left" />
@@ -422,7 +493,7 @@ function App() {
             <span className="lava-pool lava-pool--one" />
             <span className="lava-pool lava-pool--two" />
             <span className="lava-pool lava-pool--three" />
-            <div className="ember-ash">
+            <div className="ember-ash" data-parallax="16">
               <span className="ember-ash__layer ember-ash__layer--one" />
               <span className="ember-ash__layer ember-ash__layer--two" />
               <span className="ember-ash__layer ember-ash__layer--three" />
@@ -485,6 +556,8 @@ function App() {
             paused={creaturesPaused}
             reducedMotion={reducedMotion}
             scale={spriteScale}
+            sectionRevealed={aboutReveal.revealed}
+            fxReduced={fxReduced}
           />
         </section>
 
@@ -494,10 +567,16 @@ function App() {
           className={contactSceneClass}
           aria-labelledby="contact-title"
         >
+          <ParticleField
+            kind="glint"
+            scale={spriteScale}
+            active={contactOnScreen && !fxPaused && !fxReduced}
+          />
+
           <div className="void-decor" aria-hidden="true">
             <span className="void-nebula" />
             <span className="void-lip" />
-            <span className="void-stars void-stars--cream" />
+            <span className="void-stars void-stars--cream" data-parallax="32" />
             <span className="void-stars void-stars--violet" />
             <span className="void-stars void-stars--dim" />
             <span className="void-star-cross void-star-cross--one" />
@@ -505,7 +584,7 @@ function App() {
             <span className="void-glints void-glints--one" />
             <span className="void-glints void-glints--two" />
             <span className="void-rock void-rock--one" />
-            <span className="void-rock void-rock--two" />
+            <span className="void-rock void-rock--two" data-parallax="16" />
             <span className="void-rock void-rock--three" />
             <span className="void-rock void-rock--four" />
             <span className="void-rock void-rock--five" />
@@ -558,6 +637,8 @@ function App() {
             paused={creaturesPaused}
             reducedMotion={reducedMotion}
             scale={spriteScale}
+            sectionRevealed={contactReveal.revealed}
+            fxReduced={fxReduced}
           />
         </section>
 

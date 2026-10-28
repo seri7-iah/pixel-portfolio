@@ -44,6 +44,8 @@ export default function CreatureScene({
   scale = 4,
   controlling = false,
   onControllingChange,
+  sectionRevealed = false,
+  fxReduced = false,
 }) {
   const ref = useRef(null)
   const onScreen = useOnScreen(ref)
@@ -53,6 +55,11 @@ export default function CreatureScene({
   const laneMin = GROUND_HEIGHT - grassDepth
   const laneMax = laneMin + (phone ? 32 : 44)
   const active = !paused && !reducedMotion && onScreen
+
+  // Phase 3b-2: the section reveal fires once per page load, so it arms the
+  // notice beat. Each creature then counts its own 150ms stagger only while its
+  // zone is awake, so no reaction is spent off screen or while paused.
+  const noticeArmed = sectionRevealed && !fxReduced
 
   return (
     <div className={`creatures creatures--${zone}`} aria-hidden="true">
@@ -81,6 +88,8 @@ export default function CreatureScene({
             startX={0.2}
             wanderSpeed={phone ? 17 : 24}
             controlSpeed={phone ? 84 : 120}
+            noticeArmed={noticeArmed}
+            noticeIndex={0}
           />
 
           {/* Phones show Pix alone at Home, so the two critters stay desktop. */}
@@ -104,6 +113,8 @@ export default function CreatureScene({
                 blinkMin={3200}
                 blinkMax={5600}
                 active={active}
+                noticeArmed={noticeArmed}
+                noticeIndex={1}
               />
 
               <Critter
@@ -122,6 +133,8 @@ export default function CreatureScene({
                 blinkMin={3000}
                 blinkMax={5200}
                 active={active}
+                noticeArmed={noticeArmed}
+                noticeIndex={2}
               />
             </>
           )}
@@ -146,6 +159,8 @@ export default function CreatureScene({
             blinkMin={2600}
             blinkMax={4800}
             active={active}
+            noticeArmed={noticeArmed}
+            noticeIndex={0}
           />
 
           {phone ? null : (
@@ -168,6 +183,8 @@ export default function CreatureScene({
               blinkMin={999999}
               blinkMax={999999}
               active={active}
+              noticeArmed={noticeArmed}
+              noticeIndex={1}
             />
           )}
         </>
@@ -195,6 +212,8 @@ export default function CreatureScene({
             blinkMin={6200}
             blinkMax={9800}
             active={active}
+            noticeArmed={noticeArmed}
+            noticeIndex={0}
           />
 
           {phone ? null : (
@@ -215,6 +234,8 @@ export default function CreatureScene({
               blinkMin={999999}
               blinkMax={999999}
               active={active}
+              noticeArmed={noticeArmed}
+              noticeIndex={1}
             />
           )}
 
@@ -222,6 +243,7 @@ export default function CreatureScene({
             active={active}
             reducedMotion={reducedMotion}
             scale={scale}
+            noticeArmed={noticeArmed}
           />
         </>
       ) : null}
@@ -244,6 +266,8 @@ export default function CreatureScene({
             blinkMin={5200}
             blinkMax={8200}
             active={active}
+            noticeArmed={noticeArmed}
+            noticeIndex={0}
           />
 
           {phone ? null : (
@@ -264,6 +288,8 @@ export default function CreatureScene({
                 blinkMin={5600}
                 blinkMax={8600}
                 active={active}
+                noticeArmed={noticeArmed}
+                noticeIndex={1}
               />
 
               <Critter
@@ -282,6 +308,8 @@ export default function CreatureScene({
                 blinkMin={5000}
                 blinkMax={8000}
                 active={active}
+                noticeArmed={noticeArmed}
+                noticeIndex={2}
               />
             </>
           )}

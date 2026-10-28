@@ -40,7 +40,7 @@ The page is one scroll, not four pages. Each section is its own world with its o
 - Night and Day are the same Home scene with swapped colors (a sun/moon toggle button). The initial theme follows `prefers-color-scheme`.
 
 ## Characters (all original)
-Original characters only. Never use Minecraft/Mojang characters, skins, mobs or lookalikes. Take only the general blocky 8-bit style. Each zone has a fixed cast; creatures never leave their own ground strip.
+Original characters only. Never use Minecraft/Mojang characters, skins, mobs or lookalikes. Take only the general blocky 8-bit style. Each zone has a fixed cast and creatures stay inside their own section. Emberwing is the one sky exception, but it still lives only in Contact.
 
 ### Home (Night)
 - **Pix (hero)**, 16x32: square head 8x8, body 8x12, arms and legs 4x12, stiff swinging walk. Black hair, red-orange headband, cream hoodie with ink-blue sleeves, dark slate pants, amber boots, green backpack with amber strap. Side view has 2 idle + 2 blink frames and an 8-frame walk. Wanders on its own. Click/tap or the "Play as Pix" button takes control (WASD/arrows, Esc releases, 20 seconds idle releases); while controlled he walks in depth inside the lane, tap-to-walk goes to the tapped point, and he uses eight fixed views (side, front, back and both 3/4 angles).
@@ -57,10 +57,8 @@ Original characters only. Never use Minecraft/Mojang characters, skins, mobs or 
 
 ### Contact (Void)
 - **Gloamer**, 16x32: tall hooded shadow with short thick arms, a wide bell-shaped hem and a single pale-violet eye slit. Hovers low over the ground instead of walking; the hem never shows legs. Void only. Must not look like an Enderman: no long thin limbs, no tall rectangular head, no purple particles, no teleporting.
-- **Starmote**, 16x16: tiny floating star-jelly with a four-point star core inside a soft translucent body and a few violet glints. Drifts in place. Void only.
-
-### Shared sky
-- **Emberwing (dragon)**, 32x32: friendly teal and amber dragon, rare flyover about every 40 seconds, can perch on the signpost, breathes harmless sparkles. Not black, no purple eyes. Not part of any zone's roster; it crosses Home.
+- **Starmote**, 16x16: tiny floating star-jelly with a four-point star core inside a soft translucent body and a few violet glints. Drifts in place. Void only. Hidden on phones so Contact keeps two creatures.
+- **Emberwing (dragon)**, 32x32: an obsidian-and-violet void dragon inspired by a jagged black dragon silhouette. Deep violet body lit by glowing purple cracks and an underbelly glow, tall black crystal spines down the back and tail, torn dark wings with luminous violet ribs and edges, swept horns, a sharp snout and an amber-violet tail tip. The one warm note is a large ember-orange eye with a short animated trail. It is original and deliberately not a Minecraft Ender Dragon lookalike (no plain blocky black body, no magenta eyes). Rare flyover every 25-45 seconds in Contact only: enters from one side, glides across the top sky band, lands on a pale floating rock ledge at the far end of the ground strip, rests about 5 seconds, then leaves. It never crosses Home or perches on the signpost. It is a special flyover outside the seven-mob budget.
 
 ### Deferred (not in the current world plan)
 Lunabun, Puffcloud, Gemmite, Deepwatcher and Glowmoth are drafted but unplaced. They are not part of the four-zone roster above and stay out until a later phase finds a home for them.
@@ -69,18 +67,20 @@ Lunabun, Puffcloud, Gemmite, Deepwatcher and Glowmoth are drafted but unplaced. 
 - Every creature sprite is drawn in side view facing RIGHT. Moving left flips only the sprite canvas with `scaleX(-1)`; the shadow, wrapper and any label stay unflipped.
 - The last facing is kept when a creature stops.
 - Floating creatures (Ashwisp, Gloamer, Starmote) follow the same rule: they face their movement direction and keep the last facing while hovering.
+- Emberwing follows the same rule: the sprite wrapper flips with `scaleX(-1)` only when it is flying left, and it keeps its last facing on the perch. The perch, path and shadow do not flip.
 - The one exception is controlled Pix. While the player controls him he uses eight directions: S front, W back, A/D side, and WD/WA/SD/SA angled. Opposite keys on either axis keep the previous view, and releasing control returns him to side view.
 
 ## Roster limits and zones
-- Desktop: the full cast is 10 creatures (Home 3, Cave 3, Ember 2, Void 2). The 7-mob limit is an awake/visible budget, not a total-cast limit: off-screen zones freeze, so only one zone's cast is awake at a time (at most 3 creatures), plus the dragon = 4. Even if two zone sentinels overlapped, the worst case would be 6 + dragon = 7. Confirmed in 2e-3.
-- Phones: 4 total and max 2 per section. The phone cast is one per zone: Pix (Home), Bonemoss (Cave), Emberimp (Ember), Gloamer (Void). Gloop, Foxel, the dark Bonemoss, Mossling, Ashwisp and Starmote are desktop-only. Confirmed in 2e-3.
-- Creatures only wander inside their own section's ground strip and only animate while their section is on screen. Off-screen zones freeze and do not tick.
+- Desktop: the full cast is 10 creatures (Home 3, Cave 3, Ember 2, Void 2) plus Emberwing in Contact. Emberwing is a special flyover outside the seven-mob budget. The 7-mob limit is an awake/visible budget, not a total-cast limit: off-screen zones freeze, so only one zone's cast is awake at a time (at most 3 creatures), plus Emberwing = 4. Even if two zone sentinels overlapped, the worst case would be 6 + Emberwing = 7. Confirmed in 2e-3.
+- Phones: 4 regular creatures plus Emberwing, and max 2 per section. The phone cast is one per zone: Pix (Home), Bonemoss (Cave), Emberimp (Ember), Gloamer (Void), plus Emberwing in Contact, so Contact shows Gloamer and Emberwing. Gloop, Foxel, the dark Bonemoss, Mossling, Ashwisp and Starmote are desktop-only. Confirmed in 2e-3.
+- Creatures only wander inside their own section's ground strip and only animate while their section is on screen. Off-screen zones freeze and do not tick. Emberwing is the sky exception: it flies only in Contact's top band and perches only on the Contact ground strip.
 
 ## Motion rules
 - Sprites: CSS `steps()` on sprite sheets, or frame-swapped text-grid sprites. Walk frames advance from distance travelled, not from a timer.
 - Floating creatures use a slow bob or hover instead of a walk cycle: Ashwisp bobs, Gloamer hovers low, Starmote drifts in place.
+- Emberwing uses the shared ticker and `groundMotion.js` easing. Its four-frame wing flap runs only while flying; its two-frame perch idles with a slow tail sway. The first visit arrives 2.5-4.5 seconds after Contact comes on screen, then the flyover waits 25-45 seconds between later visits, rests about 5 seconds and only ticks while Contact is on screen.
 - Transitions: pixel screen-wipes (stepped, not smooth) and dialogue-box reveals (typewriter text).
-- `prefers-reduced-motion`: creatures stand still or hold a single hover frame, no flyover, transitions become instant fades. Control still works in short discrete steps.
+- `prefers-reduced-motion`: creatures stand still or hold a single hover frame, no flyover; Emberwing shows one still perched frame, and transitions become instant fades. Control still works in short discrete steps. "Pause creatures" freezes Emberwing as well.
 - A visible "Pause creatures" toggle and a "Skip intro" button. Pause everything when the tab is hidden.
 
 ## Accessibility

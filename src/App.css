@@ -2703,7 +2703,7 @@ main {
   --grass-depth: 96px;
   z-index: 2;
   overflow: hidden;
-  padding-block: 96px 320px;
+  padding-block: 224px 320px;
   background: linear-gradient(
     180deg,
     var(--void-bg-top) 0 12%,
@@ -3134,6 +3134,48 @@ main {
   height: 30px;
 }
 
+/* Emberwing's perch: one wider cream outcrop at the far right of the ground
+   strip. Its top edge is the 176px line the dragon's feet sit on. */
+.void-perch {
+  position: absolute;
+  right: 4%;
+  bottom: 160px;
+  width: 160px;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    var(--void-rock-warm) 0 4px,
+    var(--void-rock) 4px 10px,
+    var(--void-rock-shade) 10px 100%
+  );
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 62%,
+    84% 62%,
+    84% 82%,
+    66% 82%,
+    66% 100%,
+    34% 100%,
+    34% 82%,
+    16% 82%,
+    16% 62%,
+    0 62%
+  );
+  filter: drop-shadow(0 4px 0 var(--void-under));
+}
+
+.void-perch::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 16px;
+  width: 10px;
+  height: 2px;
+  background: var(--void-rock-warm);
+  opacity: 0.8;
+}
+
 @keyframes void-twinkle {
   0%,
   100% {
@@ -3539,7 +3581,12 @@ main {
   }
 
   .scene--contact {
-    padding-block: 80px 280px;
+    padding-block: 208px 280px;
+  }
+
+  /* Keep a clear right-hand descent lane for Emberwing. */
+  .scene-copy--contact {
+    max-width: calc(100% - 160px);
   }
 
   .void-lip {
@@ -3618,6 +3665,19 @@ main {
   .scene--about,
   .scene--contact {
     --grass-depth: 72px;
+  }
+
+  .scene--contact {
+    padding-block: 192px 280px;
+  }
+
+  /* The 3x dragon needs a 96px-wide right lane on a phone. */
+  .scene-copy--contact {
+    max-width: calc(100% - 120px);
+  }
+
+  .void-perch {
+    width: 128px;
   }
 
   .signpost {

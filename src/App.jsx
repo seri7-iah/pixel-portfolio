@@ -452,6 +452,7 @@ function App() {
             <span className="void-shelf void-shelf--five" />
             <span className="void-shelf void-shelf--six" />
             <span className="void-shelf void-shelf--seven" />
+            <span className="void-perch" />
           </div>
 
           <div className="container scene-copy scene-copy--contact">

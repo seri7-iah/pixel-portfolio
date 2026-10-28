@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import Critter from './Critter.jsx'
+import EmberwingDragon from './EmberwingDragon.jsx'
 import FloatCritter from './FloatCritter.jsx'
 import PixHero from './PixHero.jsx'
 import useOnScreen from '../lib/useOnScreen.js'
@@ -30,10 +31,12 @@ const GROUND_HEIGHT = 160
 
 // One creature layer per section. Desktop shows the full cast of ten:
 // Home (Pix, Gloop, Foxel), Projects cave (Bonemoss x2, Mossling),
-// About (Emberimp, Ashwisp) and Contact (Gloamer, Starmote). Phones show one
-// per zone (Pix, Bonemoss, Emberimp, Gloamer) to stay at four total and under
-// the two-per-section limit. Every creature is drawn in side view facing right
-// and only flips its sprite canvas when it turns.
+// About (Emberimp, Ashwisp) and Contact (Gloamer, Starmote). Emberwing is a
+// special Contact flyover outside the seven-mob budget. Phones show one per
+// zone (Pix, Bonemoss, Emberimp, Gloamer) plus Emberwing in Contact, so
+// Contact has two creatures and Starmote stays desktop-only. Every creature is
+// drawn in side view facing right and only flips its sprite canvas when it
+// turns.
 export default function CreatureScene({
   zone,
   paused = false,
@@ -53,8 +56,15 @@ export default function CreatureScene({
 
   return (
     <div className={`creatures creatures--${zone}`} aria-hidden="true">
-      {/* Only the ground strip and its headroom wake the zone. */}
-      <span ref={ref} className="creatures__watch" />
+      {/* Only the ground strip and its headroom wake the zone. Contact also
+          needs its sky band awake for Emberwing's flyover, so its watch covers
+          the whole section instead. */}
+      <span
+        ref={ref}
+        className={`creatures__watch${
+          zone === 'contact' ? ' creatures__watch--sky' : ''
+        }`}
+      />
 
       {zone === 'home' ? (
         <>
@@ -207,6 +217,12 @@ export default function CreatureScene({
               active={active}
             />
           )}
+
+          <EmberwingDragon
+            active={active}
+            reducedMotion={reducedMotion}
+            scale={scale}
+          />
         </>
       ) : null}
 

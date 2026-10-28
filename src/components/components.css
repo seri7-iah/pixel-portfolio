@@ -267,6 +267,13 @@
   height: 320px;
 }
 
+/* Contact's flyover uses the whole section, so any visible part of it keeps
+   Emberwing's schedule running. */
+.creatures__watch--sky {
+  top: 0;
+  height: auto;
+}
+
 .critter {
   position: absolute;
   bottom: 0;
@@ -337,6 +344,32 @@
 .float-critter--gloamer .critter__shadow--float {
   width: 64%;
   opacity: 0.55;
+}
+
+/* Emberwing flyover ------------------------------------------------------- */
+
+/* The wrapper carries the whole flight path; the inner body handles the wing
+   bank and bob. Opacity is stepped so the rare entrance reads as pixel art,
+   not a soft fade. */
+.emberwing {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 180ms steps(4, end);
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.emberwing--visible {
+  opacity: 1;
+}
+
+.emberwing__body {
+  display: block;
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
 
 /* Pix is the one character that catches clicks, so he can be taken over. */

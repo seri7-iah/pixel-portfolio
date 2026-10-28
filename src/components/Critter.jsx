@@ -53,6 +53,8 @@ export default function Critter({
   active = true,
   noticeArmed = false,
   noticeIndex = 0,
+  world = 'home',
+  pulse = false,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
@@ -383,8 +385,11 @@ export default function Critter({
           flip={facing < 0}
           frameIndex={frameIndex}
           playing={false}
+          light={name}
+          world={world}
+          pulse={pulse}
         />
-        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} world={world} />
       </span>
     </div>
   )

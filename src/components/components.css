@@ -248,6 +248,13 @@
   transform: scaleX(-1);
 }
 
+/* Lit sprites bake their outline into 1 extra source pixel on every side. This
+   wrapper holds the original footprint, so feet, lanes and shadows stay put. */
+.sprite-box {
+  position: relative;
+  display: block;
+}
+
 /* Wandering creatures ---------------------------------------------------- */
 
 .creatures {

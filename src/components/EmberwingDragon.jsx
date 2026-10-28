@@ -47,6 +47,7 @@ export default function EmberwingDragon({
   reducedMotion = false,
   scale = 4,
   noticeArmed = false,
+  pulse = false,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
@@ -434,9 +435,12 @@ export default function EmberwingDragon({
           frameIndex={frame}
           scale={scale}
           flip={facing < 0}
+          light="emberwing"
+          world="void"
+          pulse={pulse}
         />
       </span>
-      <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
+      <NoticeBubble bubbleRef={bubbleRef} scale={scale} world="void" />
     </span>
   )
 }

@@ -1,7 +1,7 @@
 # AGENTS.md: rules for the coding agent
 
 SKILL RULES
-- Skills are helpers, not bosses. When my prompt names a phase, follow that prompt exactly.
+- Skills are helpers, not bosses (Situational, and take initiative whats best). When my prompt names a phase, follow that prompt exactly.
 - Do NOT run brainstorming or ask me design questions when my prompt already gives the spec.
 - No subagents or helper agents. Do not start any other phase. STOP after the phase.
 - Never download anything from the internet.

@@ -49,6 +49,8 @@ export default function FloatCritter({
   active = true,
   noticeArmed = false,
   noticeIndex = 0,
+  world = 'home',
+  pulse = false,
 }) {
   const ref = useRef(null)
   const bodyRef = useRef(null)
@@ -227,8 +229,11 @@ export default function FloatCritter({
           flip={facing < 0}
           frameIndex={frame}
           playing={false}
+          light={name}
+          world={world}
+          pulse={pulse}
         />
-        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} world={world} />
       </span>
     </div>
   )

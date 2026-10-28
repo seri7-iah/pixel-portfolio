@@ -160,6 +160,8 @@ export default function PixHero({
   controlSpeed = 120,
   noticeArmed = false,
   noticeIndex = 0,
+  world = 'home',
+  pulse = false,
 }) {
   const rootRef = useRef(null)
   const bodyRef = useRef(null)
@@ -838,8 +840,11 @@ export default function PixHero({
           flip={pose.flip < 0}
           frameIndex={frameIndex}
           playing={false}
+          light="pix"
+          world={world}
+          pulse={pulse}
         />
-        <NoticeBubble bubbleRef={bubbleRef} scale={scale} />
+        <NoticeBubble bubbleRef={bubbleRef} scale={scale} world={world} />
       </span>
       {controlling ? (
         <span ref={hintRef} className="pix-hint" aria-hidden="true">

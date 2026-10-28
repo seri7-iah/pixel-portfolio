@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import CaveDebris from './components/CaveDebris.jsx'
 import CreatureScene from './components/CreatureScene.jsx'
+import DescendBand from './components/DescendBand.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
 import DropHeading from './components/DropHeading.jsx'
 import ParticleField from './components/ParticleField.jsx'
@@ -33,6 +34,49 @@ const projects = [
   { id: '01', name: 'Project 01', tag: 'Crystal cache', art: 'crystal' },
   { id: '02', name: 'Project 02', tag: 'Supply chest', art: 'chest' },
   { id: '03', name: 'Project 03', tag: 'Trail sign', art: 'sign' },
+]
+
+// Phase 3c: one dithered band per seam. The two base colours are CSS variable
+// names read off the sections at draw time, so each band follows its own world
+// palette. Lip colours come from the world above the seam, except the void dust,
+// which is pale rock from the world below.
+const descentBands = [
+  {
+    from: 'home',
+    to: 'projects',
+    upper: '--dirt',
+    lower: '--cave-wall-deep',
+    lip: {
+      kind: 'rock',
+      dark: '--dirt-dark',
+      light: '--dirt-light',
+      source: 'from',
+    },
+  },
+  {
+    from: 'projects',
+    to: 'about',
+    upper: '--cave-floor',
+    lower: '--ember-rock-warm',
+    lip: {
+      kind: 'rock',
+      dark: '--cave-rock',
+      light: '--cave-stone-light',
+      source: 'from',
+    },
+  },
+  {
+    from: 'about',
+    to: 'contact',
+    upper: '--ember-rock',
+    lower: '--void-bg-top',
+    lip: {
+      kind: 'dust',
+      dark: '--void-rock-shade',
+      light: '--void-rock-warm',
+      source: 'to',
+    },
+  },
 ]
 
 function Signpost({ revealIndex = 0 }) {
@@ -90,6 +134,7 @@ function App() {
   const reducedMotion = systemReducedMotion && !motionOverride
   const spriteScale = useSpriteScale()
 
+  const appRef = useRef(null)
   const homeRef = useRef(null)
   const projectsRef = useRef(null)
   const aboutRef = useRef(null)
@@ -167,8 +212,32 @@ function App() {
     if (next) setPixControl(false)
   }
 
+  // Phase 3c: the entry beat. One 120ms, two-frame, 2px thump on the page
+  // wrapper the first time a seam is crossed. Desktop only and never for the
+  // system reduced-motion preference; there is no sound.
+  const handleBandCross = () => {
+    if (fxReduced || spriteScale <= 3) return
+
+    const app = appRef.current
+    if (!app || app.classList.contains('is-thumping')) return
+    app.classList.add('is-thumping')
+  }
+
+  useEffect(() => {
+    const app = appRef.current
+    if (!app) return undefined
+
+    const onAnimationEnd = (event) => {
+      if (event.target !== app) return
+      app.classList.remove('is-thumping')
+    }
+
+    app.addEventListener('animationend', onAnimationEnd)
+    return () => app.removeEventListener('animationend', onAnimationEnd)
+  }, [])
+
   return (
-    <div className="app">
+    <div className="app" ref={appRef}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -340,6 +409,13 @@ function App() {
           />
         </section>
 
+        <DescendBand
+          {...descentBands[0]}
+          scale={spriteScale}
+          reducedMotion={fxReduced}
+          onCross={handleBandCross}
+        />
+
         <section
           id="projects"
           ref={projectsRef}
@@ -457,6 +533,13 @@ function App() {
           />
         </section>
 
+        <DescendBand
+          {...descentBands[1]}
+          scale={spriteScale}
+          reducedMotion={fxReduced}
+          onCross={handleBandCross}
+        />
+
         <section
           id="about"
           ref={aboutRef}
@@ -560,6 +643,13 @@ function App() {
             fxReduced={fxReduced}
           />
         </section>
+
+        <DescendBand
+          {...descentBands[2]}
+          scale={spriteScale}
+          reducedMotion={fxReduced}
+          onCross={handleBandCross}
+        />
 
         <section
           id="contact"

@@ -56,6 +56,19 @@ export default function CreatureScene({
   const laneMax = laneMin + (phone ? 32 : 44)
   const active = !paused && !reducedMotion && onScreen
 
+  // Phase 3c-art: each zone lights its creatures with its own world accent.
+  // The pulse uses the system reduced-motion flag (not "Play anyway") and stops
+  // with the pause button, matching the other decorative FX.
+  const world =
+    zone === 'home'
+      ? 'home'
+      : zone === 'cave'
+        ? 'cave'
+        : zone === 'about'
+          ? 'ember'
+          : 'void'
+  const pulse = active && !fxReduced
+
   // Phase 3b-2: the section reveal fires once per page load, so it arms the
   // notice beat. Each creature then counts its own 150ms stagger only while its
   // zone is awake, so no reaction is spent off screen or while paused.
@@ -77,6 +90,8 @@ export default function CreatureScene({
         <>
           <PixHero
             scale={scale}
+            world={world}
+            pulse={pulse}
             paused={paused}
             reducedMotion={reducedMotion}
             active={active}
@@ -97,6 +112,8 @@ export default function CreatureScene({
             <>
               <Critter
                 name="gloop"
+                world={world}
+                pulse={pulse}
                 palette={GLOOP_PALETTE}
                 idleFrames={GLOOP_FRAMES.idle}
                 idleBlinkFrames={GLOOP_FRAMES.idleBlink}
@@ -119,6 +136,8 @@ export default function CreatureScene({
 
               <Critter
                 name="foxel"
+                world={world}
+                pulse={pulse}
                 palette={FOX_PALETTE}
                 idleFrames={FOX_FRAMES.idle}
                 idleBlinkFrames={FOX_FRAMES.idleBlink}
@@ -145,6 +164,8 @@ export default function CreatureScene({
         <>
           <Critter
             name="emberimp"
+            world={world}
+            pulse={pulse}
             palette={EMBERIMP_PALETTE}
             idleFrames={EMBERIMP_FRAMES.idle}
             idleBlinkFrames={EMBERIMP_FRAMES.idleBlink}
@@ -166,6 +187,8 @@ export default function CreatureScene({
           {phone ? null : (
             <FloatCritter
               name="ashwisp"
+              world={world}
+              pulse={pulse}
               palette={ASHWISP_PALETTE}
               idleFrames={ASHWISP_FRAMES.idle}
               scale={scale}
@@ -194,6 +217,8 @@ export default function CreatureScene({
         <>
           <FloatCritter
             name="gloamer"
+            world={world}
+            pulse={pulse}
             palette={GLOAMER_PALETTE}
             idleFrames={GLOAMER_FRAMES.idle}
             idleBlinkFrames={GLOAMER_FRAMES.idleBlink}
@@ -219,6 +244,8 @@ export default function CreatureScene({
           {phone ? null : (
             <FloatCritter
               name="starmote"
+              world={world}
+              pulse={pulse}
               palette={STARMOTE_PALETTE}
               idleFrames={STARMOTE_FRAMES.idle}
               scale={scale}
@@ -244,6 +271,7 @@ export default function CreatureScene({
             reducedMotion={reducedMotion}
             scale={scale}
             noticeArmed={noticeArmed}
+            pulse={pulse}
           />
         </>
       ) : null}
@@ -252,6 +280,8 @@ export default function CreatureScene({
         <>
           <Critter
             name="bonemoss"
+            world={world}
+            pulse={pulse}
             palette={BONEMOSS_PALETTE}
             idleFrames={BONEMOSS_FRAMES.idle}
             idleBlinkFrames={BONEMOSS_FRAMES.idleBlink}
@@ -274,6 +304,8 @@ export default function CreatureScene({
             <>
               <Critter
                 name="bonemoss-dark"
+                world={world}
+                pulse={pulse}
                 palette={BONEMOSS_DARK_PALETTE}
                 idleFrames={BONEMOSS_DARK_FRAMES.idle}
                 idleBlinkFrames={BONEMOSS_DARK_FRAMES.idleBlink}
@@ -294,6 +326,8 @@ export default function CreatureScene({
 
               <Critter
                 name="mossling"
+                world={world}
+                pulse={pulse}
                 palette={MOSS_PALETTE}
                 idleFrames={MOSS_FRAMES.idle}
                 idleBlinkFrames={MOSS_FRAMES.idleBlink}

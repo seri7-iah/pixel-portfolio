@@ -12,12 +12,16 @@ export const REVEAL_TOTAL = 1700
 // `settled` drops `is-revealing` (and its will-change) after the reveal ends.
 // Reduced motion is handled in CSS: every hidden state and animation lives
 // inside `@media (prefers-reduced-motion: no-preference)`.
-export function useReveal(ref) {
+//
+// `enabled` holds the reveal back while a full-screen intro is still covering
+// the page (Phase 3e-1). The observer only connects once the intro is gone, so
+// the Home reveal starts after the title screen, never behind it.
+export function useReveal(ref, enabled = true) {
   const [revealed, setRevealed] = useState(false)
   const [settled, setSettled] = useState(false)
 
   useEffect(() => {
-    if (revealed) return undefined
+    if (revealed || !enabled) return undefined
 
     const el = ref.current
     if (!el || typeof IntersectionObserver === 'undefined') {
@@ -60,7 +64,7 @@ export function useReveal(ref) {
       window.clearTimeout(resizeTimer)
       window.removeEventListener('resize', onResize)
     }
-  }, [ref, revealed])
+  }, [ref, revealed, enabled])
 
   useEffect(() => {
     if (!revealed || settled) return undefined

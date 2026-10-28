@@ -1,0 +1,384 @@
+/* Phase 3e-1: Press Start title screen.
+   Hard-edged pixels only: flat palette bands, stepped shadows and whole-pixel
+   marks. No gradients, no blur, no CRT overlay, no vignette, no sound. */
+
+.title-screen {
+  --title-ledge: 148px;
+  --title-grass: 96px;
+  --actor-lane: 72px;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  background: var(--sky-top);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+/* Night sky in two hard bands, with the grass ledge at the very bottom. The
+   canvas repeats these exact bands while the dither runs. */
+.title-screen__depth {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: 38%;
+  background: var(--sky-bottom);
+}
+
+.title-screen__sky {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.title-screen__ledge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: var(--title-ledge);
+  background: var(--grass);
+  border-top: 4px solid var(--grass-light);
+  pointer-events: none;
+}
+
+.title-screen__ledge::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(100% - var(--title-grass));
+  background: var(--dirt);
+  border-top: 4px solid var(--grass-dark);
+}
+
+.title-screen__ledge::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 12px;
+  background: var(--dirt-dark);
+}
+
+/* A few blade pixels above the lip, built from 4px marks. */
+.title-screen__tufts {
+  position: absolute;
+  top: -8px;
+  left: 8%;
+  width: 4px;
+  height: 8px;
+  background: var(--grass-dark);
+  box-shadow:
+    12vw 4px 0 0 var(--grass-light),
+    26vw -4px 0 0 var(--grass-dark),
+    41vw 4px 0 0 var(--grass-light),
+    58vw -4px 0 0 var(--grass-dark),
+    74vw 4px 0 0 var(--grass-light),
+    89vw -4px 0 0 var(--grass-dark);
+}
+
+/* Bayer dissolve canvas. It sits above the flat backdrop and below the stars,
+   so cleared cells show the live page underneath. */
+.title-screen__wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* Actors are decorative, drawn with the real sprites and lighting pass. */
+.title-screen__actors {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.title-actor {
+  position: absolute;
+  bottom: var(--actor-lane);
+  left: 0;
+  will-change: transform;
+}
+
+.title-actor--pix {
+  z-index: 2;
+}
+
+.title-actor--gloop {
+  left: 78%;
+  bottom: calc(var(--actor-lane) + 2px);
+  z-index: 1;
+}
+
+.title-screen__content {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3.6vh, 36px);
+  padding: 32px 20px calc(var(--title-ledge) + 56px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.title-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* POP: Press Start 2P with a three-tone face (light top, cream body, muted
+   bottom) and one hard 4px offset shadow. The DropHeading glyphs carry the
+   3a-fix gravity drop. */
+.title-logo {
+  margin: 0;
+  padding: 8px 0 4px;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: clamp(3.75rem, 19vw, 9rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-shadow:
+    0 -4px 0 var(--star),
+    0 4px 0 var(--ink-muted),
+    4px 4px 0 var(--shadow-color);
+}
+
+.title-logo__subtitle {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-heading);
+  font-size: clamp(0.625rem, 1.2vw + 0.4rem, 0.875rem);
+  line-height: 1.6;
+  letter-spacing: 0.16em;
+}
+
+/* Unboxed menu: the pixel cursor is the only marker, and the buttons are real
+   buttons with a 48px target. */
+.title-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.title-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 200px;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 8px;
+  color: var(--ink-muted);
+  background: none;
+  border: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(0.8125rem, 1.4vw, 1rem);
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.title-menu__item:hover,
+.title-menu__item[data-active='true'] {
+  color: var(--accent);
+}
+
+.title-menu__item:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 4px;
+}
+
+/* ">" drawn as nine 4px squares. Only the active item shows it; the blink is a
+   hard on/off at 1 Hz and is skipped for reduced motion. */
+.title-menu__cursor {
+  flex: 0 0 auto;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  box-shadow:
+    0 4px 0 0 currentColor,
+    4px 4px 0 0 currentColor,
+    0 8px 0 0 currentColor,
+    4px 8px 0 0 currentColor,
+    8px 8px 0 0 currentColor,
+    0 12px 0 0 currentColor,
+    4px 12px 0 0 currentColor,
+    0 16px 0 0 currentColor;
+  visibility: hidden;
+}
+
+.title-menu__item[data-active='true'] .title-menu__cursor {
+  visibility: visible;
+}
+
+.title-screen__hint {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.title-screen__hint span {
+  display: block;
+}
+
+/* Stepped content exit during the dissolve. Visibility is binary: no fade. */
+.title-screen__sky.is-cleared,
+.title-screen__ledge.is-cleared,
+.title-logo__subtitle.is-cleared,
+.title-menu.is-cleared,
+.title-screen__hint.is-cleared {
+  visibility: hidden;
+}
+
+/* Starting state: the DOM backdrop hands over to the canvas in the same frame,
+   so the dissolve reveals the live Home scene instead of another title layer. */
+.title-screen.is-starting {
+  background: transparent;
+}
+
+.title-screen.is-starting .title-screen__depth {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .title-screen .stars,
+  .title-screen .star-cross {
+    animation-play-state: running;
+  }
+
+  .title-menu__item[data-active='true'] .title-menu__cursor {
+    animation: title-cursor-blink 1s steps(1, end) infinite;
+  }
+
+  /* Gloop's hop frames run at 8 fps (six frames = 750ms). The lift below holds
+     the same six beat boundaries, in whole pixels, so body and frame stay
+     together. The shadow is a sibling, so it stays on the grass. */
+  .title-actor--gloop .critter__body {
+    animation: title-gloop-hop 750ms steps(1, end) infinite;
+  }
+}
+
+/* Hard holds only: squat, launch, two airborne frames, descend, land. */
+@keyframes title-gloop-hop {
+  0%,
+  16.6% {
+    transform: translateY(0);
+  }
+
+  16.7%,
+  33.3% {
+    transform: translateY(-6px);
+  }
+
+  33.4%,
+  66.6% {
+    transform: translateY(-10px);
+  }
+
+  66.7%,
+  83.3% {
+    transform: translateY(-6px);
+  }
+
+  83.4%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes title-cursor-blink {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .title-screen {
+    --title-ledge: 120px;
+    --title-grass: 72px;
+    --actor-lane: 52px;
+  }
+
+  .title-logo {
+    font-size: clamp(3.25rem, 20vw, 4.5rem);
+  }
+
+  .title-screen__content {
+    gap: 18px;
+    padding: 24px 16px calc(var(--title-ledge) + 44px);
+  }
+
+  .title-logo__subtitle {
+    letter-spacing: 0.12em;
+  }
+
+  .title-menu__item {
+    min-width: 180px;
+  }
+
+  .title-screen__hint {
+    letter-spacing: 0;
+  }
+}
+
+/* Landscape phones and short windows: keep the whole lockup in view without
+   shrinking body text or the 44px targets. */
+@media (max-height: 620px) {
+  .title-screen {
+    --title-ledge: 112px;
+    --title-grass: 68px;
+    --actor-lane: 48px;
+  }
+
+  .title-logo {
+    font-size: clamp(2.5rem, 12vh, 5rem);
+  }
+
+  .title-screen__content {
+    gap: 12px;
+    padding: 16px 16px calc(var(--title-ledge) + 28px);
+  }
+
+  .title-menu {
+    gap: 4px;
+  }
+
+  .title-menu__item {
+    min-height: 44px;
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import CaveDebris from './components/CaveDebris.jsx'
 import CreatureScene from './components/CreatureScene.jsx'
 import DepthMeter from './components/DepthMeter.jsx'
@@ -8,14 +8,17 @@ import DropHeading from './components/DropHeading.jsx'
 import ParticleField from './components/ParticleField.jsx'
 import PixelButton from './components/PixelButton.jsx'
 import PortraitFrame from './components/PortraitFrame.jsx'
+import TitleScreen from './components/TitleScreen.jsx'
 import Typewriter from './components/Typewriter.jsx'
 import WishStar from './components/WishStar.jsx'
 import useOnScreen from './lib/useOnScreen.js'
 import { usePrefersReducedMotion, useSpriteScale } from './lib/useMotion.js'
 import { useReveal } from './lib/reveal.js'
+import { markTitleSeen, shouldShowTitle } from './lib/title.js'
 import useSceneFx from './lib/sceneFx.js'
 import './App.css'
 import './reveal.css'
+import './title.css'
 
 function revealClasses(base, reveal) {
   const classes = [base]
@@ -131,9 +134,13 @@ function App() {
   const [creaturesPaused, setCreaturesPaused] = useState(false)
   const [pixControl, setPixControl] = useState(false)
   const [motionOverride, setMotionOverride] = useState(false)
+  // Phase 3e-1: resolved during the first render, so the overlay is already in
+  // the first paint. Returning visitors and #hash deep links never see it.
+  const [titleOpen, setTitleOpen] = useState(() => shouldShowTitle())
   const systemReducedMotion = usePrefersReducedMotion()
   const reducedMotion = systemReducedMotion && !motionOverride
   const spriteScale = useSpriteScale()
+  const restoreFocusRef = useRef(false)
 
   const appRef = useRef(null)
   const homeRef = useRef(null)
@@ -144,7 +151,7 @@ function App() {
   const projectsOnScreen = useOnScreen(projectsRef)
   const aboutOnScreen = useOnScreen(aboutRef)
   const contactOnScreen = useOnScreen(contactRef)
-  const homeReveal = useReveal(homeRef)
+  const homeReveal = useReveal(homeRef, !titleOpen)
   const projectsReveal = useReveal(projectsRef)
   const aboutReveal = useReveal(aboutRef)
   const contactReveal = useReveal(contactRef)
@@ -213,6 +220,34 @@ function App() {
     if (next) setPixControl(false)
   }
 
+  // Phase 3e-1: leaving the title records the session, removes the overlay and
+  // hands focus back to the Home heading (or the first Home focusable if the
+  // heading is missing).
+  const closeTitle = useCallback(() => {
+    markTitleSeen()
+    restoreFocusRef.current = true
+    setTitleOpen(false)
+  }, [])
+
+  useEffect(() => {
+    if (titleOpen || !restoreFocusRef.current) return
+    restoreFocusRef.current = false
+
+    const heading = document.getElementById('home-title')
+    const target = heading || document.querySelector('#home .brand')
+    if (!target) return
+
+    if (heading) heading.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
+    if (heading) {
+      heading.addEventListener(
+        'blur',
+        () => heading.removeAttribute('tabindex'),
+        { once: true },
+      )
+    }
+  }, [titleOpen])
+
   // Phase 3c: the entry beat. One 120ms, two-frame, 2px thump on the page
   // wrapper the first time a seam is crossed. Desktop only and never for the
   // system reduced-motion preference; there is no sound.
@@ -239,11 +274,16 @@ function App() {
 
   return (
     <div className="app" ref={appRef}>
-      <a className="skip-link" href="#main-content">
-        Skip to content
-      </a>
+      <div
+        className="app__page"
+        inert={titleOpen}
+        aria-hidden={titleOpen ? 'true' : undefined}
+      >
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
 
-      <DepthMeter />
+        <DepthMeter />
 
       <main id="main-content">
         <section
@@ -742,6 +782,11 @@ function App() {
           </div>
         </footer>
       </main>
+      </div>
+
+      {titleOpen ? (
+        <TitleScreen scale={spriteScale} onClose={closeTitle} />
+      ) : null}
     </div>
   )
 }

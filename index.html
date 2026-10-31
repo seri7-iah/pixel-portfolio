@@ -9,6 +9,38 @@
       name="description"
       content="An 8-bit adventure portfolio. Placeholder world layout."
     />
+    <!-- Phase 3e-2: resolve the Home theme before the first paint, so a saved
+         Day choice never flashes Night. If this script cannot run, the
+         data-theme="night" above keeps the page in the default Night world. -->
+    <script>
+      ;(function () {
+        var theme = 'night'
+        try {
+          var saved = window.localStorage.getItem('pop:theme')
+          if (saved === 'day' || saved === 'night') theme = saved
+          else if (
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: light)').matches
+          ) {
+            theme = 'day'
+          }
+        } catch (error) {
+          try {
+            if (
+              window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: light)').matches
+            ) {
+              theme = 'day'
+            }
+          } catch (matchError) {
+            theme = 'night'
+          }
+        }
+        document.documentElement.setAttribute('data-theme', theme)
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', theme === 'day' ? '#8fd3ff' : '#0b1026')
+      })()
+    </script>
     <title>POP / Pixel Portfolio</title>
   </head>
   <body>

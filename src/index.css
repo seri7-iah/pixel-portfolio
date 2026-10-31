@@ -28,6 +28,9 @@
   --ink: #f4ecd8;
   --ink-muted: #c7c0b1;
   --line: #5f6aa6;
+  /* Phase 3e-2: the Home sprite rim light. Night keeps the moonlight blue;
+     Day swaps in the sun. Both are existing palette colours. */
+  --sprite-rim: #5f6aa6;
   --accent: #ffb347;
   --accent-hover: #ffc46b;
   --accent-ink: #141a3a;
@@ -70,8 +73,31 @@
 
   /* Shared world props. */
   --wood: #8a5a3b;
+  --wood-light: #a06b47;
+  --wood-lit: #91603f;
   --wood-dark: #5a3a24;
+  --wood-carve: #3e2a1b;
   --wood-ink: #f4ecd8;
+  --sign-tile: #14110f;
+  /* Phase 3l: the Celestial Gate. One shared palette for the Home portrait
+     frame and the signpost, so the two read as a single piece. These tokens
+     are not overridden by the Day theme: the gate stays night-toned. */
+  --gate-indigo: #171137;
+  --gate-indigo-deep: #0d0924;
+  --gate-violet: #4b2f8c;
+  --gate-violet-deep: #33205f;
+  --gate-lavender: #b9a3ff;
+  --gate-gold: #f2d68a;
+  --gate-gold-deep: #a9843a;
+  --gate-star: #f7f1df;
+  --gate-edge: #070512;
+  --gate-halo: #9b86e0;
+  /* Zone accents for the Home signpost. The scoped cave/ember/void sections
+     still own the same values locally; these aliases let the Home signpost
+     light the tablet for the world the visitor is in. */
+  --accent-cave: #5be3d0;
+  --accent-ember: #ff8a2a;
+  --accent-void: #b58cff;
   --crystal-glow: rgba(91, 227, 208, 0.14);
 }
 
@@ -134,6 +160,8 @@
   --ink: #1a1a2e;
   --ink-muted: #44445e;
   --line: #8a5a3b;
+  /* Warm sun top-light for Home sprites in Day. */
+  --sprite-rim: #ffd447;
   --accent: #e0791a;
   --accent-hover: #f08c2e;
   --accent-ink: #1a1a2e;

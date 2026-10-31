@@ -15,6 +15,7 @@ export default function DescendBand({
   lip = null,
   scale = 4,
   reducedMotion = false,
+  theme = 'night',
   onCross,
 }) {
   const bandRef = useRef(null)
@@ -37,6 +38,10 @@ export default function DescendBand({
 
     const context = canvas.getContext('2d')
     if (!context) return undefined
+
+    // Phase 3e-2: the Home band reads --dirt at draw time. A Night/Day switch
+    // restarts this effect and forces the current level to repaint.
+    if (theme === 'day' || theme === 'night') levelRef.current = -1
 
     const measure = () => {
       const rect = band.getBoundingClientRect()
@@ -172,7 +177,7 @@ export default function DescendBand({
       if (frameRef.current) window.cancelAnimationFrame(frameRef.current)
       frameRef.current = 0
     }
-  }, [from, to, upper, lower, lip, scale, reducedMotion])
+  }, [from, to, upper, lower, lip, scale, reducedMotion, theme])
 
   return (
     <div

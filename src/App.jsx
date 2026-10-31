@@ -5,16 +5,26 @@ import DepthMeter from './components/DepthMeter.jsx'
 import DescendBand from './components/DescendBand.jsx'
 import DialogueBox from './components/DialogueBox.jsx'
 import DropHeading from './components/DropHeading.jsx'
+import GatePixel from './components/GatePixel.jsx'
 import ParticleField from './components/ParticleField.jsx'
 import PixelButton from './components/PixelButton.jsx'
 import PortraitFrame from './components/PortraitFrame.jsx'
+import ThemeWipe from './components/ThemeWipe.jsx'
 import TitleScreen from './components/TitleScreen.jsx'
 import Typewriter from './components/Typewriter.jsx'
 import WishStar from './components/WishStar.jsx'
+import { GATE_ICONS, SPIRE, STAR4, STAR4_ALT, CRESCENT_SM_HALO } from './lib/gateArt.js'
 import useOnScreen from './lib/useOnScreen.js'
 import { usePrefersReducedMotion, useSpriteScale } from './lib/useMotion.js'
 import { useReveal } from './lib/reveal.js'
 import { markTitleSeen, shouldShowTitle } from './lib/title.js'
+import {
+  announceTheme,
+  applyTheme,
+  currentTheme,
+  readHomePalette,
+  saveTheme,
+} from './lib/theme.js'
 import useSceneFx from './lib/sceneFx.js'
 import './App.css'
 import './reveal.css'
@@ -28,11 +38,36 @@ function revealClasses(base, reveal) {
 }
 
 const navItems = [
-  { id: 'home', label: 'Home', side: 'left' },
-  { id: 'projects', label: 'Projects', side: 'right' },
-  { id: 'about', label: 'About', side: 'left' },
-  { id: 'contact', label: 'Contact', side: 'right' },
+  { id: 'home', label: 'Home', side: 'left', icon: 'house' },
+  { id: 'projects', label: 'Projects', side: 'right', icon: 'crystal' },
+  { id: 'about', label: 'About', side: 'left', icon: 'flame' },
+  { id: 'contact', label: 'Contact', side: 'right', icon: 'star' },
 ]
+
+// Phase 3l: the signpost uses the same Celestial Gate art as the portrait
+// frame, so both pieces read as one original set. Every grid is drawn as hard
+// cells by GatePixel, and the tints come from the shared gate tokens.
+const ICON_PALETTE = {
+  '#': 'var(--sign-accent)',
+  o: 'var(--gate-star)',
+}
+const CROWN_MOON_PALETTE = {
+  '#': 'var(--gate-gold)',
+  o: 'var(--gate-star)',
+  h: 'var(--gate-halo)',
+}
+const CROWN_STAR_PALETTE = {
+  '#': 'var(--gate-star)',
+}
+const SPIRE_PALETTE = {
+  v: 'var(--gate-violet)',
+  i: 'var(--gate-indigo)',
+  o: 'var(--gate-gold)',
+}
+const MARKER_PALETTE = {
+  '#': 'var(--gate-gold)',
+  o: 'var(--gate-star)',
+}
 
 const projects = [
   { id: '01', name: 'Project 01', tag: 'Crystal cache', art: 'crystal' },
@@ -83,27 +118,69 @@ const descentBands = [
   },
 ]
 
-function Signpost({ revealIndex = 0 }) {
+function Signpost({ revealIndex = 0, activeZone = 'home' }) {
   return (
     <nav
       className="signpost rv-wipe"
       aria-label="World areas"
       style={{ '--rv-i': revealIndex }}
     >
-      <span className="signpost__pole" aria-hidden="true" />
+      <span className="signpost__crown" aria-hidden="true">
+        <GatePixel
+          className="signpost__crown-moon"
+          rows={CRESCENT_SM_HALO}
+          palette={CROWN_MOON_PALETTE}
+        />
+        <GatePixel
+          className="signpost__crown-star"
+          rows={STAR4}
+          palette={CROWN_STAR_PALETTE}
+        />
+      </span>
+      <span className="signpost__spire" aria-hidden="true">
+        <GatePixel rows={SPIRE} palette={SPIRE_PALETTE} />
+      </span>
       <ol className="signpost__list">
-        {navItems.map((item) => (
-          <li
-            key={item.id}
-            className={`signpost__item signpost__item--${item.side}`}
-          >
-            <a className="signpost__link" href={`#${item.id}`}>
-              {item.label}
-            </a>
-          </li>
-        ))}
+        {navItems.map((item) => {
+          const active = item.id === activeZone
+          return (
+            <li
+              key={item.id}
+              className={`signpost__item signpost__item--${item.side}`}
+            >
+              <a
+                className={`signpost__link signpost__link--${item.id}${
+                  active ? ' is-active' : ''
+                }`}
+                href={`#${item.id}`}
+                data-zone={item.id}
+                aria-current={active ? 'location' : undefined}
+              >
+                <GatePixel
+                  className="signpost__icon"
+                  rows={GATE_ICONS[item.icon]}
+                  palette={ICON_PALETTE}
+                />
+                <span className="signpost__label">{item.label}</span>
+              </a>
+              {active ? (
+                <span className="signpost__marker" aria-hidden="true">
+                  <GatePixel
+                    className="signpost__marker-star signpost__marker-star--a"
+                    rows={STAR4}
+                    palette={MARKER_PALETTE}
+                  />
+                  <GatePixel
+                    className="signpost__marker-star signpost__marker-star--b"
+                    rows={STAR4_ALT}
+                    palette={MARKER_PALETTE}
+                  />
+                </span>
+              ) : null}
+            </li>
+          )
+        })}
       </ol>
-      <span className="signpost__base" aria-hidden="true" />
     </nav>
   )
 }
@@ -137,6 +214,14 @@ function App() {
   // Phase 3e-1: resolved during the first render, so the overlay is already in
   // the first paint. Returning visitors and #hash deep links never see it.
   const [titleOpen, setTitleOpen] = useState(() => shouldShowTitle())
+  // Phase 3e-2: the inline script in index.html already resolved the theme, so
+  // this reads the document instead of storage and can never disagree with the
+  // first paint. The wipe is a Home-only 600ms Bayer dissolve.
+  const [theme, setTheme] = useState(() => currentTheme())
+  const [themeWipe, setThemeWipe] = useState(null)
+  // Phase 3j: the Home signpost lights the plank for the world the depth gauge
+  // already reads. No extra scroll listener is added.
+  const [activeZone, setActiveZone] = useState('home')
   const systemReducedMotion = usePrefersReducedMotion()
   const reducedMotion = systemReducedMotion && !motionOverride
   const spriteScale = useSpriteScale()
@@ -220,6 +305,39 @@ function App() {
     if (next) setPixControl(false)
   }
 
+  // Phase 3e-2: the document attribute flips only after the wipe has painted
+  // the outgoing palette, so the switch never shows a half-applied frame.
+  const commitTheme = useCallback(() => {
+    applyTheme(theme)
+    announceTheme()
+  }, [theme])
+
+  const finishThemeWipe = useCallback(() => setThemeWipe(null), [])
+
+  const toggleTheme = () => {
+    if (themeWipe) return
+
+    const next = theme === 'day' ? 'night' : 'day'
+    saveTheme(next)
+    setTheme(next)
+
+    if (systemReducedMotion) {
+      applyTheme(next)
+      announceTheme()
+      return
+    }
+
+    const from = readHomePalette()
+    if (from) setThemeWipe({ from })
+    else {
+      applyTheme(next)
+      announceTheme()
+    }
+  }
+
+  // If reduced motion is turned on mid-switch, ThemeWipe closes at once; the
+  // check lives in its ticker so this component never sets state in an effect.
+
   // Phase 3e-1: leaving the title records the session, removes the overlay and
   // hands focus back to the Home heading (or the first Home focusable if the
   // heading is missing).
@@ -272,6 +390,17 @@ function App() {
     return () => app.removeEventListener('animationend', onAnimationEnd)
   }, [])
 
+  // Phase 3j: pause the new CSS idle loops while the tab is hidden. The shared
+  // rAF ticker already stops itself for the glasses and particles.
+  useEffect(() => {
+    const app = appRef.current
+    if (!app) return undefined
+    const sync = () => app.classList.toggle('is-tab-hidden', document.hidden)
+    sync()
+    document.addEventListener('visibilitychange', sync)
+    return () => document.removeEventListener('visibilitychange', sync)
+  }, [])
+
   return (
     <div className="app" ref={appRef}>
       <div
@@ -283,7 +412,7 @@ function App() {
           Skip to content
         </a>
 
-        <DepthMeter />
+        <DepthMeter onWorldChange={setActiveZone} />
 
       <main id="main-content">
         <section
@@ -292,6 +421,14 @@ function App() {
           className={homeSceneClass}
           aria-labelledby="home-title"
         >
+          <ParticleField
+            kind={theme === 'day' ? 'pollen' : null}
+            scale={spriteScale}
+            active={
+              theme === 'day' && homeOnScreen && !fxPaused && !fxReduced
+            }
+          />
+
           <div className="sky sky--home" aria-hidden="true" data-parallax="48">
             <span className="sky-horizon" />
             <span className="stars stars--one" />
@@ -302,6 +439,10 @@ function App() {
             <span className="star-cross star-cross--two" />
             <span className="shooting-star" />
             <span className="moon" />
+            <span className="sun">
+              <span className="sun__rays" />
+              <span className="sun__disc" />
+            </span>
             <span className="cloud cloud--one" />
             <span className="cloud cloud--two" />
             <span className="cloud cloud--three" />
@@ -345,6 +486,22 @@ function App() {
                   <span className="creature-toggle__mark" aria-hidden="true" />
                   Pause creatures
                 </button>
+                <button
+                  type="button"
+                  className="theme-toggle"
+                  aria-pressed={theme === 'day'}
+                  aria-label={
+                    theme === 'day' ? 'Switch to night' : 'Switch to day'
+                  }
+                  onClick={toggleTheme}
+                >
+                  <span
+                    className={`theme-toggle__icon theme-toggle__icon--${
+                      theme === 'day' ? 'moon' : 'sun'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
                 {systemReducedMotion && !motionOverride && !creaturesPaused ? (
                   <p className="motion-note">
                     Creatures are resting because your system has animations off
@@ -374,9 +531,9 @@ function App() {
             </div>
 
             <div className="home__right">
-              <Signpost revealIndex={0} />
+              <Signpost revealIndex={0} activeZone={activeZone} />
               <div className="home__portrait">
-                <PortraitFrame />
+                <PortraitFrame ready={!titleOpen} />
               </div>
             </div>
 
@@ -450,12 +607,23 @@ function App() {
             sectionRevealed={homeReveal.revealed}
             fxReduced={fxReduced}
           />
+
+          {themeWipe ? (
+            <ThemeWipe
+              from={themeWipe.from}
+              scale={spriteScale}
+              reducedMotion={systemReducedMotion}
+              onPainted={commitTheme}
+              onDone={finishThemeWipe}
+            />
+          ) : null}
         </section>
 
         <DescendBand
           {...descentBands[0]}
           scale={spriteScale}
           reducedMotion={fxReduced}
+          theme={theme}
           onCross={handleBandCross}
         />
 

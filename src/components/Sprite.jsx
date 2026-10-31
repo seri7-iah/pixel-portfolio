@@ -33,6 +33,9 @@ export default function Sprite({
   const glowRef = useRef(0)
   const accentRef = useRef(null)
   const [timerFrame, setTimerFrame] = useState(0)
+  // Phase 3e-2: Home's rim light changes with the Night/Day theme. The event
+  // drops the cached accent and re-bakes every lit sprite once per switch.
+  const [themeTick, setThemeTick] = useState(0)
   const controlled = typeof frameIndex === 'number'
 
   const rawIndex = controlled ? frameIndex : playing ? timerFrame : 0
@@ -54,8 +57,19 @@ export default function Sprite({
   const cssWidth = lit ? pixelWidth : cols * scale
   const cssHeight = lit ? pixelHeight : rows * scale
 
-  // Reads the world accent from the existing section tokens: Home uses the
-  // pale moonlight blue (--line), the other worlds use their own --accent.
+  // Reads the world accent from the existing section tokens: Home uses its
+  // sprite rim (moonlight blue at Night, sun yellow at Day), the other worlds
+  // use their own --accent.
+  useEffect(() => {
+    const onTheme = () => {
+      accentRef.current = null
+      setThemeTick((value) => value + 1)
+    }
+
+    window.addEventListener('pop:theme', onTheme)
+    return () => window.removeEventListener('pop:theme', onTheme)
+  }, [])
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -68,8 +82,12 @@ export default function Sprite({
         const scene = canvas.closest('.scene')
         if (scene && typeof window !== 'undefined') {
           const styles = window.getComputedStyle(scene)
-          const name = world === 'home' ? '--line' : '--accent'
-          accentRef.current = (styles.getPropertyValue(name) || '').trim() || null
+          const name = world === 'home' ? '--sprite-rim' : '--accent'
+          let accent = (styles.getPropertyValue(name) || '').trim()
+          if (!accent && world === 'home') {
+            accent = (styles.getPropertyValue('--line') || '').trim()
+          }
+          accentRef.current = accent || null
         }
       }
 
@@ -114,7 +132,7 @@ export default function Sprite({
         context.fillRect(x, y, 1, 1)
       }
     }
-  }, [grid, rows, cols, palette, scale, lit, light, world, emissive, pulse])
+  }, [grid, rows, cols, palette, scale, lit, light, world, emissive, pulse, themeTick])
 
   // Emissive pulse: swaps two pre-baked glow tones every 500ms. Paused
   // creatures and reduced motion fall back to the static first tone.

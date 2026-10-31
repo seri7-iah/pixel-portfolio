@@ -43,6 +43,16 @@ const KINDS = {
     vy: [-4, 4],
     alpha: [0.35, 0.85],
   },
+  // Phase 3e-2: Day at Home swaps the night fireflies for pale pollen drifting
+  // up through the sunlit grass. Same field, same 60/30 caps.
+  pollen: {
+    count: 26,
+    vars: ['--sun', '--grass-light', '--panel'],
+    fallback: ['#ffd447', '#7fd67a', '#f4ecd8'],
+    vx: [-5, 5],
+    vy: [-12, -3],
+    alpha: [0.3, 0.7],
+  },
 }
 
 function randomBetween(min, max) {

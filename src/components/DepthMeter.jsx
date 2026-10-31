@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { usePrefersReducedMotion } from '../lib/useMotion.js'
 import {
   WORLD_NAME_MS,
@@ -68,14 +68,22 @@ function jumpTo(id) {
   target.scrollIntoView()
 }
 
-export default function DepthMeter() {
+export default function DepthMeter({ onWorldChange }) {
   const stripRef = useRef(null)
   const segmentsRef = useRef(null)
   const markerRef = useRef(null)
   const readoutRef = useRef(null)
   const announceRef = useRef(null)
   const worldRef = useRef(0)
+  const onWorldChangeRef = useRef(onWorldChange)
   const reducedMotion = usePrefersReducedMotion()
+
+  // Phase 3j: the signpost reuses this gauge's existing world reading instead
+  // of adding a second scroll listener. The callback lives in a ref so the
+  // scroll effect never restarts when App re-renders.
+  useEffect(() => {
+    onWorldChangeRef.current = onWorldChange
+  }, [onWorldChange])
 
   useLayoutEffect(() => {
     const strip = stripRef.current
@@ -174,6 +182,8 @@ export default function DepthMeter() {
           world = index
           worldRef.current = world
           showWorld(world, now)
+          const notify = onWorldChangeRef.current
+          if (notify) notify(WORLDS[world].id)
         } else {
           paintDepth(now)
         }

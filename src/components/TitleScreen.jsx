@@ -374,6 +374,7 @@ export default function TitleScreen({ scale = 4, onClose }) {
     <div
       ref={rootRef}
       className={`title-screen scene is-revealed${starting ? ' is-starting' : ''}`}
+      data-theme="night"
       role="dialog"
       aria-modal="true"
       aria-label="Welcome. Press start to enter the portfolio"

@@ -59,70 +59,233 @@
 
 /* Portrait picture frame -------------------------------------------------- */
 
+/* Phase 3l: every Celestial Gate grid is drawn by this one SVG renderer, so a
+   single rule keeps the cells hard and square at any size. */
+.gate-pixel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+/* Phase 3k-A: sunglasses placement. These three variables are the only knobs:
+   --shades-x  horizontal centre of the sprite, % of the photo width
+   --shades-y  vertical centre of the sprite, % of the photo height
+   --shades-w  width of the sprite (and of the lens pair), % of the photo width
+   Add ?tune=1 to the URL for the live tuner. The single 32-cell front view is
+   centred on --shades-x, so the lenses stay over the eyes. The eye line on
+   profile.jpg sits at ~44% of the photo height, so 45% puts the top rim just
+   under the eyebrows and the eyes in the upper-middle of the lenses. The outer
+   corners of the eyes span ~28% of the photo width, so 46% leaves about a 10%
+   margin on each side. */
+.portrait__frame {
+  --shades-x: 49%;
+  --shades-y: 45%;
+  --shades-w: 46%;
+}
+
 .portrait {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding-top: calc(var(--px-16) + var(--px-2));
+  padding-top: 48px;
 }
 
-.portrait__post {
+/* Phase 3l: the gate hangs from a small pixel crescent above it. Two dotted
+   star lines fall from that crescent to the frame, and the signpost spire ends
+   on the same crescent, so the frame and the signpost read as one piece. */
+.portrait__rig {
   position: absolute;
   top: 0;
   left: 50%;
-  z-index: 0;
-  width: var(--px-4);
-  height: calc(var(--px-16) + var(--px-2) + var(--px-6));
-  background: var(--wood-dark);
-  box-shadow:
-    inset var(--px) 0 0 var(--wood),
-    var(--px) 0 0 0 var(--shadow-soft);
+  width: 100%;
+  height: 48px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.portrait__anchor {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 28px;
+  height: 28px;
   transform: translateX(-50%);
 }
 
-.portrait__post::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: calc(var(--px) * -2);
-  width: var(--px-8);
-  height: var(--px-2);
-  background: var(--wood);
+.portrait__anchor-moon {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-.portrait__frame {
+.portrait__hangline {
+  position: absolute;
+  top: var(--px-4);
+  bottom: 0;
+  width: var(--px);
+  background: none;
+  box-shadow:
+    0 0 0 0 var(--gate-lavender),
+    0 var(--px-2) 0 0 var(--gate-lavender),
+    0 var(--px-4) 0 0 var(--gate-lavender),
+    0 var(--px-6) 0 0 var(--gate-lavender);
+}
+
+.portrait__hangline--left {
+  left: 25%;
+}
+
+.portrait__hangline--right {
+  right: 25%;
+}
+
+.portrait__hang {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 260px;
-  margin: 0;
-  background: var(--wood);
-  border: var(--px-2) solid var(--wood);
-  box-shadow:
-    var(--px) var(--px) 0 0 var(--shadow-color),
-    var(--px-2) var(--px-2) 0 0 var(--shadow-color),
-    var(--px-3) var(--px-3) 0 0 var(--shadow-soft);
+  max-width: 320px;
 }
 
-.portrait__nail {
+/* Phase 3l: the Celestial Gate frame. Three indigo tones, one pale-gold trim
+   ring and a dark inner edge, all drawn with hard box-shadow steps. No blur,
+   no gradient, no glow filter: every edge is a whole pixel. */
+.portrait__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: var(--px-3);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: var(--gate-indigo);
+  border: 0;
+  cursor: pointer;
+  appearance: none;
+  box-shadow:
+    inset 0 0 0 var(--px) var(--gate-gold-deep),
+    inset var(--px) var(--px) 0 0 var(--gate-violet),
+    inset calc(var(--px) * -1) calc(var(--px) * -1) 0 0 var(--gate-indigo-deep),
+    var(--px) var(--px) 0 0 var(--gate-edge);
+}
+
+/* Everything decorative sits in one non-interactive layer over the frame. */
+.portrait__gate {
   position: absolute;
-  top: calc(var(--px) * -1);
-  left: 50%;
+  inset: 0;
   z-index: 2;
-  width: var(--px-2);
-  height: var(--px-2);
-  background: var(--shadow-color);
+  pointer-events: none;
+}
+
+/* Crown crescent with a small star each side. The halo grid is 32px tall and
+   starts 20px above the frame, so its lowest row stops on the frame band and
+   never reaches the photo. */
+.portrait__crest {
+  position: absolute;
+  top: calc(var(--px) * -5);
+  left: 50%;
+  width: 32px;
+  height: 32px;
   transform: translateX(-50%);
 }
 
+.portrait__crest-moon {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.portrait__crest-star {
+  position: absolute;
+  top: calc(var(--px) * -1);
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.portrait__crest-star--left {
+  left: -22px;
+}
+
+.portrait__crest-star--right {
+  right: -22px;
+}
+
+/* Four plus stars pinned on the frame corners. A 20px box offset by 8px keeps
+   the inner edge exactly on the window border at both breakpoints. */
+.portrait__corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.portrait__corner--tl {
+  top: calc(var(--px) * -2);
+  left: calc(var(--px) * -2);
+}
+
+.portrait__corner--tr {
+  top: calc(var(--px) * -2);
+  right: calc(var(--px) * -2);
+}
+
+.portrait__corner--bl {
+  bottom: calc(var(--px) * -2);
+  left: calc(var(--px) * -2);
+}
+
+.portrait__corner--br {
+  right: calc(var(--px) * -2);
+  bottom: calc(var(--px) * -2);
+}
+
+/* A dotted constellation runs down each side. Two stacked grids swap with a
+   hard visibility step to twinkle the stars, and the strip stays four cells
+   wide so it can never sit on the photograph. */
+.portrait__constellation {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 112px;
+  margin-top: -56px;
+}
+
+.portrait__constellation--left {
+  left: calc(var(--px) * -1);
+}
+
+.portrait__constellation--right {
+  right: calc(var(--px) * -1);
+}
+
+.portrait__constellation-a,
+.portrait__constellation-b {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.portrait__constellation-b {
+  visibility: hidden;
+}
+
+/* The photograph window keeps its exact 4px inner edge and aspect ratio, so
+   the sunglasses variables and the placement tuner stay valid. */
 .portrait__window {
   position: relative;
+  display: block;
   overflow: hidden;
   aspect-ratio: 3 / 4;
-  background: var(--bg-alt);
-  border: var(--px) solid var(--wood-dark);
+  background: var(--gate-indigo-deep);
+  border: var(--px) solid var(--gate-edge);
+  box-shadow: inset 0 0 0 var(--px) var(--gate-violet-deep);
 }
 
 .portrait__image {
@@ -131,6 +294,217 @@
   height: 100%;
   object-fit: cover;
   image-rendering: auto;
+}
+
+/* Phase 3i/3k-A: a separate decorative layer over the untouched photo. The
+   sprite is inline SVG, so the squares stay hard at any frame size. There is
+   one straight-on 32-cell view, centred on --shades-x. */
+.portrait__shades {
+  --shades-black: #050816;
+  --shades-white: #f4ecd8;
+  position: absolute;
+  top: var(--shades-y);
+  left: var(--shades-x);
+  z-index: 2;
+  display: block;
+  width: var(--shades-w);
+  max-width: 100%;
+  aspect-ratio: 32 / 6;
+  visibility: hidden;
+  image-rendering: pixelated;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.portrait__shades__move {
+  display: block;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.portrait__shades__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+/* Phase 3l: hover/focus lifts the whole gate one hard step and shows the pixel
+   arrow cursor. The lift is vertical so the crown stays aligned with the
+   crescent it hangs from. */
+.portrait__frame:hover,
+.portrait__frame:focus-visible {
+  transform: translate3d(0, calc(var(--px) * -0.5), 0);
+}
+
+.portrait__cursor {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--px) * -6);
+  z-index: 4;
+  width: var(--px-2);
+  height: var(--px-4);
+  background: var(--gate-gold);
+  clip-path: polygon(
+    0 0,
+    100% 40%,
+    62% 50%,
+    100% 60%,
+    0 100%,
+    30% 50%
+  );
+  visibility: hidden;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.portrait__hang:hover .portrait__cursor,
+.portrait__hang:focus-within .portrait__cursor {
+  visibility: visible;
+}
+
+/* Idle corner sparkles, in the gate's star white. */
+.portrait__spark {
+  position: absolute;
+  z-index: 4;
+  width: var(--px);
+  height: var(--px);
+  background: var(--gate-star);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.portrait__spark--tl {
+  top: calc(var(--px) * -4);
+  left: calc(var(--px) * -4);
+}
+
+.portrait__spark--tr {
+  top: calc(var(--px) * -4);
+  right: calc(var(--px) * -4);
+}
+
+.portrait__spark--bl {
+  bottom: calc(var(--px) * -4);
+  left: calc(var(--px) * -4);
+}
+
+.portrait__spark--br {
+  right: calc(var(--px) * -4);
+  bottom: calc(var(--px) * -4);
+}
+
+/* Two tiny planets travel the frame perimeter on hard steps. They stay on or
+   just outside the band, so they read as orbiting the gate without ever
+   covering the photo. */
+.portrait__orbit {
+  position: absolute;
+  top: calc(var(--px) * -4);
+  left: 76%;
+  z-index: 3;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.portrait__orbit--two {
+  top: 62%;
+  left: calc(var(--px) * -5);
+  width: 16px;
+  height: 16px;
+}
+
+.portrait__planet {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The particle layer is clipped to the frame plus 16px, so sparkles can leave
+   the wood but can never reach the title, signpost or dialogue box. */
+.portrait__fx {
+  position: absolute;
+  inset: calc(var(--px) * -4);
+  z-index: 3;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.portrait__particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 2px;
+  height: 2px;
+  visibility: hidden;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Phase 3j placement tuner. Only rendered when the URL has ?tune=1. */
+.shade-tuner {
+  position: fixed;
+  bottom: var(--px-4);
+  left: var(--px-4);
+  z-index: 90;
+  display: grid;
+  gap: var(--px-2);
+  width: 232px;
+  padding: var(--px-3);
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--px) solid var(--wood);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.shade-tuner__title {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 0.625rem;
+  line-height: 1.4;
+}
+
+.shade-tuner__row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--px-2);
+}
+
+.shade-tuner__row input {
+  width: 100%;
+  min-height: 32px;
+  padding: var(--px) var(--px-2);
+  color: var(--ink);
+  background: var(--bg-alt);
+  border: 2px solid var(--line);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.shade-tuner__readout {
+  display: block;
+  padding: var(--px-2);
+  color: var(--ink-muted);
+  background: var(--bg-alt);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait__shades__glint {
+    display: none;
+  }
 }
 
 .portrait__placeholder {
@@ -183,6 +557,197 @@
   line-height: 1.5;
   letter-spacing: 0.02em;
   text-align: center;
+}
+
+/* Hard-step idle life. Everything is suppressed for reduced motion and while
+   the tab is hidden; nothing here uses a fade or a smooth transition. */
+@media (prefers-reduced-motion: no-preference) {
+  .scene--home.is-live .portrait__hang {
+    animation: portrait-sway 6s steps(1, end) infinite;
+  }
+
+  /* Both side constellations twinkle: the two grids trade visibility on a hard
+     step, and the opposite edges use different delays so they never sync. */
+  .scene--home.is-live .portrait__constellation-a {
+    animation: portrait-star-a 3.9s steps(1, end) infinite;
+  }
+
+  .scene--home.is-live .portrait__constellation-b {
+    animation: portrait-star-b 3.9s steps(1, end) infinite;
+  }
+
+  .scene--home.is-live .portrait__constellation--right .portrait__constellation-a {
+    animation-delay: -1.7s;
+  }
+
+  .scene--home.is-live .portrait__constellation--right .portrait__constellation-b {
+    animation-delay: -1.7s;
+  }
+
+  .scene--home.is-live .portrait__orbit--one {
+    animation: portrait-orbit-one 12s steps(1, end) infinite;
+  }
+
+  .scene--home.is-live .portrait__orbit--two {
+    animation: portrait-orbit-two 8s steps(1, end) infinite;
+    animation-delay: -2.5s;
+  }
+
+  .scene--home.is-live .portrait__spark--tl {
+    animation: portrait-spark 4.3s steps(1, end) infinite;
+  }
+
+  .scene--home.is-live .portrait__spark--tr {
+    animation: portrait-spark 5.3s steps(1, end) infinite;
+    animation-delay: -1.1s;
+  }
+
+  .scene--home.is-live .portrait__spark--bl {
+    animation: portrait-spark 6.7s steps(1, end) infinite;
+    animation-delay: -2.3s;
+  }
+
+  .scene--home.is-live .portrait__spark--br {
+    animation: portrait-spark 7.9s steps(1, end) infinite;
+    animation-delay: -3.7s;
+  }
+
+  .portrait__hang:hover .portrait__cursor,
+  .portrait__hang:focus-within .portrait__cursor {
+    animation: portrait-cursor 1s steps(1, end) infinite;
+  }
+}
+
+.app.is-tab-hidden .portrait * {
+  animation-play-state: paused !important;
+}
+
+@keyframes portrait-sway {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+  10%,
+  18% {
+    transform: translateX(2px);
+  }
+  20%,
+  40% {
+    transform: translateX(0);
+  }
+  42%,
+  50% {
+    transform: translateX(-2px);
+  }
+  52%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes portrait-spark {
+  0%,
+  3% {
+    visibility: visible;
+  }
+  3.1%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+/* The constellation swaps: plus stars for the first half, cross stars for the
+   second half, so the stars look like they flash on a hard step. */
+@keyframes portrait-star-a {
+  0%,
+  56% {
+    visibility: visible;
+  }
+  56.1%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes portrait-star-b {
+  0%,
+  56% {
+    visibility: hidden;
+  }
+  56.1%,
+  100% {
+    visibility: visible;
+  }
+}
+
+/* Perimeter walk. Every stop is a whole-cell jump around the frame edge. */
+@keyframes portrait-orbit-one {
+  0% {
+    left: 76%;
+    top: calc(var(--px) * -4);
+  }
+  25% {
+    left: 100%;
+    top: 20%;
+  }
+  37.5% {
+    left: 100%;
+    top: 74%;
+  }
+  50% {
+    left: 68%;
+    top: 100%;
+  }
+  62.5% {
+    left: calc(var(--px) * -3);
+    top: 96%;
+  }
+  75% {
+    left: calc(var(--px) * -5);
+    top: 52%;
+  }
+  87.5% {
+    left: 24%;
+    top: calc(var(--px) * -4);
+  }
+  100% {
+    left: 76%;
+    top: calc(var(--px) * -4);
+  }
+}
+
+@keyframes portrait-orbit-two {
+  0% {
+    left: calc(var(--px) * -5);
+    top: 58%;
+  }
+  25% {
+    left: 22%;
+    top: calc(var(--px) * -4);
+  }
+  50% {
+    left: 100%;
+    top: 30%;
+  }
+  75% {
+    left: 54%;
+    top: 100%;
+  }
+  100% {
+    left: calc(var(--px) * -5);
+    top: 58%;
+  }
+}
+
+@keyframes portrait-cursor {
+  0%,
+  49% {
+    visibility: visible;
+  }
+  50%,
+  100% {
+    visibility: hidden;
+  }
 }
 
 /* Unboxed action link ---------------------------------------------------- */
@@ -552,6 +1117,94 @@
   box-shadow: inset 0 0 0 var(--px) var(--ink-muted);
 }
 
+/* Phase 3e-2: Night/Day toggle ------------------------------------------ */
+
+/* A 44px pixel button with the sun (Night, action = switch to day) or the moon
+   (Day, action = switch to night). The icon is a 5x5 grid of 4px squares drawn
+   with box-shadow, so there is no emoji, icon font or image. Hover is one hard
+   4px step: no transition anywhere. */
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--px) solid var(--line);
+  box-shadow: var(--px) var(--px) 0 0 var(--shadow-color);
+  cursor: pointer;
+  appearance: none;
+}
+
+.theme-toggle:hover .theme-toggle__icon {
+  transform: translateY(var(--px-n));
+}
+
+.theme-toggle__icon {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.theme-toggle__icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--px);
+  height: var(--px);
+  background: transparent;
+}
+
+/* Sun: a diamond body with four corner rays. */
+.theme-toggle__icon--sun::before {
+  box-shadow:
+    8px 0 0 0 currentColor,
+    4px 4px 0 0 currentColor,
+    8px 4px 0 0 currentColor,
+    12px 4px 0 0 currentColor,
+    0 8px 0 0 currentColor,
+    4px 8px 0 0 currentColor,
+    8px 8px 0 0 currentColor,
+    12px 8px 0 0 currentColor,
+    16px 8px 0 0 currentColor,
+    4px 12px 0 0 currentColor,
+    8px 12px 0 0 currentColor,
+    12px 12px 0 0 currentColor,
+    8px 16px 0 0 currentColor;
+}
+
+/* Moon: a blocky crescent opening to the right. */
+.theme-toggle__icon--moon::before {
+  box-shadow:
+    4px 0 0 0 currentColor,
+    8px 0 0 0 currentColor,
+    12px 0 0 0 currentColor,
+    0 4px 0 0 currentColor,
+    4px 4px 0 0 currentColor,
+    0 8px 0 0 currentColor,
+    4px 8px 0 0 currentColor,
+    0 12px 0 0 currentColor,
+    4px 12px 0 0 currentColor,
+    4px 16px 0 0 currentColor,
+    8px 16px 0 0 currentColor,
+    12px 16px 0 0 currentColor;
+}
+
+/* Day readout: the gauge floats over all four worlds, so the tiny text sits on
+   a hard Day panel to keep 14.49:1 against any scene behind it. */
+[data-theme='day'] .depth-meter__readout {
+  padding: 2px var(--px);
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: 2px 2px 0 0 var(--shadow-color);
+  text-shadow: none;
+}
+
 /* Reduced-motion note --------------------------------------------------- */
 
 .motion-note {
@@ -594,15 +1247,29 @@
   }
 
   .portrait {
-    padding-top: var(--px-12);
+    padding-top: 40px;
   }
 
-  .portrait__post {
-    height: calc(var(--px-12) + var(--px-6));
+  .portrait__rig {
+    height: 40px;
+  }
+
+  /* The phone frame has less band to work with, so the hanging crescent tucks
+     up into the stack gap and the crown drops to sit fully inside the band. */
+  .portrait__anchor {
+    top: calc(var(--px) * -2);
+  }
+
+  .portrait__hang {
+    max-width: 200px;
   }
 
   .portrait__frame {
-    max-width: 160px;
+    padding: var(--px-2);
+  }
+
+  .portrait__crest {
+    top: calc(var(--px) * -6);
   }
 }
 

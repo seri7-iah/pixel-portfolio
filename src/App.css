@@ -429,7 +429,7 @@ main {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 288px;
+  grid-template-columns: minmax(0, 1fr) 336px;
   grid-template-areas:
     'header right'
     'title right'
@@ -516,7 +516,9 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--px-6);
+  /* No gap: the portrait's crossbar sits directly under the signpost base, so
+     the frame reads as hanging from the post. */
+  gap: 0;
   width: 100%;
   padding-top: calc(var(--px-16) + var(--px-6));
 }
@@ -539,7 +541,7 @@ main {
   align-self: center;
   justify-self: center;
   width: 100%;
-  max-width: 260px;
+  max-width: 320px;
 }
 
 .home__dialogue {
@@ -548,37 +550,78 @@ main {
   max-width: 560px;
 }
 
-/* Wooden signpost navigation --------------------------------------------- */
+/* Celestial Gate signpost navigation --------------------------------------- */
 
 .signpost {
   position: relative;
   grid-area: signpost;
   justify-self: end;
   width: 100%;
-  max-width: 288px;
-  min-height: 200px;
+  max-width: 320px;
+  padding-bottom: var(--px-4);
   align-self: start;
 }
 
-.signpost__pole {
+/* Crown: a small gold crescent and a star at the top of the spire. */
+.signpost__crown {
   position: absolute;
   top: 0;
-  bottom: var(--px-4);
   left: 50%;
-  width: var(--px-4);
-  background: var(--wood-dark);
-  box-shadow: inset var(--px) 0 0 var(--wood);
+  z-index: 2;
+  width: 28px;
+  height: 28px;
   transform: translateX(-50%);
+  pointer-events: none;
 }
 
-.signpost__base {
+.signpost__crown-moon {
+  position: absolute;
+  inset: 0;
+}
+
+.signpost__crown-star {
+  position: absolute;
+  top: calc(var(--px) * -1);
+  right: -20px;
+  width: var(--px-5);
+  height: var(--px-5);
+}
+
+/* The spire is a chain of pixel diamonds. It runs from under the crown to the
+   bottom of the nav, where its gold socket meets the portrait's hanging
+   crescent. Shorter layouts crop the repeating tail rather than stretching
+   the cells, so the diamonds stay square. */
+.signpost__spire {
+  position: absolute;
+  top: var(--px-6);
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  width: var(--px-4);
+  overflow: hidden;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.signpost__spire .gate-pixel {
+  height: 288px;
+}
+
+/* Gold socket at the foot of the spire. */
+.signpost::after {
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
-  width: var(--px-16);
-  height: var(--px-4);
-  background: var(--wood-dark);
+  z-index: 1;
+  width: var(--px-5);
+  height: var(--px-2);
+  background: var(--gate-gold);
+  box-shadow:
+    inset 0 calc(var(--px) * -1) 0 0 var(--gate-gold-deep),
+    var(--px) var(--px) 0 0 var(--gate-edge);
   transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .signpost__list {
@@ -587,11 +630,12 @@ main {
   display: grid;
   gap: var(--px-2);
   margin: 0;
-  padding: 0;
+  padding: var(--px-12) 0 0;
   list-style: none;
 }
 
 .signpost__item {
+  position: relative;
   display: flex;
 }
 
@@ -603,18 +647,52 @@ main {
   margin-left: auto;
 }
 
+/* Floating star-tablets: three indigo tones, a pale-gold trim and a notched
+   star point on the outer end. Labels keep the bold body font. */
 .signpost__link {
-  --sign-board: var(--wood);
-  --sign-shadow: var(--wood-dark);
+  --sign-board: var(--gate-indigo);
+  --sign-hi: var(--gate-violet);
+  --sign-lo: var(--gate-indigo-deep);
+  --sign-trim: var(--gate-gold-deep);
+  --sign-ink: var(--gate-lavender);
+  --sign-ring: transparent;
+  --sign-accent: var(--accent);
+  --sign-tip: polygon(
+    0 0,
+    25% 0,
+    25% 8%,
+    50% 8%,
+    50% 20%,
+    75% 20%,
+    75% 40%,
+    100% 40%,
+    100% 60%,
+    75% 60%,
+    75% 80%,
+    50% 80%,
+    50% 92%,
+    25% 92%,
+    25% 100%,
+    0 100%
+  );
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
+  gap: var(--px-2);
   width: calc(50% - var(--px-2));
-  min-height: var(--px-10);
+  min-height: 56px;
   padding: var(--px-2) var(--px-4);
-  color: var(--wood-ink);
+  color: var(--sign-ink);
   background: var(--sign-board);
-  box-shadow: inset 0 calc(var(--px) * -2) 0 0 var(--sign-shadow);
+  border: 0;
+  box-shadow:
+    0 0 0 var(--px) var(--sign-ring),
+    inset 0 0 0 var(--px) var(--sign-trim),
+    inset var(--px-2) var(--px-2) 0 0 var(--sign-hi),
+    inset calc(var(--px) * -2) calc(var(--px) * -2) 0 0 var(--sign-lo),
+    var(--px) var(--px) 0 0 var(--gate-edge);
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.2;
@@ -622,8 +700,25 @@ main {
   text-decoration: none;
 }
 
+.signpost__link--home {
+  --sign-accent: var(--accent);
+}
+
+.signpost__link--projects {
+  --sign-accent: var(--accent-cave);
+}
+
+.signpost__link--about {
+  --sign-accent: var(--accent-ember);
+}
+
+.signpost__link--contact {
+  --sign-accent: var(--accent-void);
+}
+
 .signpost__item--left .signpost__link {
-  justify-content: flex-end;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
   padding-right: var(--px-3);
   padding-left: var(--px-6);
   text-align: right;
@@ -635,6 +730,8 @@ main {
   padding-left: var(--px-3);
 }
 
+/* The stepped star point and its hard offset shadow. */
+.signpost__link::before,
 .signpost__link::after {
   content: '';
   position: absolute;
@@ -642,24 +739,25 @@ main {
   width: var(--px-4);
   height: 100%;
   background: var(--sign-board);
-  clip-path: polygon(
-    0 0,
-    50% 0,
-    50% 20%,
-    75% 20%,
-    75% 40%,
-    100% 40%,
-    100% 60%,
-    75% 60%,
-    75% 80%,
-    50% 80%,
-    50% 100%,
-    0 100%
-  );
+  clip-path: var(--sign-tip);
+}
+
+.signpost__link::before {
+  z-index: -1;
+  background: var(--gate-edge);
+}
+
+.signpost__link::after {
+  z-index: 0;
 }
 
 .signpost__item--right .signpost__link::after {
   right: calc(var(--px) * -4);
+}
+
+.signpost__item--right .signpost__link::before {
+  right: calc(var(--px) * -5);
+  top: var(--px);
 }
 
 .signpost__item--left .signpost__link::after {
@@ -667,14 +765,177 @@ main {
   transform: scaleX(-1);
 }
 
-.signpost__link:hover {
-  --sign-board: var(--wood-dark);
-  --sign-shadow: var(--wood);
-  color: var(--wood-ink);
+.signpost__item--left .signpost__link::before {
+  left: calc(var(--px) * -5);
+  top: var(--px);
+  transform: scaleX(-1);
+}
+
+.signpost__icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  flex: 0 0 auto;
+  width: var(--px-4);
+  height: var(--px-4);
+  color: var(--sign-accent);
+}
+
+.signpost__label {
+  position: relative;
+  z-index: 1;
+}
+
+/* The current world's tablet is lit: a brighter body, full gold trim, a hard
+   halo and a star marker on the spire. */
+.signpost__link.is-active {
+  --sign-board: var(--gate-violet);
+  --sign-hi: var(--gate-lavender);
+  --sign-lo: var(--gate-violet-deep);
+  --sign-trim: var(--gate-gold);
+  --sign-ink: var(--gate-star);
+  --sign-ring: var(--gate-halo);
+}
+
+.signpost__marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: var(--px-5);
+  height: var(--px-5);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.signpost__marker-star {
+  position: absolute;
+  inset: 0;
+}
+
+.signpost__marker-star--b {
+  visibility: hidden;
+}
+
+/* Hover and focus raise the tablet a step and switch on the lavender halo. */
+.signpost__link:not(.is-active):hover,
+.signpost__link:not(.is-active):focus-visible {
+  --sign-board: var(--gate-violet-deep);
+  --sign-hi: var(--gate-violet);
+  --sign-trim: var(--gate-gold);
+  --sign-ink: var(--gate-star);
+  --sign-ring: var(--gate-lavender);
+}
+
+.signpost__link.is-active:hover,
+.signpost__link.is-active:focus-visible {
+  --sign-ring: var(--gate-lavender);
 }
 
 .signpost__link:focus-visible {
   z-index: 2;
+  outline: var(--px) solid var(--focus);
+  outline-offset: var(--px);
+}
+
+.signpost__item--right .signpost__link:active,
+.signpost__item--left .signpost__link:active {
+  animation: none;
+  transform: translateY(1px);
+}
+
+/* Hard-step idle life: each tablet bobs on its own clock, a hover is a single
+   2px hop, and the active marker flashes between a plus and a cross. All of
+   it is off for reduced motion and while the tab is hidden. */
+@media (prefers-reduced-motion: no-preference) {
+  .scene--home.is-live .signpost__link {
+    animation: sign-bob var(--sign-bob-duration, 6.4s) steps(1, end)
+      var(--sign-bob-delay, 0s) infinite;
+  }
+
+  .scene--home.is-live .signpost__item:nth-child(2) {
+    --sign-bob-duration: 7.7s;
+    --sign-bob-delay: -1.9s;
+  }
+
+  .scene--home.is-live .signpost__item:nth-child(3) {
+    --sign-bob-duration: 5.3s;
+    --sign-bob-delay: -0.7s;
+  }
+
+  .scene--home.is-live .signpost__item:nth-child(4) {
+    --sign-bob-duration: 6.9s;
+    --sign-bob-delay: -3.1s;
+  }
+
+  .scene--home.is-live .signpost__link:hover,
+  .scene--home.is-live .signpost__link:focus-visible {
+    animation: sign-hop 220ms steps(1, end) 1;
+  }
+
+  .scene--home.is-live .signpost__marker-star--a {
+    animation: sign-star-a 1.9s steps(1, end) infinite;
+  }
+
+  .scene--home.is-live .signpost__marker-star--b {
+    animation: sign-star-b 1.9s steps(1, end) infinite;
+  }
+}
+
+.app.is-tab-hidden .signpost * {
+  animation-play-state: paused !important;
+}
+
+@keyframes sign-bob {
+  0%,
+  22% {
+    transform: translateY(0);
+  }
+  22.1%,
+  44% {
+    transform: translateY(-2px);
+  }
+  44.1%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sign-hop {
+  0%,
+  20% {
+    transform: translateY(0);
+  }
+  20.1%,
+  60% {
+    transform: translateY(-2px);
+  }
+  60.1%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sign-star-a {
+  0%,
+  49% {
+    visibility: visible;
+  }
+  49.1%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes sign-star-b {
+  0%,
+  49% {
+    visibility: hidden;
+  }
+  49.1%,
+  100% {
+    visibility: visible;
+  }
 }
 
 /* Home landscape --------------------------------------------------------- */
@@ -3818,7 +4079,16 @@ main {
   }
 
   .signpost {
-    max-width: 256px;
+    max-width: 280px;
+  }
+
+  .signpost__link {
+    min-height: 48px;
+    padding-block: var(--px);
+  }
+
+  .home__portrait {
+    max-width: 200px;
   }
 
   .home__note {
@@ -3974,5 +4244,172 @@ main {
     100% {
       transform: translateY(0);
     }
+  }
+}
+
+/* Phase 3e-2: Home Night/Day --------------------------------------------- */
+
+/* The pixel sun replaces the moon in Day. A 48px blocky disc with four 4px
+   rays and a hard 4px offset shadow; no glow, no blur, no gradient. */
+.sun {
+  position: absolute;
+  top: var(--px-4);
+  right: var(--px-4);
+  display: none;
+  width: var(--px-16);
+  height: var(--px-16);
+}
+
+[data-theme='day'] .scene--home .sun {
+  display: block;
+}
+
+.sun__disc,
+.sun::after {
+  position: absolute;
+  top: var(--px-2);
+  left: var(--px-2);
+  width: var(--px-12);
+  height: var(--px-12);
+  clip-path: polygon(
+    25% 0,
+    75% 0,
+    75% 8.333%,
+    91.667% 8.333%,
+    91.667% 25%,
+    100% 25%,
+    100% 75%,
+    91.667% 75%,
+    91.667% 91.667%,
+    75% 91.667%,
+    75% 100%,
+    25% 100%,
+    25% 91.667%,
+    8.333% 91.667%,
+    8.333% 75%,
+    0 75%,
+    0 25%,
+    8.333% 25%,
+    8.333% 8.333%,
+    25% 8.333%
+  );
+}
+
+.sun::after {
+  content: '';
+  top: var(--px-3);
+  left: var(--px-3);
+  background: var(--shadow-color);
+  z-index: 0;
+}
+
+.sun__disc {
+  background: var(--sun);
+  z-index: 1;
+}
+
+.sun__rays {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  z-index: 2;
+  width: var(--px);
+  height: var(--px);
+  background: var(--sun);
+  box-shadow:
+    0 60px 0 0 var(--sun),
+    -30px 30px 0 0 var(--sun),
+    30px 30px 0 0 var(--sun);
+}
+
+/* Day at Home: stars, the moon and the fireflies are hidden; the sun and the
+   already-drifted pixel clouds carry the sky. Only Home is affected. */
+[data-theme='day'] .scene--home .stars,
+[data-theme='day'] .scene--home .cycle-stars,
+[data-theme='day'] .scene--home .star-cross,
+[data-theme='day'] .scene--home .shooting-star,
+[data-theme='day'] .scene--home .moon,
+[data-theme='day'] .scene--home .wish-layer,
+[data-theme='day'] .scene--home .fireflies {
+  display: none;
+}
+
+/* Day text: the accent token is a decorative orange (1.87:1 on the Day sky),
+   so Home text uses the darker Day link token instead. Every ratio is in
+   NOTES.md; the lowest is 4.78:1. */
+[data-theme='day'] .scene--home .area-kicker,
+[data-theme='day'] .scene--home .pixel-button,
+[data-theme='day'] .scene--home .motion-note__action {
+  color: var(--link);
+}
+
+[data-theme='day'] .scene--home .pixel-button:hover,
+[data-theme='day'] .scene--home .pixel-button:active,
+[data-theme='day'] .scene--home .motion-note__action:hover {
+  color: var(--link-hover);
+}
+
+/* Decorative marks use the same darker Day link token so they do not sit at
+   1.87:1 against the bright sky. The pressed pause mark keeps its ink ring. */
+[data-theme='day'] .scene--home .brand__mark,
+[data-theme='day']
+  .scene--home
+  .creature-toggle:not([aria-pressed='true'])
+  .creature-toggle__mark {
+  background: var(--link);
+}
+
+/* The 600ms Bayer switch covers Home's sky, hills and ground while the outgoing
+   palette dissolves into the new one. It sits above the scenery but below the
+   copy and creatures, so the header, text and Pix stay visible and keep moving
+   for the whole switch. The canvas cannot catch pointer events. */
+.theme-wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Home-only stacking for the switch: scenery (1) < wipe (2) < creatures (3) <
+   copy (4). Other worlds keep their original stacking. */
+.scene--home .creatures {
+  z-index: 3;
+}
+
+.scene--home .home {
+  z-index: 4;
+}
+
+.theme-wipe__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .sun {
+    top: var(--px-2);
+    right: 6%;
+    transform: scale(0.75);
+    transform-origin: top right;
+  }
+}
+
+@media (max-width: 600px) {
+  .sun {
+    right: var(--px-4);
+  }
+}
+
+/* Below the wide layout the depth readout is fixed in the top-right corner.
+   Drop the Day sun under it so the gauge never covers the pixel disc. */
+@media (max-width: 1319px) {
+  [data-theme='day'] .scene--home .sun {
+    top: var(--px-8);
   }
 }

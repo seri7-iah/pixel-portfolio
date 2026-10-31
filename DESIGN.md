@@ -39,6 +39,16 @@ The page is one scroll, not four pages. Each section is its own world with its o
 - Text/background contrast at least 4.5:1 in every palette. Ember and Void are dark palettes, so the ink stays warm cream and accent colors never sit on same-value glow.
 - Night and Day are the same Home scene with swapped colors (a sun/moon toggle button). The initial theme follows `prefers-color-scheme`.
 
+## Celestial Gate (Home frame and signpost)
+The portrait frame and the Home signpost are one original set, built from hard 4px pixel art in a shared night palette. No wood, grain, nails, moss, chains or lanterns, and no stone/ore textures.
+
+- **Palette** (root tokens, not swapped by Day): indigo `#171137`, deep indigo `#0d0924`, violet `#4b2f8c`, deep violet `#33205f`, lavender `#b9a3ff`, pale gold `#f2d68a`, deep gold `#a9843a`, star white `#f7f1df`, inner edge `#070512`, halo `#9b86e0`.
+- **Art pipeline:** every grid lives in `src/lib/gateArt.js` and is rendered by `src/components/GatePixel.jsx` as one SVG `rect` per cell with `shape-rendering: crispEdges`, so the squares stay hard at any size. All gate art is decorative (`aria-hidden`).
+- **Frame:** three indigo tones with a 4px pale-gold trim ring and a dark inner edge. A crescent crown with a star on each side sits above the window, a plus star fills each corner, a dotted constellation twinkles down each side, and two tiny planets hop around the perimeter in whole-pixel steps. A small crescent above the frame anchors two dotted star lines.
+- **Signpost:** a slim spire of stacked pixel diamonds (violet/indigo with gold studs) under a crescent and star, with four floating star-tablets that keep the staggered left/right layout. Each tablet has a three-tone body, gold trim and a notched star point. Icons stay tinted per world: Home gold, Projects teal, About ember, Contact violet. The active tablet is lit (brighter body, full gold trim, hard 4px halo, twinkling plus/cross star marker).
+- **Connection:** on the wide two-column layout the signpost spire ends on the frame's hanging crescent. The narrower layout puts the title between them, so the two pieces stack instead of joining.
+- **Motion:** every gate animation uses `steps(1, end)`. Idle tablets bob on separate clocks and hover/focus is a single 2px hop plus a lavender halo. Reduced motion shows one still frame, and "Pause creatures" or a hidden tab stops all gate motion.
+
 ## Characters (all original)
 Original characters only. Never use Minecraft/Mojang characters, skins, mobs or lookalikes. Take only the general blocky 8-bit style. Each zone has a fixed cast and creatures stay inside their own section. Emberwing is the one sky exception, but it still lives only in Contact.
 
